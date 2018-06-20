@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".AddItemActivity">
+
+	<android.support.design.widget.AppBarLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:theme="@style/AppTheme.AppBarOverlay">
+
+		<android.support.design.widget.CollapsingToolbarLayout
+			android:id="@+id/collapsing_toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:contentScrim="?attr/colorPrimary"
+			app:layout_scrollFlags="scroll|exitUntilCollapsed"
+			app:titleEnabled="false">
+
+			<android.support.constraint.ConstraintLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				app:layout_collapseMode="parallax"
+				app:layout_collapseParallaxMultiplier="0.4">
+
+				<ImageView
+					android:id="@+id/itemImageView"
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:scaleType="centerCrop"
+					android:src="@drawable/ic_launcher_background"
+					app:layout_constraintDimensionRatio="H,16:9"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent"/>
+			</android.support.constraint.ConstraintLayout>
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+				<ImageButton
+					android:id="@+id/selectImageButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentBottom="true"
+					android:layout_alignParentEnd="true"
+					android:layout_gravity="center"
+					android:layout_marginTop="?attr/actionBarSize"
+					android:background="@android:color/transparent"
+					android:foreground="?selectableItemBackgroundBorderless"
+					android:padding="16dp"
+					android:src="@drawable/ic_insert_photo_white_24dp"/>
+			</RelativeLayout>
+
+			<android.support.v7.widget.Toolbar
+				android:id="@+id/toolbar"
+				android:layout_width="match_parent"
+				android:layout_height="?attr/actionBarSize"
+				android:elevation="5dp"
+				app:layout_collapseMode="pin"
+				app:popupTheme="@style/AppTheme.PopupOverlay"/>
+		</android.support.design.widget.CollapsingToolbarLayout>
+
+
+	</android.support.design.widget.AppBarLayout>
+
+	<include layout="@layout/content_add_item"/>
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/fabConfirmAddItem"
+		android:layout_width="56dp"
+		android:layout_height="56dp"
+		android:layout_gravity="center_horizontal|bottom"
+		android:layout_margin="@dimen/fab_margin"
+		android:backgroundTint="@color/colorButton"
+		android:scaleType="center"
+		app:srcCompat="@drawable/ic_check_white_24dp"/>
+
+</android.support.design.widget.CoordinatorLayout>

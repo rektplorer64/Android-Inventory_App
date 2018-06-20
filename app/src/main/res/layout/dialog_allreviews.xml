@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:id="@+id/reviewListGroup"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingTop="24dp"
+		android:paddingLeft="24dp"
+		android:paddingRight="24dp">
+
+		<TextView
+			android:id="@+id/titleTextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:text="All Reviews"
+			android:textColor="@android:color/black"
+			android:textSize="20dp"
+			android:textStyle="bold"/>
+
+
+	</LinearLayout>
+
+	<View
+		android:id="@+id/divider1"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_above="@id/allReviewRecycleView"
+		android:layout_marginTop="24dp"
+		android:background="@color/lighter_gray"/>
+
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/allReviewRecycleView"
+		android:layout_width="match_parent"
+		android:layout_height="500dp"
+		android:layout_below="@id/reviewListGroup"/>
+
+	<View
+		android:id="@+id/divider2"
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:layout_above="@id/reviewCloseButton"
+		android:layout_marginTop="24dp"
+		android:background="@color/lighter_gray"/>
+
+	<Button
+		android:id="@+id/reviewCloseButton"
+		style="?android:attr/borderlessButtonStyle"
+		android:layout_width="wrap_content"
+		android:layout_height="36dp"
+		android:layout_alignEnd="@id/allReviewRecycleView"
+		android:layout_below="@id/allReviewRecycleView"
+		android:layout_marginBottom="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginTop="8dp"
+		android:backgroundTint="@android:color/transparent"
+		android:foreground="?attr/selectableItemBackgroundBorderless"
+		android:text="Close"
+		android:textColor="@color/colorPrimary"/>
+</RelativeLayout>

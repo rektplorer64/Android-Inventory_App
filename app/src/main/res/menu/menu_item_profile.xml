@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="tanawinwichitcom.android.inventoryapp.ItemProfileActivity">
+	<item
+		android:id="@+id/action_edit"
+		android:orderInCategory="100"
+		android:title="Edit"
+		app:showAsAction="always"
+		android:icon="@drawable/ic_edit_black_24dp"/>
+
+</menu>

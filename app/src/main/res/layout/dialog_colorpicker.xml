@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:id="@+id/colorSelectionGroup"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:padding="24dp">
+
+		<TextView
+			android:id="@+id/titleTextView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:text="Select a color"
+			android:textColor="@android:color/black"
+			android:textSize="20dp"
+			android:textStyle="bold"/>
+
+		<android.support.v7.widget.RecyclerView
+			android:id="@+id/colorGrid"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:layout_below="@id/titleTextView"/>
+	</LinearLayout>
+
+	<Button
+		android:id="@+id/colorCancelButton"
+		style="?android:attr/borderlessButtonStyle"
+		android:layout_width="wrap_content"
+		android:layout_height="36dp"
+		android:layout_below="@id/colorSelectionGroup"
+		android:layout_marginBottom="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginTop="8dp"
+		android:layout_toLeftOf="@id/colorConfirmButton"
+		android:backgroundTint="@android:color/transparent"
+		android:foreground="?attr/selectableItemBackgroundBorderless"
+		android:text="Cancel"
+		android:textColor="@color/colorPrimary"/>
+
+	<Button
+		android:id="@+id/colorConfirmButton"
+		style="?android:attr/borderlessButtonStyle"
+		android:layout_width="wrap_content"
+		android:layout_height="36dp"
+		android:layout_alignEnd="@id/colorSelectionGroup"
+		android:layout_below="@id/colorSelectionGroup"
+		android:layout_marginBottom="8dp"
+		android:layout_marginRight="8dp"
+		android:layout_marginTop="8dp"
+		android:backgroundTint="@android:color/transparent"
+		android:foreground="?attr/selectableItemBackgroundBorderless"
+		android:text="Confirm"
+		android:textColor="@color/colorPrimary"/>
+</RelativeLayout>

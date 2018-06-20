@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:elevation="2dp"
+	app:cardCornerRadius="4dp">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<include
+			android:id="@+id/giveRatingLayout"
+			layout="@layout/rating_give"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="16dp">
+
+			<TextView
+				android:id="@+id/scoreTextView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="8dp"
+				android:textColor="@android:color/black"
+				android:textSize="32dp"
+				tools:text="4.5"/>
+
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:orientation="vertical">
+
+				<RatingBar
+					android:id="@+id/ratingBarView2"
+					style="@style/Base.Widget.AppCompat.RatingBar.Small"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:isIndicator="true"/>
+
+				<LinearLayout
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:orientation="horizontal">
+
+					<TextView
+						android:id="@+id/totalReviewTextView"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						tools:text="121,151"/>
+
+					<ImageView
+						android:id="@+id/userIconImageView"
+						android:layout_width="16dp"
+						android:layout_height="16dp"
+						android:layout_marginStart="4dp"
+						android:src="@drawable/ic_person_black_24dp"
+						android:layout_gravity="center_vertical"/>
+
+				</LinearLayout>
+
+			</LinearLayout>
+
+			<android.support.v7.widget.CardView
+				android:layout_height="match_parent"
+				android:layout_width="fill_parent"
+				android:layout_marginStart="8dp"
+				android:elevation="5dp"
+				android:foreground="?selectableItemBackgroundBorderless"
+				app:cardCornerRadius="5dp">
+
+				<LinearLayout
+					android:id="@+id/ratingRatioGroup"
+					android:layout_width="fill_parent"
+					android:layout_height="match_parent"
+					android:orientation="horizontal"
+					android:weightSum="100">
+
+					<View
+						android:id="@+id/fiveStarRec"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="20"
+						android:background="#178908"
+						android:visibility="visible"/>
+
+					<View
+						android:id="@+id/fourStarRec"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="20"
+						android:background="#1b9c0a"
+						android:visibility="visible"/>
+
+					<View
+						android:id="@+id/threeStarRec"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="20"
+						android:background="#1eac0c"
+						android:visibility="visible"/>
+
+					<View
+						android:id="@+id/twoStarRec"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="20"
+						android:background="#20b90c"
+						android:visibility="visible"/>
+
+					<View
+						android:id="@+id/oneStarRec"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="20"
+						android:background="#28cc13"
+						android:visibility="visible"/>
+				</LinearLayout>
+			</android.support.v7.widget.CardView>
+
+
+		</LinearLayout>
+
+		<Button
+			android:id="@+id/showAllReviewsButton"
+			style="?android:attr/borderlessButtonStyle"
+			android:layout_width="match_parent"
+			android:layout_height="48dp"
+			android:background="?android:attr/selectableItemBackground"
+			android:backgroundTint="@android:color/transparent"
+			android:foreground="?android:attr/selectableItemBackground"
+			android:text="Show all reviews"
+			android:textColor="#0e5005"/>
+
+	</LinearLayout>
+</android.support.v7.widget.CardView>
