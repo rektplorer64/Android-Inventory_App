@@ -18,7 +18,10 @@ public interface ItemDAO{
     LiveData<List<Item>> getAll();
 
     @Query("SELECT * FROM items WHERE name LIKE :name LIMIT 1")
-    LiveData<Item> findByName(String name);
+    LiveData<Item> getItemByName(String name);
+
+    @Query("SELECT * FROM items WHERE id LIKE :itemId LIMIT 1")
+    LiveData<Item> getItemById(int itemId);
 
     @Insert
     void insertAll(Item... items);

@@ -9,9 +9,12 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -26,6 +29,10 @@ import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Review
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
 
     private List<Item> itemArrayList;
+
+    public static final int FULL_CARD_LAYOUT = 0;
+    public static final int NORMAL_CARD_LAYOUT = 1;
+    public static final int SMALL_CARD_LAYOUT = 2;
 
     /*
      * Private Field for basically a HashMap, but with a better memory efficiency
@@ -60,6 +67,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
             int pxMargin2 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, holder.cardView.getContext().getResources().getDisplayMetrics());
             params.setMargins(pxMargin, pxMargin, pxMargin, pxMargin2);
             holder.cardView.setLayoutParams(params);
+        }else if(position == itemArrayList.size() - 1){
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.cardView.getLayoutParams();
+            int pxMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, holder.cardView.getContext().getResources().getDisplayMetrics());
+            int pxMargin2 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, holder.cardView.getContext().getResources().getDisplayMetrics());
+            params.setMargins(pxMargin, pxMargin2, pxMargin, pxMargin);
+            holder.cardView.setLayoutParams(params);
+        }
+
+        if(item.getImageFile() != null){
+            Glide.with(holder.imageView.getContext()).load(item.getImageFile()).into(holder.imageView);
         }
 
         holder.nameTextView.setText(item.getName());
@@ -108,6 +125,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
         CardView cardView;
         TextView nameTextView, ratingTextView, quantityTextView, descriptionTextView;
         RatingBar ratingBar;
+        ImageView imageView;
 
         ViewHolder(View itemView){
             super(itemView);
@@ -117,6 +135,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>{
             quantityTextView = itemView.findViewById(R.id.quantityTextView);
             descriptionTextView = itemView.findViewById(R.id.shortDescriptionTextView);
             ratingBar = itemView.findViewById(R.id.ratingBarView);
+            imageView = itemView.findViewById(R.id.imageView);
         }
     }
 }

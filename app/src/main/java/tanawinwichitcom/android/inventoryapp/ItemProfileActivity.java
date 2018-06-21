@@ -2,6 +2,7 @@ package tanawinwichitcom.android.inventoryapp;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -70,10 +71,10 @@ public class ItemProfileActivity extends AppCompatActivity{
         ratingRatioGroup.setWeightSum(100f);
 
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
-        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
+        itemViewModel.getItemById(itemId).observe(this, new Observer<Item>(){
             @Override
-            public void onChanged(@Nullable List<Item> items){
-                Item item = items.get(itemId - 1);
+            public void onChanged(@Nullable Item item){
+
                 window.setStatusBarColor(darkenColor(item.getItemColorAccent()));
 
                 int backgroundColor = item.getItemColorAccent();
@@ -241,7 +242,6 @@ public class ItemProfileActivity extends AppCompatActivity{
         // For Five Stars
         result.add((float) fiveStar / reviewArrayList.size() * 100);
 
-
         System.out.println((float) oneStar / reviewArrayList.size());
 
         return result;
@@ -253,6 +253,9 @@ public class ItemProfileActivity extends AppCompatActivity{
         switch(item.getItemId()){
             case R.id.action_edit:{
                 Toast.makeText(this, "Clicked edit button...", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), AddItemActivity.class);
+                intent.putExtra("itemId", getIntent().getExtras().getInt("itemId"));
+                startActivity(intent);
                 return true;
             }
         }

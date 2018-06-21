@@ -46,6 +46,10 @@ public class DataRepository{
         return allUsers;
     }
 
+    public LiveData<Item> getItemById(int itemId){
+        return itemDAO.getItemById(itemId);
+    }
+
     public void insert(Object o){
         new InsertAsyncTask(itemDAO, reviewDAO, userDAO).execute(o);
     }

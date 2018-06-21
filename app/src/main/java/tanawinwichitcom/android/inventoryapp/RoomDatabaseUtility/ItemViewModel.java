@@ -43,6 +43,10 @@ public class ItemViewModel extends AndroidViewModel{
         return allUsers;
     }
 
+    public LiveData<Item> getItemById(int itemId){
+        return dataRepository.getItemById(itemId);
+    }
+
     public void insert(Object o){
         dataRepository.insert(o);
     }
