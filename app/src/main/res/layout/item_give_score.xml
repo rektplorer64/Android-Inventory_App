@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="16dp"
+              android:layout_centerInParent="true">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal"
+		android:text="Rate this item"/>
+
+	<me.zhanghai.android.materialratingbar.MaterialRatingBar
+		android:id="@+id/giveScoreRatingBar"
+		style="@style/Widget.MaterialRatingBar.RatingBar"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:paddingTop="22dp"
+		android:layout_gravity="center_horizontal"
+		android:max="5"
+		android:numStars="5"
+		android:stepSize="0.5"/>
+
+	<Button
+		android:id="@+id/submitReviewButton"
+		android:layout_marginTop="18dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="submit"
+		android:background="?android:attr/selectableItemBackground"
+		android:layout_gravity="bottom|right"/>
+</LinearLayout>

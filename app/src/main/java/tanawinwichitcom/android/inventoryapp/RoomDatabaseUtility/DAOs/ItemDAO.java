@@ -23,6 +23,9 @@ public interface ItemDAO{
     @Query("SELECT * FROM items WHERE id LIKE :itemId LIMIT 1")
     LiveData<Item> getItemById(int itemId);
 
+    @Query("SELECT MIN(id) FROM items")
+    int getMinItemId();
+
     @Insert
     void insertAll(Item... items);
 

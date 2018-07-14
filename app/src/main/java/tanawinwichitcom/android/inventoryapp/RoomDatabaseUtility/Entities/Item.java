@@ -143,13 +143,37 @@ public class Item{
     }
 
     public HashSet<String> getTagsSet(){
-        String[] splitted = this.tags.split(" ");
-        return new HashSet<>(Arrays.asList(splitted));
+        String[] spitted = this.tags.split(" ");
+        return new HashSet<>(Arrays.asList(spitted));
     }
 
     public void addTag(String tag){
         StringBuilder stringBuilder = new StringBuilder(this.tags);
         stringBuilder.append(" ").append(tags);
         this.tags = stringBuilder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(o == null || getClass() != o.getClass()){
+            return false;
+        }
+
+        Item item = (Item) o;
+
+        if(id != item.id){
+            return false;
+        }
+        return dateCreated.equals(item.dateCreated);
+    }
+
+    @Override
+    public int hashCode(){
+        int result = id;
+        result = 31 * result + dateCreated.hashCode();
+        return result;
     }
 }

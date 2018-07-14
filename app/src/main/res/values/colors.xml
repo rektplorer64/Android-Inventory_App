@@ -7,7 +7,7 @@
 	<color name="colorButton">#56a5fa</color>
 
 	<color name="lighter_gray">#ddd</color>
-	<color name="component_bg_gray">#EBEBEB</color>
+	<color name="transparent_gray">#b1252525</color>
 
 	<color name="md_red_400">#ef5350</color>
 	<color name="md_pink_400">#ec407a</color>

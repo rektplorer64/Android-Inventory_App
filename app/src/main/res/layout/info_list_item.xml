@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:foreground="?selectableItemBackgroundBorderless"
+                android:paddingStart="24dp"
+                android:padding="16dp">
+
+	<TextView
+		android:text="Info Entry"
+		android:textSize="12.25dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/infoTopicText"/>
+
+	<LinearLayout
+		android:layout_below="@id/infoTopicText"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+
+		<android.support.v7.widget.AppCompatRatingBar
+			android:id="@+id/infoRatingBar"
+			android:layout_below="@id/infoTopicText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginRight="8dp"
+			style="@style/Base.Widget.AppCompat.RatingBar.Small"
+			android:layout_gravity="center_vertical"/>
+
+		<TextView
+			android:id="@+id/infoValueText"
+			android:layout_toEndOf="@id/infoRatingBar"
+			android:layout_below="@id/infoTopicText"
+			android:textColor="@android:color/black"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Info Value"
+			android:textSize="16dp"
+			android:layout_gravity="center_vertical"/>
+	</LinearLayout>
+
+
+</RelativeLayout>

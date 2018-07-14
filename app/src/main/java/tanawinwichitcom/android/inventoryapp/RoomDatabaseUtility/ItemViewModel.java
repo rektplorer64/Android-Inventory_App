@@ -24,11 +24,16 @@ public class ItemViewModel extends AndroidViewModel{
 
     public ItemViewModel(Application application){
         super(application);
+
         dataRepository = new DataRepository(application);
 
         allItems = dataRepository.getAllItems();
         allReviews = dataRepository.getAllReviews();
         allUsers = dataRepository.getAllUsers();
+    }
+
+    public int getMinItemId(){
+        return dataRepository.getMinItemId();
     }
 
     public LiveData<List<Item>> getAllItems(){
@@ -45,6 +50,10 @@ public class ItemViewModel extends AndroidViewModel{
 
     public LiveData<Item> getItemById(int itemId){
         return dataRepository.getItemById(itemId);
+    }
+
+    public LiveData<List<Review>> getReviewsByItemId(int itemId){
+        return dataRepository.getReviewsByItemId(itemId);
     }
 
     public void insert(Object o){

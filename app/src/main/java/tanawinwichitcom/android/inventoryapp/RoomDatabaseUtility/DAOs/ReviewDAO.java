@@ -17,8 +17,8 @@ public interface ReviewDAO{
     @Query("SELECT * FROM reviews")
     LiveData<List<Review>> getAll();
 
-    @Query("SELECT * FROM reviews WHERE id LIKE :id LIMIT 1")
-    Review findById(int id);
+    @Query("SELECT * FROM reviews WHERE itemId LIKE :id")
+    LiveData<List<Review>> findByItemId(int id);
 
     @Insert
     void insertAll(Review... reviews);

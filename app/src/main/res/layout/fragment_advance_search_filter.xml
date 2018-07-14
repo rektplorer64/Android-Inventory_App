@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="14dp"
+			android:paddingEnd="14dp"
+			android:paddingStart="14dp"
+			android:paddingTop="14dp"
+			android:text="Filters"
+			android:textColor="@color/colorPrimary"
+			android:textSize="12.25sp"
+			android:textStyle="bold"/>
+
+		<!-- Item's Field Filter -->
+		<LinearLayout
+			android:id="@+id/Pref_searchItemBy"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingLeft="14dp"
+			android:paddingRight="14dp"
+			android:foreground="?selectableItemBackgroundBorderless">
+
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_label_black_24dp"
+				android:layout_gravity="center_vertical"
+				android:layout_marginEnd="14dp"/>
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:paddingBottom="14dp"
+				android:paddingTop="14dp">
+
+				<TextView
+					android:id="@+id/searchBy_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Search Items by"
+					android:textColor="@android:color/black"
+					android:textSize="14sp"/>
+
+				<TextView
+					android:id="@+id/searchBy_subtitle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/searchBy_title"
+					android:text="Item Name"
+					android:textSize="12.25sp"/>
+			</RelativeLayout>
+		</LinearLayout>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:background="?android:attr/listDivider"/>
+
+		<!-- Date Created Filter -->
+		<include layout="@layout/search_date_created"/>
+
+		<!-- Date Modified Filter -->
+		<include
+			layout="@layout/search_date_modified"
+			android:layout_marginStart="38dp"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_marginTop="-14dp"/>
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:background="?android:attr/listDivider"/>
+
+		<!-- Contain Image Filter -->
+		<LinearLayout
+			android:id="@+id/Pref_containsImage"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingLeft="14dp"
+			android:paddingRight="14dp"
+			android:foreground="?selectableItemBackgroundBorderless">
+
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_image_black_24dp"
+				android:layout_gravity="center_vertical"
+				android:layout_marginEnd="14dp"/>
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:paddingBottom="14dp"
+				android:paddingTop="14dp">
+
+				<TextView
+					android:id="@+id/containImage_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Contains Image"
+					android:textColor="@android:color/black"
+					android:textSize="14sp"/>
+
+				<TextView
+					android:id="@+id/containImage_subtitle"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/containImage_title"
+					android:text="Fetch only Items with an Image"
+					android:textSize="12.25sp"/>
+
+				<Switch
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_toEndOf="@id/containImage_title"
+					android:layout_alignParentEnd="true"
+					android:layout_centerVertical="true"/>
+			</RelativeLayout>
+		</LinearLayout>
+
+	</LinearLayout>
+</ScrollView>

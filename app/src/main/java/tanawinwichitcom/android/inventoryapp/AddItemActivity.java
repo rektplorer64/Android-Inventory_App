@@ -5,13 +5,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -23,11 +22,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
+import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.bumptech.glide.Glide;
 
 import org.apache.commons.io.FileUtils;
@@ -39,13 +40,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-import tanawinwichitcom.android.inventoryapp.DialogFragments.ColorSelectorDialogFragment;
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.ItemViewModel;
 
-import static tanawinwichitcom.android.inventoryapp.DialogFragments.ColorSelectorDialogFragment.darkenColor;
+import static tanawinwichitcom.android.inventoryapp.ColorUtility.darkenColor;
 
-public class AddItemActivity extends AppCompatActivity implements DialogInterface.OnDismissListener{
+public class AddItemActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback{
+
+    private LinearLayout linearLayoutEdit;
 
     private enum ActionCode{ADD_ITEM, UPDATE_ITEM}
     private int PICK_IMAGE_REQUEST = 1;
@@ -56,22 +58,21 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
 
     private Window window;
     private CollapsingToolbarLayout collapsingToolbarLayout;
+    private RelativeLayout imageHeaderRelativeLayout;
     private FloatingActionButton floatingActionButton;
     private TextInputLayout nameEditWrapper, quantityEditWrapper, descriptionEditWrapper;
     private EditText nameEditText, quantityEditText, descriptionEditText;
-    private Button selectColorButton;
-    private ImageButton circleImageView, selectImageButton;
+    private LinearLayout selectColorButton;
+    private ImageButton circleImageView;
     private Toolbar toolbar;
-    private ImageView itemImageView;
+    private ImageView itemImageView, nameIconImageView, descriptionIconImageView;
 
     static ArrayList<SelectableColor> integerArrayList;
 
     private ItemViewModel itemViewModel;
 
-    final Context mContext = this;
-
     @ColorInt
-    private Integer starterColorInt;
+    private Integer selectedColorInt;
 
     @SuppressLint("ResourceType")
     @Override
@@ -85,18 +86,16 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
         // Persistence data source
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
 
+        // If the bundle is not null, that means it is the edit mode
         isInEditMode = bundle != null;
 
         if(!isInEditMode){
-            starterColorInt = Color.parseColor(getResources().getString(R.color.md_red_400));
-            circleImageView.setBackgroundColor(starterColorInt);
+            selectedColorInt = Color.parseColor(getResources().getString(R.color.md_red_400));
+            circleImageView.setBackgroundColor(selectedColorInt);
 
-            int frontColorInteger = (Color.red(starterColorInt) + Color.green(starterColorInt)
-                    + Color.blue(starterColorInt) >= 383) ? Color.BLACK : Color.WHITE;
-
-            setUpStatusAndToolbar(starterColorInt, frontColorInteger);
-            setupDialogButton(null, this);
-
+            setUpStatusAndToolbar(selectedColorInt);
+            setupDialogButton();
+            setEditTextOnFocus(selectedColorInt);
             floatingActionButton.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
@@ -108,14 +107,12 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
                 @Override
                 public void onChanged(@Nullable final Item item){
                     originalImageFile = item.getImageFile();
-                    starterColorInt = item.getItemColorAccent();
-                    circleImageView.setBackgroundColor(starterColorInt);
-                    int frontColorInteger = (Color.red(starterColorInt) + Color.green(starterColorInt)
-                            + Color.blue(starterColorInt) >= 383) ? Color.BLACK : Color.WHITE;
+                    selectedColorInt = item.getItemColorAccent();
+                    circleImageView.setBackgroundColor(selectedColorInt);
 
-                    setUpStatusAndToolbar(starterColorInt, frontColorInteger);
-                    setupDialogButton(item, getApplicationContext());
-
+                    setUpStatusAndToolbar(selectedColorInt);
+                    setupDialogButton();
+                    setEditTextOnFocus(selectedColorInt);
                     fillTextEditForm(item);
                     floatingActionButton.setOnClickListener(new View.OnClickListener(){
                         @Override
@@ -128,7 +125,7 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
         }
 
         final Activity activity = this;
-        selectImageButton.setOnClickListener(new View.OnClickListener(){
+        imageHeaderRelativeLayout.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 validatePermissionRequests(activity);
@@ -143,17 +140,23 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
 
     }
 
-    private void setupDialogButton(Item item, Context context){
-        setSelectableColor(item, context);
+    private void setupDialogButton(){
         selectColorButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                ColorSelectorDialogFragment colorSelectorDialog = new ColorSelectorDialogFragment();
-                // Send the ArrayList to DialogFragment
-                colorSelectorDialog.putArguments(integerArrayList, circleImageView);
+                // ColorSelectorDialogFragment colorSelectorDialog = new ColorSelectorDialogFragment();
+                // // Send the ArrayList to DialogFragment
+                // colorSelectorDialog.putArguments(integerArrayList, circleImageView);
+                //
+                // // Shows the Dialogs
+                // colorSelectorDialog.show(getSupportFragmentManager(), "Color Selector");
 
-                // Shows the Dialogs
-                colorSelectorDialog.show(getSupportFragmentManager(), "Color Selector");
+                new ColorChooserDialog.Builder(v.getContext(), R.string.color_palette)
+                        .titleSub(R.string.colors)
+                        .preselect(selectedColorInt)
+                        .allowUserColorInputAlpha(false)
+                        .dynamicButtonColor(false)
+                        .show(getSupportFragmentManager());
             }
         });
     }
@@ -161,7 +164,9 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
     private void initializeViews(){
         // Gets the Window in order to change Status Bar's Color
         window = getWindow();
+        linearLayoutEdit = findViewById(R.id.linearLayoutEdit);
         collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
+        imageHeaderRelativeLayout = findViewById(R.id.imageHeaderRelativeLayout);
         floatingActionButton = findViewById(R.id.fabConfirmAddItem);
 
         nameEditText = findViewById(R.id.nameEditText);
@@ -176,68 +181,79 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
         selectColorButton = findViewById(R.id.colorEditButton);
 
         circleImageView = findViewById(R.id.colorCircle);
-        selectImageButton = findViewById(R.id.selectImageButton);
 
         // Setting up the toolbar
         toolbar = findViewById(R.id.toolbar);
 
         itemImageView = findViewById(R.id.itemImageView);
+
+        nameIconImageView = findViewById(R.id.nameIconImageView);
+        descriptionIconImageView = findViewById(R.id.descriptionIconImageView);
+    }
+
+    private void setEditTextOnFocus(@ColorInt final int colorInt){
+        final int darkerColorInt = colorInt;
+        nameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+                if(hasFocus){
+                    nameIconImageView.setColorFilter(darkerColorInt);
+                    nameIconImageView.setPressed(true);
+                }else{
+                    nameIconImageView.setColorFilter(Color.BLACK);
+                    nameIconImageView.setPressed(false);
+                }
+            }
+        });
+        descriptionEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+                if(hasFocus){
+                    descriptionIconImageView.setColorFilter(darkerColorInt);
+                    descriptionIconImageView.setPressed(true);
+                }else{
+                    descriptionIconImageView.setColorFilter(Color.BLACK);
+                    descriptionIconImageView.setPressed(false);
+                }
+            }
+        });
+        linearLayoutEdit.requestFocus();
     }
 
     private void fillTextEditForm(Item item){
         nameEditText.setText(item.getName());
         quantityEditText.setText(String.valueOf(item.getQuantity()));
         descriptionEditText.setText(item.getDescription());
-        Glide.with(this).load(item.getImageFile()).into(itemImageView);
+        if(item.getImageFile() != null){
+            Glide.with(this).load(item.getImageFile()).into(itemImageView);
+        }
     }
 
-    private void setUpStatusAndToolbar(@ColorInt int backColorInt, @ColorInt int frontColorInt){
+    private void setUpStatusAndToolbar(@ColorInt int backColorInt){
         // clear FLAG_TRANSLUCENT_STATUS flag:
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(darkenColor(backColorInt));
 
         setSupportActionBar(toolbar);
         setTitle("Add an item");
-        toolbar.setBackgroundColor(backColorInt);
-        toolbar.setTitleTextColor(frontColorInt);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        toolbar.getNavigationIcon().setTint(frontColorInt);
+
         toolbar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 finish();
             }
         });
-
-        collapsingToolbarLayout.setContentScrimColor(backColorInt);
-    }
-
-    public static int getSelectedColor(Context context){
-        SelectableColor selectedColor = null;
-        for(SelectableColor color : integerArrayList){
-            if(color.getSelected()){
-                selectedColor = color;
-                break;
-            }
-        }
-
-        String colorString;
-        System.out.println("getSelectedColor(); selectedColor = " + selectedColor);
-        if(selectedColor == null){
-            colorString = context.getString(integerArrayList.get(0).getColorId());     /* Gets Hex Color from the first color in the pre-defined ArrayList */
-        }else{
-            colorString = context.getResources().getString(selectedColor.getColorId());     /* Gets Hex Color from given resource id */
-        }
-
-        return Color.parseColor(colorString);      /* Decode Hex String into a Color integer */
+        setSystemBarsColor(backColorInt);
     }
 
     public void takeAction(ActionCode actionCode, ItemViewModel itemViewModel, Item item){
-        Date dateCreated = Calendar.getInstance().getTime();
+        Date currentTime = Calendar.getInstance().getTime();
+
         if(quantityEditText.getText().toString().isEmpty() || nameEditText.getText().toString().isEmpty()
                 || descriptionEditText.getText().toString().isEmpty()){
             if(quantityEditText.getText().toString().isEmpty()){
@@ -249,93 +265,115 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
             if(descriptionEditText.getText().toString().isEmpty()){
                 descriptionEditWrapper.setError("Give it a description or something");
             }
-        }else{
-            String itemName = nameEditText.getText().toString().trim();
-            int quantity = Integer.valueOf(quantityEditText.getText().toString());
-            String description = descriptionEditText.getText().toString().trim();
+            return;
+        }
 
+        String itemName = nameEditText.getText().toString().trim();
+        int quantity = 0;
+        try{
+            quantity = Integer.valueOf(quantityEditText.getText().toString());
+        }catch(NumberFormatException e){
+            quantityEditWrapper.setError("That number is too large.");
+            e.printStackTrace();
+            return;
+        }
+        String description = descriptionEditText.getText().toString().trim();
+
+        String s = null;
+        try{
             if(originalImageFile != null){
-                try{
-                    String s = getSelectedImageUrl(originalImageFile, dateCreated.getTime(), item);
-                    System.out.println(s);
-
-                    File imageFile = new File(s);
-
-                    if(actionCode == ActionCode.ADD_ITEM){
-                        // Stores all fields into a row in the database (Color is stored as a hex value)
-                        System.out.println("Inserting a new item");
-                        itemViewModel.insert(new Item(itemName, quantity, description, getSelectedColor(mContext), "asdasd asdasd", imageFile, dateCreated, null));
-                    }else if(actionCode == ActionCode.UPDATE_ITEM){
-                        System.out.println("Updating a new item");
-
-                        item.setName(itemName);
-                        item.setQuantity(quantity);
-                        item.setDescription(description);
-                        item.setItemColorAccent(getSelectedColor(mContext));
-                        item.setImageFile(imageFile);
-                        item.setDateModified(dateCreated);
-
-                        itemViewModel.update(item);
-                    }
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-            }else{
-                if(actionCode == ActionCode.ADD_ITEM){
-                    // Stores all fields into a row in the database (Color is stored as a hex value)
-                    itemViewModel.insert(new Item(itemName, quantity, description, getSelectedColor(mContext), "asdasd asdasd", null, dateCreated, null));
-                }
+                s = getSelectedImageUrl(originalImageFile, currentTime.getTime(), item);
             }
+        }catch(IOException e){
+            e.printStackTrace();
+        }
 
-            //startActivity(new Intent(mContext, MainActivity.class));
-            finish();
+        File imageFile = null;
+        if(s != null){
+            imageFile = new File(s);
         }
-    }
 
-    public void setSelectableColor(Item item, Context context){
-        // Prepares Color IDs to be ready by converting them into an ArrayList of SelectableColor
-        integerArrayList = new ArrayList<>();
-        for(Integer colorId : predefinedColorsResourceIDs){
-            integerArrayList.add(new SelectableColor(colorId));
+        if(actionCode == ActionCode.ADD_ITEM){
+            itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", imageFile, currentTime, null));
+        }else if(actionCode == ActionCode.UPDATE_ITEM){
+            item.setName(itemName);
+            item.setQuantity(quantity);
+            item.setDescription(description);
+            item.setItemColorAccent(selectedColorInt);
+            item.setImageFile(imageFile);
+            item.setDateModified(currentTime);
+
+            itemViewModel.update(item);
         }
-        if(item == null){
-            integerArrayList.get(0).setSelected(true);
-        }else{
-            for(SelectableColor s : integerArrayList){
-                if(Color.parseColor(context.getString(s.getColorId())) == item.getItemColorAccent()){
-                    s.setSelected(true);
-                    break;
-                }
-            }
-        }
+        // if(originalImageFile != null){
+        //     String s = null;
+        //     try{
+        //         s = getSelectedImageUrl(originalImageFile, currentTime.getTime(), item);
+        //     }catch(IOException e){
+        //         e.printStackTrace();
+        //     }
+        //     File imageFile = new File(s);
+        //     if(actionCode == ActionCode.ADD_ITEM){
+        //         // Stores all fields into a row in the database (Color is stored as a hex value)
+        //         itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", imageFile, currentTime, null));
+        //     }else if(actionCode == ActionCode.UPDATE_ITEM){
+        //         item.setName(itemName);
+        //         item.setQuantity(quantity);
+        //         item.setDescription(description);
+        //         item.setItemColorAccent(selectedColorInt);
+        //         item.setImageFile(imageFile);
+        //         item.setDateModified(currentTime);
+        //
+        //         itemViewModel.update(item);
+        //     }
+        // }else{
+        //     if(actionCode == ActionCode.ADD_ITEM){
+        //         // Stores all fields into a row in the database (Color is stored as a hex value)
+        //         itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", null, currentTime, null));
+        //     }else if(actionCode == ActionCode.UPDATE_ITEM){
+        //
+        //     }
+        // }
+
+        //startActivity(new Intent(mContext, MainActivity.class));
+        finish();
+
     }
 
     /**
      * This method specifies what the activity should do when the DialogFragment is dismissed.
-     *
-     * @param dialog dialog
+     * @param dialog color chooser dialog
+     * @param selectedColorInt color integer
      */
     @Override
-    public void onDismiss(DialogInterface dialog){
-        System.out.println("ConfirmButton Triggered: Changing Color to " + AddItemActivity.getSelectedColor(mContext));
-        int backgroundColor = AddItemActivity.getSelectedColor(mContext);
-        int frontColor = (Color.red(backgroundColor) + Color.green(backgroundColor)
-                + Color.blue(backgroundColor) >= 383) ? Color.BLACK : Color.WHITE;
+    public void onColorSelection(@NonNull ColorChooserDialog dialog, int selectedColorInt){
+        this.selectedColorInt = selectedColorInt;
+        setSystemBarsColor(selectedColorInt);
+        setEditTextOnFocus(selectedColorInt);
+    }
 
-        collapsingToolbarLayout.setContentScrimColor(backgroundColor);
+    @Override
+    public void onColorChooserDismissed(@NonNull ColorChooserDialog dialog){
 
-        // Changes Square Color Icon's color according to the selected color
-        circleImageView.setBackgroundColor(backgroundColor);
+    }
+
+    private void setSystemBarsColor(int selectedColorInt){
+        int frontColorInt = ColorUtility.getSuitableFrontColor(this, selectedColorInt, true);
+        window.setStatusBarColor(darkenColor(selectedColorInt));
+
+        window.setNavigationBarColor(selectedColorInt);
 
         // Changes Toolbar's color according to the selected color
-        toolbar.setBackgroundColor(backgroundColor);
-        toolbar.setTitleTextColor(frontColor);
+        toolbar.setBackgroundColor(selectedColorInt);
+        toolbar.setTitleTextColor(frontColorInt);
+        toolbar.getNavigationIcon().setTint(frontColorInt);
+        collapsingToolbarLayout.setContentScrimColor(selectedColorInt);
 
         // Changes Navigation Icon (Back Arrow Icon)'s color
-        toolbar.getNavigationIcon().setTint(frontColor);
+        toolbar.getNavigationIcon().setTint(frontColorInt);
 
-        // Changes Status bar's color according to the selected color
-        window.setStatusBarColor(darkenColor(backgroundColor));
+        // Changes Square Color Icon's color according to the selected color
+        circleImageView.setBackgroundColor(selectedColorInt);
     }
 
     private void validatePermissionRequests(Activity activity){
@@ -370,7 +408,7 @@ public class AddItemActivity extends AppCompatActivity implements DialogInterfac
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null){
 
-            if(isInEditMode){
+            if(isInEditMode && originalImageFile != null){
                 try{
                     FileUtils.forceDelete(originalImageFile);
                 }catch(IOException e){

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:padding="16dp">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center_horizontal"
+		android:text="Write a short review"/>
+
+	<android.support.design.widget.TextInputLayout
+		android:id="@+id/commentEditWrapper"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:hint="Tell us what you think"
+		android:paddingTop="8dp"
+		app:errorEnabled="true">
+
+		<EditText
+			android:id="@+id/commentEditText"
+			android:layout_width="match_parent"
+			android:layout_height="56dp"
+			android:inputType="text"
+			android:paddingStart="12dp"
+			android:paddingEnd="12dp"
+			android:textColor="@android:color/black"
+			android:textSize="16sp"/>
+	</android.support.design.widget.TextInputLayout>
+
+	<Button
+		android:id="@+id/submitReviewButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="submit"
+		android:background="?android:attr/selectableItemBackground"
+		android:layout_gravity="bottom|right"/>
+</LinearLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".MainActivity">
+
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior"
+		tools:context=".MainActivity"
+		tools:showIn="@layout/fragment_item_list">
+
+		<com.kennyc.view.MultiStateView
+			android:id="@+id/rvMultiViewState"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:msv_errorView="@layout/item_list_error"
+			app:msv_emptyView="@layout/item_list_empty"
+			app:msv_loadingView="@layout/item_list_loading"
+			app:msv_viewState="loading">
+
+			<android.support.v7.widget.RecyclerView
+				android:id="@+id/itemsList"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"/>
+		</com.kennyc.view.MultiStateView>
+
+	</android.support.constraint.ConstraintLayout>
+
+	<android.support.design.widget.FloatingActionButton
+		android:id="@+id/fab"
+		android:layout_width="56dp"
+		android:layout_height="56dp"
+		android:layout_gravity="end|bottom"
+		android:layout_margin="@dimen/fab_margin"
+		android:scaleType="center"
+		app:srcCompat="@drawable/ic_add_white_24dp"/>
+
+</android.support.design.widget.CoordinatorLayout>

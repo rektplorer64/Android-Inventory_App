@@ -176,9 +176,10 @@ public abstract class AppDatabase extends RoomDatabase{
          */
         @Override
         protected Void doInBackground(Void... voids){
-            //populateItems();
+            //Toast.makeText(context, "Populating Database", Toast.LENGTH_SHORT).show();
+            populateItems();
             populateUsers();
-            //populateReviews();
+            populateReviews();
             return null;
         }
     }

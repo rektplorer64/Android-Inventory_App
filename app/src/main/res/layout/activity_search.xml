@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	android:id="@+id/searchActivityLayoutParent"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:orientation="vertical"
+	android:layout_height="match_parent"
+	tools:context=".SearchActivity"
+	android:fitsSystemWindows="true">
+
+	<com.lapism.searchview.widget.SearchView
+		android:id="@+id/searchView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:search_logo="arrow"
+		app:search_hint="Search items"
+		app:search_version="toolbar"/>
+
+	<android.support.v7.widget.CardView
+		android:id="@+id/filterCardView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="7dp"
+		android:layout_marginLeft="7dp"
+		android:layout_marginRight="7dp"
+		app:cardCornerRadius="2dp">
+
+		<FrameLayout
+			android:id="@+id/searchSettingFrame"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+		</FrameLayout>
+	</android.support.v7.widget.CardView>
+
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/resultsRecyclerView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+	</android.support.v7.widget.RecyclerView>
+</LinearLayout>

@@ -12,7 +12,6 @@ public class FileConverter{
 
     @TypeConverter
     public static String fileToUrl(File file){
-        // TODO: Find a way to return a proper file path
         if(file != null){
             return file.getPath();
         }else{

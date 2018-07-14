@@ -5,6 +5,7 @@ import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.DAOs.ItemDAO;
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.DAOs.ReviewDAO;
@@ -34,6 +35,15 @@ public class DataRepository{
         allUsers = userDAO.getAll();
     }
 
+    public int getMinItemId(){
+        try{
+            return new GetMinAsyncTask(itemDAO, reviewDAO, userDAO).execute().get();
+        }catch(InterruptedException | ExecutionException e){
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     public LiveData<List<Item>> getAllItems(){
         return allItems;
     }
@@ -48,6 +58,10 @@ public class DataRepository{
 
     public LiveData<Item> getItemById(int itemId){
         return itemDAO.getItemById(itemId);
+    }
+
+    public LiveData<List<Review>> getReviewsByItemId(int itemId){
+        return reviewDAO.findByItemId(itemId);
     }
 
     public void insert(Object o){
@@ -136,4 +150,24 @@ public class DataRepository{
             return null;
         }
     }
+
+    private static class GetMinAsyncTask extends AsyncTask<Void, Void, Integer>{
+
+        private ItemDAO itemDAO;
+        private ReviewDAO reviewDAO;
+        private UserDAO userDAO;
+
+        public GetMinAsyncTask(ItemDAO itemDAO, ReviewDAO reviewDAO, UserDAO userDAO){
+            this.itemDAO = itemDAO;
+            this.reviewDAO = reviewDAO;
+            this.userDAO = userDAO;
+        }
+
+        @Override
+        protected Integer doInBackground(Void... voids){
+            return itemDAO.getMinItemId();
+        }
+    }
+
+
 }

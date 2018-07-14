@@ -3,17 +3,21 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/nestedScrollView"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	app:behavior_overlapTop="150dp"
+	app:behavior_overlapTop="100dp"
 	app:layout_behavior="@string/appbar_scrolling_view_behavior"
-	tools:context=".ItemProfileActivity"
-	tools:showIn="@layout/activity_profile_item">
+	android:elevation="10dp"
+	tools:context=".ItemProfileContainerActivity"
+	tools:showIn="@layout/fragment_profile_item"
+	android:fillViewport="true">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:orientation="vertical"
+		android:id="@+id/itemProfileLinearLayout">
 
 		<android.support.v7.widget.CardView
 			android:layout_width="match_parent"
@@ -47,41 +51,19 @@
 					android:textColor="@android:color/black"
 					tools:text="QTY 5"/>
 
+				<ImageView
+					android:id="@+id/moreInfoIcon"
+					android:layout_toEndOf="@id/itemTextView"
+					android:layout_width="16dp"
+					android:layout_height="16dp"
+					android:src="@drawable/ic_info_outline_black_24dp"
+					android:foreground="?selectableItemBackgroundBorderless"/>
 				<LinearLayout
 					android:id="@+id/ratingViewGroup"
 					android:layout_height="wrap_content"
 					android:layout_width="match_parent"
 					android:orientation="horizontal"
 					android:layout_below="@id/itemTextView">
-
-					<RatingBar
-						android:id="@+id/ratingBarView"
-						style="@style/Base.Widget.AppCompat.RatingBar.Small"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_below="@id/itemTextView"
-						android:max="5"
-						android:rating="4.5"
-						android:stepSize="0.5"/>
-
-					<TextView
-						android:id="@+id/ratingTextView"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_below="@id/itemTextView"
-						android:layout_marginStart="8dp"
-						android:layout_toEndOf="@id/ratingBarView"
-						android:textSize="12sp"
-						tools:text="4.5 (69)"/>
-
-					<ImageView
-						android:id="@+id/userIconImageView"
-						android:layout_width="16dp"
-						android:layout_height="16dp"
-						android:layout_below="@id/itemTextView"
-						android:layout_marginStart="4dp"
-						android:layout_toEndOf="@id/ratingTextView"
-						android:src="@drawable/ic_person_black_24dp"/>
 				</LinearLayout>
 
 				<TextView

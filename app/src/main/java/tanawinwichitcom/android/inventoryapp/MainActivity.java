@@ -1,29 +1,31 @@
 package tanawinwichitcom.android.inventoryapp;
 
+import android.animation.Animator;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import com.kennyc.view.MultiStateView;
 
 import java.util.List;
 
-import tanawinwichitcom.android.inventoryapp.RecycleViewAdapters.ItemAdapter;
+import tanawinwichitcom.android.inventoryapp.Fragments.CircularRevealFragment;
+import tanawinwichitcom.android.inventoryapp.Fragments.ItemListFragment;
+import tanawinwichitcom.android.inventoryapp.Fragments.ItemProfileFragment;
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Item;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.User;
 import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.ItemViewModel;
 
@@ -31,81 +33,180 @@ public class MainActivity extends AppCompatActivity{
 
     private ItemViewModel itemViewModel;
 
-    private RecyclerView recyclerView;
-    private ItemAdapter itemAdapter;
-    private FloatingActionButton fab;
     private Toolbar toolbar;
+    private MultiStateView itemProfFragMultiState;
 
     // KEY for SHARED_PREFERENCE (ID of the User who currently login)
     public static final String SharedPref_LOGIN_SESSION_DATA = "SharedPref_LOGIN_SESSION_DATA";
     public static final String SharedPrefKey_LOGIN_SESSION_USER_ID = "SharedPrefKey_LOGIN_SESSION_USER_ID";
+
+    private boolean screenIsLargeOrPortrait;
+    private CardView itemListFragmentCard;
+    private FrameLayout itemProfileFragmentFrame;
+    private ItemListFragment itemListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        initializeViews();
+        setUpActionBar();
+        HelperUtilities.expandActionBarToFitStatusBar(toolbar, this);
 
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener(){
+        itemViewModel = new ItemViewModel(getApplication());
+
+        itemListFragment = new ItemListFragment();
+        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             @Override
-            public void onClick(View view){
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                startActivity(new Intent(MainActivity.this, AddItemActivity.class));
+            public void onChanged(@Nullable List<Item> itemList){
+                initialize();
             }
         });
+    }
 
-        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
-
-        recyclerView = findViewById(R.id.itemsList);
-        itemAdapter = new ItemAdapter();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(itemAdapter);
-
-        itemViewModel.getAllItems().observe(MainActivity.this, new Observer<List<Item>>(){
+    private void initialize(){
+        // If the screen size is not considered LARGE and in landscape mode.
+        //boolean isLargeAndLandscape = (getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) != Configuration.SCREENLAYOUT_SIZE_LARGE && getResources().getConfiguration().orientation != ORIENTATION_LANDSCAPE;
+        final CircularRevealFragment itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getMinItemId(), 0, 0);
+        itemProfileFragment.setOnFragmentTouchedListener(new CircularRevealFragment.OnFragmentTouched(){
             @Override
-            public void onChanged(@Nullable List<Item> items){
-                itemAdapter.applyItemDataChanges(items);
-            }
-        });
+            public void onFragmentTouched(Fragment fragment, float x, float y){
+                if(fragment instanceof ItemProfileFragment){
+                    final ItemProfileFragment theFragment = (ItemProfileFragment) fragment;
+                    Animator unreveal = theFragment.prepareUnrevealAnimator(x, y);
+                    unreveal.addListener(new Animator.AnimatorListener(){
+                        @Override
+                        public void onAnimationStart(Animator animation){
+                        }
 
-        itemViewModel.getAllReviews().observe(MainActivity.this, new Observer<List<Review>>(){
-            @Override
-            public void onChanged(@Nullable List<Review> reviews){
-                if(reviews != null){
-                    itemAdapter.applyReviewDataChanges(ItemViewModel.convertReviewListToSparseArray(reviews));
+                        @Override
+                        public void onAnimationEnd(Animator animation){
+                            // remove the fragment only when the animation finishes
+                            getSupportFragmentManager().beginTransaction().remove((Fragment) theFragment).commit();
+                            //to prevent flashing the fragment before removing it, execute pending transactions immediately
+                            getSupportFragmentManager().executePendingTransactions();
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation){
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation){
+                        }
+                    });
+                    unreveal.start();
                 }
             }
         });
 
+        // Note: To fix "commit() already called exception", FragmentTransaction must be instantiate every time it needed to be used in an interface
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+
+        // If the screen is portrait
+
+        if(itemProfileFragmentFrame != null){
+            ((ItemProfileFragment) itemProfileFragment).setItemStatusListener(new ItemProfileFragment.ItemStatusListener(){
+                @Override
+                public void onItemListEmpty(){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+                }
+
+                @Override
+                public void onItemBinding(){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                }
+
+                @Override
+                public void onItemListNotEmpty(){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                }
+            });
+            ((ItemProfileFragment) itemProfileFragment).setItemDeleteListener(new ItemProfileFragment.ItemDeleteListener(){
+                @Override
+                public void onDelete(){
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    System.out.println("Replacing fragment");
+                    fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+                    fragmentTransaction.replace(R.id.itemProfileFragmentFrame, ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getMinItemId(), 0, 0));
+                    fragmentTransaction.commitNow();
+                }
+            });
+            fragmentTransaction.replace(R.id.itemProfileFragmentFrame, itemProfileFragment);
+        }
+
+        fragmentTransaction.commit();
+
+        if(!screenIsLargeOrPortrait){
+            toolbar.post(new Runnable(){
+                @Override
+                public void run(){
+                    System.out.println("toolbar's width " + toolbar.getWidth());
+                    if(toolbar.getWidth() <= 502){
+                        int matchParent = LinearLayout.LayoutParams.MATCH_PARENT;
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent, matchParent);
+
+                        params.weight = 5;
+                        itemListFragmentCard.setLayoutParams(params);
+
+                        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
+                        params1.weight = 10 - params.weight;
+                        itemProfFragMultiState.setLayoutParams(params1);
+                    }
+                }
+            });
+        }
         //loadDatabase(itemViewModel);
     }
 
+    private void initializeViews(){
+        screenIsLargeOrPortrait = HelperUtilities.isScreenLargeOrPortrait(this);
+        toolbar = findViewById(R.id.toolbar);
+        itemListFragmentCard = findViewById(R.id.itemListFragmentCard);
+        itemProfileFragmentFrame = findViewById(R.id.itemProfileFragmentFrame);
+        itemProfFragMultiState = findViewById(R.id.itemProfFragMultiState);
+        //itemListFragMultiState = findViewById(R.id.itemListFragMultiState);
+    }
+
+    private void setUpActionBar(){
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
+    }
+
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
+    public boolean onCreateOptionsMenu(final Menu menu){
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onOptionsItemSelected(MenuItem menuItem){
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if(id == R.id.action_settings){
-            return true;
+        final boolean screenIsLargeOrPortrait = HelperUtilities.isScreenLargeOrPortrait(this);
+
+        switch(menuItem.getItemId()){
+            case android.R.id.home:{
+                if(!screenIsLargeOrPortrait){
+
+                }
+                break;
+            }
+            case R.id.launchSearchButton:{
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+
         }
-
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(menuItem);
     }
 
     public void simulateLoginSession(User user){
@@ -119,5 +220,4 @@ public class MainActivity extends AppCompatActivity{
         String toastMsg = "Logged in as: ID#" + loggedID;
         Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
     }
-
 }
