@@ -64,7 +64,9 @@
 								android:id="@+id/dateCreated_fromTitle"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
-								android:text="From"/>
+								android:text="From"
+								android:textSize="12sp"
+								android:textAllCaps="true"/>
 
 							<TextView
 								android:id="@+id/dateCreated_from"
@@ -74,7 +76,7 @@
 								android:text="7/10/2018"
 								android:textColor="@android:color/black"/>
 
-							<Switch
+							<CheckBox
 								android:id="@+id/dateCreated_fromSwitch"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
@@ -103,7 +105,9 @@
 								android:id="@+id/dateCreated_toTitle"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
-								android:text="To"/>
+								android:text="To"
+								android:textSize="12sp"
+								android:textAllCaps="true"/>
 
 							<TextView
 								android:id="@+id/dateCreated_to"
@@ -113,7 +117,7 @@
 								android:text="7/21/2018"
 								android:textColor="@android:color/black"/>
 
-							<Switch
+							<CheckBox
 								android:id="@+id/dateCreated_toSwitch"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"

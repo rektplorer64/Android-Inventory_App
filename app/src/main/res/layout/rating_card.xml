@@ -6,7 +6,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:elevation="2dp"
-	app:cardCornerRadius="4dp">
+	app:cardCornerRadius="4dp"
+	android:clipChildren="false">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -19,28 +20,57 @@
 
 			<LinearLayout
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:orientation="vertical">
 
-				<TextView
+				<RelativeLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_margin="16dp">
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="Reviews and Rating"
+						android:textColor="@android:color/black"
+						android:layout_centerVertical="true"
+						android:layout_gravity="center_horizontal"/>
+
+					<ImageButton
+						android:id="@+id/reviewOptionImageButton"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:src="@drawable/ic_more_vert_black_24dp"
+						android:layout_alignParentEnd="true"
+						android:layout_centerVertical="true"
+						android:background="?android:attr/selectableItemBackgroundBorderless"/>
+				</RelativeLayout>
+
+				<RelativeLayout
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:text="1515645"
-					android:layout_gravity="center_horizontal"/>
+					android:layout_height="wrap_content">
 
-				<tanawinwichitcom.android.inventoryapp.AutoHeightViewPager
-					android:id="@+id/giveRatingPager"
-					android:layout_height="wrap_content"
-					android:layout_width="match_parent">
-
-					<android.support.design.widget.TabLayout
-						android:id="@+id/tabLayout"
+					<ImageView
 						android:layout_width="match_parent"
-						android:layout_height="10dp"
-						app:tabBackground="@drawable/tab_selector"
-						app:tabGravity="center"
-						app:tabIndicatorHeight="0dp"/>
-				</tanawinwichitcom.android.inventoryapp.AutoHeightViewPager>
+						android:layout_height="110dp"
+						android:layout_gravity="center"
+						android:scaleType="centerCrop"
+						android:src="@color/md_yellow_400"/>
+
+					<ViewSwitcher
+						android:id="@+id/reviewControl"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content">
+
+						<include
+							layout="@layout/item_not_given_score"/>
+
+						<include
+							layout="@layout/item_already_given_score"/>
+
+					</ViewSwitcher>
+				</RelativeLayout>
+
 
 			</LinearLayout>
 
@@ -50,7 +80,8 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:padding="16dp">
+			android:padding="16dp"
+			android:clipChildren="false">
 
 			<TextView
 				android:id="@+id/scoreTextView"
@@ -98,12 +129,17 @@
 			</LinearLayout>
 
 			<android.support.v7.widget.CardView
+				android:id="@+id/scoreRatioCardView"
 				android:layout_height="match_parent"
 				android:layout_width="fill_parent"
 				android:layout_marginStart="8dp"
-				android:elevation="5dp"
+				android:layout_marginBottom="2dp"
+				android:elevation="2dp"
+				android:layout_gravity="center_vertical"
 				android:foreground="?selectableItemBackgroundBorderless"
-				app:cardCornerRadius="5dp">
+				android:background="?selectableItemBackgroundBorderless"
+				app:cardCornerRadius="5dp"
+				android:clipChildren="false">
 
 				<LinearLayout
 					android:id="@+id/ratingRatioGroup"

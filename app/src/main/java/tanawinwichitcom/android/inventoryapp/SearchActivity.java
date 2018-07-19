@@ -1,48 +1,57 @@
 package tanawinwichitcom.android.inventoryapp;
 
 import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
-import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Filter;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.lapism.searchview.Search;
-import com.lapism.searchview.database.SearchHistoryTable;
-import com.lapism.searchview.widget.SearchAdapter;
-import com.lapism.searchview.widget.SearchItem;
+import com.lapism.searchview.widget.SearchView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import tanawinwichitcom.android.inventoryapp.RecyclerViewAdapters.ItemAdapter;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Item;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter;
+import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
-public class SearchActivity extends AppCompatActivity{
+public class SearchActivity extends AppCompatActivity implements SearchPreferenceFragment.SearchPreferenceUpdateListener{
 
+
+    private CharSequence savedQuery;
+    private RelativeLayout searchActivityLayoutParent;
+    private SearchView searchView;
+    private TextView totalSearchTextView;
     private RecyclerView resultsRecyclerView;
-    private CardView filterCardView;
-    private LinearLayout searchActivityLayoutParent;
+    private CardView containerCardView;
+
+    private Filter.FilterListener filterListener;
+
     private ItemAdapter itemAdapter;
-    private com.lapism.searchview.widget.SearchView searchView;
-
-    private ItemViewModel itemViewModel;
-
-    private Context context;
+    private CharSequence queryString;
+    private Fragment searchPreferenceFragment;
 
     @Override
     public void onBackPressed(){
@@ -72,6 +81,7 @@ public class SearchActivity extends AppCompatActivity{
         });
     }
 
+    @TargetApi(Build.VERSION_CODES.N)
     private void animateCircularRevealForActivity(boolean isEnteringAnim, Animator.AnimatorListener animationListener){
         int x = searchActivityLayoutParent.getRight();
         int y = searchActivityLayoutParent.getTop();
@@ -84,29 +94,111 @@ public class SearchActivity extends AppCompatActivity{
             startRadius = (int) Math.hypot(searchActivityLayoutParent.getWidth(), searchActivityLayoutParent.getHeight());
             endRadius = 0;
         }
-        Animator anim = ViewAnimationUtils.createCircularReveal(searchActivityLayoutParent, x, y, startRadius, endRadius);
+        Animator anim = null;
+        if(searchActivityLayoutParent.isAttachedToWindow()){
+            anim = ViewAnimationUtils.createCircularReveal(searchActivityLayoutParent, x, y, startRadius, endRadius);
+        }
 
-        if(!isEnteringAnim){
+        if(anim != null && !isEnteringAnim){
             anim.addListener(animationListener);
         }
 
         searchActivityLayoutParent.setVisibility(View.VISIBLE);
-        anim.start();
+        if(anim != null){
+            anim.start();
+        }
+    }
+
+    private void initiateViews(){
+        Window window = getWindow();
+        // Gets the Window in order to change Status Bar's Color
+        // // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+
+        window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+
+        searchActivityLayoutParent = findViewById(R.id.searchActivityLayoutParent);
+
+        searchView = findViewById(R.id.searchView);
+        searchView.setOnLogoClickListener(new Search.OnLogoClickListener(){
+            @Override
+            public void onLogoClick(){
+                searchView.close();
+                onBackPressed();
+            }
+        });
+
+        searchView.clearFocus();
+        searchView.close();
+        searchView.setAdapter(null);
+        searchView.clearAnimation();
+        searchView.setShadow(false);
+
+        totalSearchTextView = findViewById(R.id.totalSearchTextView);
+        filterListener = new Filter.FilterListener(){
+            @Override
+            public void onFilterComplete(int count){
+                totalSearchTextView.setText(new StringBuilder().append("Total Search Result: ").append(count).toString());
+            }
+        };
+
+        resultsRecyclerView = findViewById(R.id.resultsRecyclerView);
+
+        itemAdapter = new ItemAdapter(ItemAdapter.FULL_CARD_LAYOUT, this, this);
+        resultsRecyclerView.setHasFixedSize(true);
+        resultsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        resultsRecyclerView.setAdapter(itemAdapter);
+
+        containerCardView = findViewById(R.id.containerCardView);
+        /* Adjusts Layout According to the screen size */
+        searchActivityLayoutParent.post(new Runnable(){
+            @Override
+            public void run(){
+                // Toast.makeText(SearchActivity.this, "ItemProfile RootView's Width: " + searchActivityLayoutParent.getWidth(), Toast.LENGTH_LONG).show();
+                if(searchActivityLayoutParent.getWidth() <= 1676
+                        && HelperUtility.getScreenSizeCategory(getApplicationContext()) >= HelperUtility.SCREENSIZE_LARGE){      // If the app takes the entire screen (too wide in landscape)
+                    // Sets the horizontal padding
+                    if(containerCardView != null){
+                        int margin = HelperUtility.dpToPx(0, searchActivityLayoutParent.getContext());
+                        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) containerCardView.getLayoutParams();
+                        layoutParams.setMargins(margin, 0, margin, 0);
+                        containerCardView.requestLayout();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        getSupportFragmentManager().putFragment(outState, "searchPreferenceFragment", searchPreferenceFragment);
+    }
+
+    private void initiateFragment(){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        searchPreferenceFragment = new SearchPreferenceFragment();
+        ((SearchPreferenceFragment) searchPreferenceFragment).setSearchPreferenceUpdateListener(this);
+        ft.replace(R.id.searchSettingFrame, searchPreferenceFragment);
+        ft.commit();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        searchActivityLayoutParent = findViewById(R.id.searchActivityLayoutParent);
-        // searchActivityLayoutParent.addOnLayoutChangeListener(new View.OnLayoutChangeListener(){
-        //     @Override
-        //     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom){
-        //         v.removeOnLayoutChangeListener(this);
-        //         animateCircularRevealForActivity(true, null);
-        //     }
-        // });
+        initiateViews();
 
+        if(savedInstanceState != null){
+            //Restore the fragment's instance
+            searchPreferenceFragment = getSupportFragmentManager().getFragment(savedInstanceState, "searchPreferenceFragment");
+            ((SearchPreferenceFragment) searchPreferenceFragment).setSearchPreferenceUpdateListener(this);
+            getSupportFragmentManager().beginTransaction().replace(R.id.searchSettingFrame, searchPreferenceFragment).commit();
+        }else{
+            initiateFragment();
+        }
         searchActivityLayoutParent.post(new Runnable(){
             @Override
             public void run(){
@@ -114,251 +206,86 @@ public class SearchActivity extends AppCompatActivity{
             }
         });
 
-        resultsRecyclerView = findViewById(R.id.resultsRecyclerView);
-        filterCardView = findViewById(R.id.filterCardView);
-        searchView = findViewById(R.id.searchView);
-
-        final SearchAdapter searchAdapter = new SearchAdapter(this);
-        final SearchHistoryTable mHistoryDatabase = new SearchHistoryTable(this);
-
-        context = this;
-
-        resultsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        this.itemAdapter = new ItemAdapter(ItemAdapter.NORMAL_CARD_LAYOUT, null, this);
-        resultsRecyclerView.setAdapter(itemAdapter);
-        resultsRecyclerView.setHasFixedSize(true);
-        resultsRecyclerView.setVisibility(View.GONE);
-
-        setUpSearchPrefFragment();
-
-        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
-        searchView.setAdapter(searchAdapter);
-        searchView.setClearIcon(R.drawable.ic_close_black_24dp);
-        searchView.setOnOpenCloseListener(new Search.OnOpenCloseListener(){
-            @Override
-            public void onOpen(){
-                Toast.makeText(context, "Opening search", Toast.LENGTH_SHORT).show();
-                searchAdapter.setSuggestionsList(mHistoryDatabase.getAllItems());
-            }
-
-            @Override
-            public void onClose(){
-                //finish();
-            }
-        });
-
-        searchView.setOnMenuClickListener(new Search.OnMenuClickListener(){
-            @Override
-            public void onMenuClick(){
-                Toast.makeText(context, "Add Filter Dialog", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        searchView.setOnLogoClickListener(new Search.OnLogoClickListener(){
-            @Override
-            public void onLogoClick(){
-                onBackPressed();
-            }
-        });
-
+        ItemViewModel itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             @Override
-            public void onChanged(@Nullable final List<Item> itemList){
-                searchView.setOnQueryTextListener(new Search.OnQueryTextListener(){
-                    @Override
-                    public boolean onQueryTextSubmit(final CharSequence query){
-                        SearchItem searchItem = new SearchItem(context);
-                        searchItem.setTitle(query.toString());
+            public void onChanged(@Nullable List<Item> items){
+                // Toast.makeText(SearchActivity.this, "Database reinitialized", Toast.LENGTH_SHORT).show();
+                totalSearchTextView.setText(new StringBuilder().append("Total Search Result: ").append(items.size()).toString());
+                itemAdapter.applyItemDataChanges(items, false);
 
-                        // If pressing enter and the query is not contained in the database before, stores it to the history database.
-                        if(!mHistoryDatabase.getAllItems().contains(searchItem)){
-                            mHistoryDatabase.addItem(searchItem);
-                        }
-
-                        // If the result list is not empty
-                        if(!searchAdapter.getResultsList().isEmpty()){
-                            // If the first item of the list contains itemId (which means it was created in populateItem())
-                            // and it contains the query in its title string
-                            if(searchAdapter.getResultsList().get(0) instanceof SearchItemWrapper
-                                    && searchAdapter.getResultsList().get(0).getTitle().toString().contains(query.toString())){
-                                // Launches the ItemProfileActivity
-                                enterProfileActivity((SearchItemWrapper) searchAdapter.getResultsList().get(0));
-                            }else{
-                                int count = 0;
-                                for(SearchItem searchItem1 : searchAdapter.getResultsList()){
-                                    if(searchItem1 instanceof SearchItemWrapper){
-                                        count++;
-                                        enterProfileActivity((SearchItemWrapper) searchItem1);
-                                        break;
-                                    }
-                                }
-                                if(count == 0){
-                                    Toast.makeText(context, "No result! lol", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }else{
-                            Toast.makeText(context, "No result!", Toast.LENGTH_SHORT).show();
-                        }
-                        return true;
-                    }
-
-                    @Override
-                    public void onQueryTextChange(CharSequence newText){
-                        if(!searchAdapter.getSuggestionsList().isEmpty()){
-                            searchAdapter.getSuggestionsList().clear();
-                        }
-                        searchAdapter.setSuggestionsList(populateItems(itemList));
-                    }
-                });
-
-                searchAdapter.setOnSearchItemClickListener(new SearchAdapter.OnSearchItemClickListener(){
-                    @Override
-                    public void onSearchItemClick(int position, CharSequence title, CharSequence subtitle){
-                        // If the result list is not empty
-                        // if(!searchAdapter.getResultsList().isEmpty()){
-                        //     SearchItemWrapper searchItemWrapper = null;
-                        //     for(SearchItem searchItem : searchAdapter.getResultsList()){
-                        //         // System.out.println(searchItem.getTitle());
-                        //         if(searchItem instanceof SearchItemWrapper
-                        //                 && searchItem.getTitle().toString().equals(title.toString())){
-                        //             searchItemWrapper = (SearchItemWrapper) searchItem;
-                        //         }
-                        //     }
-                        //
-                        //     if(searchItemWrapper != null){
-                        //         enterProfileActivity(searchItemWrapper);
-                        //     }else{
-                        //         searchView.setText(title.toString());
-                        //     }
-                        // }
-
-                        SearchItem searchItem = new SearchItem(context);
-                        searchItem.setTitle(title.toString());
-
-                        // If pressing an item and the item's title is not contained in the database before, stores it to the history database.
-                        if(!mHistoryDatabase.getAllItems().contains(searchItem)){
-                            mHistoryDatabase.addItem(searchItem);
-                        }
-
-                        showResultsInRecyclerView(itemList, title);
-                        searchView.close();
-                        searchView.setText(title.toString());
-                    }
-                });
+                /* These lines of code below are required in order to preserve searching-state when there are changes in database (Insertion, Editing And Deletion) */
+                if(queryString != null){        // If the query is not empty (because there was a recently search input)
+                    itemAdapter.getFilter().filter(searchView.getQuery().toString(), filterListener);       // Re-trigger search
+                }
             }
         });
 
-        // SearchAdapter searchAdapter = new SearchAdapter(this);
-        // searchAdapter.setSuggestionsList(suggestions);
-        // searchAdapter.setOnSearchItemClickListener(new SearchAdapter.OnSearchItemClickListener(){
-        //     @Override
-        //     public void onSearchItemClick(int position, CharSequence title, CharSequence subtitle){
-        //         SearchItem item = new SearchItem(getApplicationContext());
-        //         item.setTitle(title);
-        //         item.setSubtitle(subtitle);
-        //
-        //         mHistoryDatabase.addItem(item);
-        //     }
-        // });
-        //
-        // searchView.setOnQueryTextListener(new Search.OnQueryTextListener(){
-        //     @Override
-        //     public boolean onQueryTextSubmit(CharSequence query){
-        //         SearchItem item = new SearchItem(getApplicationContext());
-        //         item.setTitle(query);
-        //
-        //         mHistoryDatabase.addItem(item);
-        //         return true;
-        //     }
-        //
-        //     @Override
-        //     public void onQueryTextChange(CharSequence newText){
-        //         System.out.println("printShit");
-        //     }
-        //
-        // });
-    }
-
-    private void showResultsInRecyclerView(List<Item> itemList, CharSequence query){
-        resultsRecyclerView.setVisibility(View.VISIBLE);
-        List<Item> filteredList = new ArrayList<>();
-        for(Item item : itemList){
-            if(item.getName().toLowerCase().contains(query.toString().toLowerCase().trim())
-                    || item.getName().equalsIgnoreCase(query.toString().trim())){
-                filteredList.add(item);
+        itemViewModel.getAllReviews().observe(this, new Observer<List<Review>>(){
+            @Override
+            public void onChanged(@Nullable List<Review> reviewList){
+                SparseArray<ArrayList<Review>> reviewSparseArray = ItemViewModel.convertReviewListToSparseArray(reviewList);
+                itemAdapter.applyReviewDataChanges(reviewSparseArray);
             }
-        }
-        itemAdapter.applyItemDataChanges(filteredList);
-    }
+        });
 
-    private List<SearchItem> populateItems(List<Item> itemList){
-        List<SearchItem> suggestions = new ArrayList<>();
-        for(Item item : itemList){
-            SearchItem searchItem = new SearchItemWrapper(getApplicationContext());
-            searchItem.setIcon1Resource(R.drawable.ic_edit_black_24dp);
-            searchItem.setIcon2Resource(R.drawable.ic_call_made_black_24dp);
-            searchItem.setTitle(item.getName());
-            //searchItem.setSubtitle(item.getDescription());
-            ((SearchItemWrapper) searchItem).setItemId(item.getId());
-
-            if(!suggestions.contains(searchItem)){
-                suggestions.add(searchItem);
+        searchView.setOnQueryTextListener(new Search.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(CharSequence query){
+                savedQuery = query;
+                searchView.close();
+                queryString = query;
+                itemAdapter.getFilter().filter(query, filterListener);
+                return false;
             }
-        }
-        return suggestions;
-    }
 
-    private void enterProfileActivity(SearchItemWrapper searchItem){
-        int itemId = searchItem.getItemId();
-        //if(screenIsLargeOrPortrait)
-        Intent intent = new Intent(context, ItemProfileContainerActivity.class);
-        intent.putExtra("itemId", itemId);
-        context.startActivity(intent);
+            @Override
+            public void onQueryTextChange(CharSequence newText){
+                queryString = newText;
+                itemAdapter.getFilter().filter(newText, filterListener);
+            }
+        });
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-        return true;
+    public void onDateChange(ItemAdapter.SearchPreference.DateType dateType, Date date){
+        // Toast.makeText(SearchActivity.this, "Date Pref Changed!", Toast.LENGTH_SHORT).show();
+        itemAdapter.getSearchPreference().setDatePreference(dateType, date);
+        itemAdapter.getFilter().filter(savedQuery, filterListener);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        return super.onOptionsItemSelected(item);
+    public void onDateSwitchChange(ItemAdapter.SearchPreference.DateType dateType, boolean isCheck){
+        // Toast.makeText(SearchActivity.this, "Date Pref Switch Changed!", Toast.LENGTH_SHORT).show();
+        itemAdapter.getSearchPreference().getDatePreference(dateType).setPreferenceEnabled(isCheck);
+        itemAdapter.getFilter().filter(savedQuery, filterListener);
     }
 
-    private void setUpSearchPrefFragment(){
-        if(HelperUtilities.getScreenSizeCategory(this) >= HelperUtilities.SCREENSIZE_LARGE){
-            ViewGroup.MarginLayoutParams cardViewLayoutParam = (ViewGroup.MarginLayoutParams) filterCardView.getLayoutParams();
-            int marginInPx;
-            if(HelperUtilities.getScreenOrientation(this) == HelperUtilities.SCREENORIENTATION_LANDSCAPE){
-                marginInPx = HelperUtilities.dpToPx(24, this);
-            }else{
-                marginInPx = HelperUtilities.dpToPx(16, this);
-            }
-            cardViewLayoutParam.setMargins(marginInPx, 0, marginInPx, 0);
-        }
-
-        AdvancedSearchSettingFragment advancedSearchSettingFragment = new AdvancedSearchSettingFragment();
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.searchSettingFrame, advancedSearchSettingFragment);
-        fragmentTransaction.commit();
+    @Override
+    public void onSearchByDialogChange(ItemAdapter.SearchPreference.SearchBy searchBy){
+        // Toast.makeText(SearchActivity.this, "Search by Pref Changed!", Toast.LENGTH_SHORT).show();
+        itemAdapter.getSearchPreference().setSearchBy(searchBy);
+        itemAdapter.getFilter().filter(savedQuery, filterListener);
     }
 
-    private class SearchItemWrapper extends SearchItem{
+    @Override
+    public void onContainImageSwitchChange(boolean b){
+        // Toast.makeText(SearchActivity.this, "Contain Image Pref Changed!", Toast.LENGTH_SHORT).show();
+        itemAdapter.getSearchPreference().setContainsImage(b);
+        itemAdapter.getFilter().filter(savedQuery, filterListener);
+    }
 
-        private int itemId;
+    @Override
+    public void onQuantitySwitchChange(boolean isChecked){
+        itemAdapter.getSearchPreference().getQuantityPreference().setPreferenceEnabled(isChecked);
+        itemAdapter.getFilter().filter(savedQuery, filterListener);
+    }
 
-        public SearchItemWrapper(Context context){
-            super(context);
-        }
-
-        public int getItemId(){
-            return itemId;
-        }
-
-        public void setItemId(int itemId){
-            this.itemId = itemId;
-        }
+    @Override
+    public void onQuantityRangeChange(int min, int max){
+        // Toast.makeText(SearchActivity.this, "QTY_PREF: Min = " + min + ", max = " + max, Toast.LENGTH_SHORT).show();
+        itemAdapter.getSearchPreference().getQuantityPreference().setMinRange(min);
+        itemAdapter.getSearchPreference().getQuantityPreference().setMaxRange(max);
+        itemAdapter.getFilter().filter(savedQuery, filterListener);
     }
 }

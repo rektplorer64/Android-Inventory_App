@@ -27,6 +27,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.bumptech.glide.Glide;
@@ -40,22 +41,38 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Item;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.utility.ColorUtility;
+import tanawinwichitcom.android.inventoryapp.utility.ImageUtility;
 
-import static tanawinwichitcom.android.inventoryapp.ColorUtility.darkenColor;
+import static tanawinwichitcom.android.inventoryapp.utility.ColorUtility.darkenColor;
 
 public class AddItemActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback{
 
+    public static Integer[] predefinedColorsResourceIDs = {R.color.md_red_400, R.color.md_pink_400,
+                                                           R.color.md_purple_400,
+                                                           R.color.md_deeppurple_400,
+                                                           R.color.md_indigo_400,
+                                                           R.color.md_blue_400,
+                                                           R.color.md_lightblue_400,
+                                                           R.color.md_cyan_400, R.color.md_teal_400,
+                                                           R.color.md_green_400,
+                                                           R.color.md_lightgreen_400,
+                                                           R.color.md_lime_400,
+                                                           R.color.md_yellow_400,
+                                                           R.color.md_amber_400,
+                                                           R.color.md_orange_400,
+                                                           R.color.md_deeporange_400,
+                                                           R.color.md_brown_400,
+                                                           R.color.md_gray_400,
+                                                           R.color.md_bluegray_400};
+    static ArrayList<SelectableColor> integerArrayList;
     private LinearLayout linearLayoutEdit;
-
-    private enum ActionCode{ADD_ITEM, UPDATE_ITEM}
     private int PICK_IMAGE_REQUEST = 1;
     private int REQUEST_PERMISSION = 1;
-
     private File originalImageFile;
     private boolean isInEditMode;
-
     private Window window;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private RelativeLayout imageHeaderRelativeLayout;
@@ -66,9 +83,6 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
     private ImageButton circleImageView;
     private Toolbar toolbar;
     private ImageView itemImageView, nameIconImageView, descriptionIconImageView;
-
-    static ArrayList<SelectableColor> integerArrayList;
-
     private ItemViewModel itemViewModel;
 
     @ColorInt
@@ -237,7 +251,11 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         setSupportActionBar(toolbar);
-        setTitle("Add an item");
+        if(!isInEditMode){
+            setTitle("Add an item");
+        }else{
+            setTitle("Edit an item");
+        }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -282,7 +300,7 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         String s = null;
         try{
             if(originalImageFile != null){
-                s = getSelectedImageUrl(originalImageFile, currentTime.getTime(), item);
+                s = getSelectedImageUrl(originalImageFile, currentTime.getTime());
             }
         }catch(IOException e){
             e.printStackTrace();
@@ -342,7 +360,8 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
 
     /**
      * This method specifies what the activity should do when the DialogFragment is dismissed.
-     * @param dialog color chooser dialog
+     *
+     * @param dialog           color chooser dialog
      * @param selectedColorInt color integer
      */
     @Override
@@ -405,29 +424,34 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null){
+        try{
+            if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                    && data != null && data.getData() != null){
 
-            if(isInEditMode && originalImageFile != null){
-                try{
-                    FileUtils.forceDelete(originalImageFile);
-                }catch(IOException e){
-                    e.printStackTrace();
+                if(isInEditMode && originalImageFile != null){
+                    try{
+                        FileUtils.forceDelete(originalImageFile);
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
                 }
+
+                originalImageFile = new File(ImageUtility.getPathFromUri(getApplicationContext(), data.getData()));
+                System.out.println("getPathFromUri() : " + ImageUtility.getPathFromUri(getApplicationContext(), data.getData()));
+                Glide.with(getApplicationContext()).load(originalImageFile).into(itemImageView);
+
+                // String fileName =
+                // FileUtils.copyDirectory(originalFile, new File(this.getFilesDir().toURI().getPath() + ""));
+                // System.out.println();
+                //TODO: Don't copy the selected file yet. Wait until user press the FAB.
             }
-
-            originalImageFile = new File(ImageUtil.getPathFromUri(getApplicationContext(), data.getData()));
-            System.out.println("getPathFromUri() : " + ImageUtil.getPathFromUri(getApplicationContext(), data.getData()));
-            Glide.with(getApplicationContext()).load(originalImageFile).into(itemImageView);
-
-            // String fileName =
-            // FileUtils.copyDirectory(originalFile, new File(this.getFilesDir().toURI().getPath() + ""));
-            // System.out.println();
-            //TODO: Don't copy the selected file yet. Wait until user press the FAB.
+        }catch(SecurityException e){
+            Toast.makeText(this, "Exception throwed: Storage Permission Denied", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
-    private String getSelectedImageUrl(File originalImageFile, long timestamp, Item item) throws IOException{
+    private String getSelectedImageUrl(File originalImageFile, long timestamp) throws IOException{
         String internalStoragePath = this.getFilesDir().toURI().getPath();
         String fileName = String.valueOf(timestamp) + ".jpg";
 
@@ -435,6 +459,8 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         FileUtils.copyFile(originalImageFile, newFile);
         return internalStoragePath + fileName;
     }
+
+    private enum ActionCode{ADD_ITEM, UPDATE_ITEM}
 
     public static class SelectableColor{
         private Integer colorId;
@@ -448,6 +474,18 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         public SelectableColor(Integer colorId, Boolean b){
             this.colorId = colorId;
             this.isSelected = b;
+        }
+
+        public static SelectableColor copy(SelectableColor s){
+            return new SelectableColor(s.getColorId(), s.getSelected());
+        }
+
+        public static ArrayList<SelectableColor> copyArrayList(ArrayList<SelectableColor> colorArrayList){
+            ArrayList<SelectableColor> selectableColorArrayList = new ArrayList<>();
+            for(SelectableColor s : colorArrayList){
+                selectableColorArrayList.add(copy(s));
+            }
+            return selectableColorArrayList;
         }
 
         public Integer getColorId(){
@@ -482,35 +520,5 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         public int hashCode(){
             return Objects.hash(colorId);
         }
-
-        public static SelectableColor copy(SelectableColor s){
-            return new SelectableColor(s.getColorId(), s.getSelected());
-        }
-
-        public static ArrayList<SelectableColor> copyArrayList(ArrayList<SelectableColor> colorArrayList){
-            ArrayList<SelectableColor> selectableColorArrayList = new ArrayList<>();
-            for(SelectableColor s : colorArrayList){
-                selectableColorArrayList.add(copy(s));
-            }
-            return selectableColorArrayList;
-        }
     }
-
-    public static Integer[] predefinedColorsResourceIDs = {R.color.md_red_400, R.color.md_pink_400,
-                                                           R.color.md_purple_400,
-                                                           R.color.md_deeppurple_400,
-                                                           R.color.md_indigo_400,
-                                                           R.color.md_blue_400,
-                                                           R.color.md_lightblue_400,
-                                                           R.color.md_cyan_400, R.color.md_teal_400,
-                                                           R.color.md_green_400,
-                                                           R.color.md_lightgreen_400,
-                                                           R.color.md_lime_400,
-                                                           R.color.md_yellow_400,
-                                                           R.color.md_amber_400,
-                                                           R.color.md_orange_400,
-                                                           R.color.md_deeporange_400,
-                                                           R.color.md_brown_400,
-                                                           R.color.md_gray_400,
-                                                           R.color.md_bluegray_400};
 }

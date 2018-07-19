@@ -3,7 +3,10 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:padding="16dp"
+              android:paddingTop="16dp"
+              android:paddingRight="16dp"
+              android:paddingLeft="16dp"
+              android:layout_centerVertical="true"
               android:layout_centerInParent="true">
 
 	<TextView
@@ -17,15 +20,15 @@
 		style="@style/Widget.MaterialRatingBar.RatingBar"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingTop="22dp"
+		android:layout_marginTop="26dp"
 		android:layout_gravity="center_horizontal"
 		android:max="5"
 		android:numStars="5"
 		android:stepSize="0.5"/>
 
 	<Button
-		android:id="@+id/submitReviewButton"
-		android:layout_marginTop="18dp"
+		android:id="@+id/submitScoreButton"
+		android:layout_marginTop="40dp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="submit"

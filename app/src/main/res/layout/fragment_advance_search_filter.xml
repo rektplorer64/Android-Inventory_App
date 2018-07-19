@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -26,17 +27,17 @@
 			android:id="@+id/Pref_searchItemBy"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:foreground="?selectableItemBackgroundBorderless"
 			android:orientation="horizontal"
 			android:paddingLeft="14dp"
-			android:paddingRight="14dp"
-			android:foreground="?selectableItemBackgroundBorderless">
+			android:paddingRight="14dp">
 
 			<ImageView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:src="@drawable/ic_label_black_24dp"
 				android:layout_gravity="center_vertical"
-				android:layout_marginEnd="14dp"/>
+				android:layout_marginEnd="14dp"
+				android:src="@drawable/ic_label_black_24dp"/>
 
 			<RelativeLayout
 				android:layout_width="match_parent"
@@ -74,9 +75,9 @@
 		<!-- Date Modified Filter -->
 		<include
 			layout="@layout/search_date_modified"
-			android:layout_marginStart="38dp"
-			android:layout_height="wrap_content"
 			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="38dp"
 			android:layout_marginTop="-14dp"/>
 
 		<View
@@ -89,17 +90,17 @@
 			android:id="@+id/Pref_containsImage"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:foreground="?selectableItemBackgroundBorderless"
 			android:orientation="horizontal"
 			android:paddingLeft="14dp"
-			android:paddingRight="14dp"
-			android:foreground="?selectableItemBackgroundBorderless">
+			android:paddingRight="14dp">
 
 			<ImageView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:src="@drawable/ic_image_black_24dp"
 				android:layout_gravity="center_vertical"
-				android:layout_marginEnd="14dp"/>
+				android:layout_marginEnd="14dp"
+				android:src="@drawable/ic_image_black_24dp"/>
 
 			<RelativeLayout
 				android:layout_width="match_parent"
@@ -125,13 +126,71 @@
 					android:textSize="12.25sp"/>
 
 				<Switch
+					android:id="@+id/containsImageSwitch"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_toEndOf="@id/containImage_title"
 					android:layout_alignParentEnd="true"
-					android:layout_centerVertical="true"/>
+					android:layout_centerVertical="true"
+					android:layout_toEndOf="@id/containImage_title"/>
 			</RelativeLayout>
 		</LinearLayout>
 
+		<!-- Contain Quantity Filter -->
+		<LinearLayout
+			android:id="@+id/Pref_quantity"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:foreground="?selectableItemBackgroundBorderless"
+			android:orientation="horizontal"
+			android:paddingLeft="14dp"
+			android:paddingRight="14dp">
+
+			<ImageView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="14dp"
+				android:layout_marginEnd="14dp"
+				android:src="@drawable/ic_image_black_24dp"/>
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:paddingBottom="14dp"
+				android:paddingTop="14dp">
+
+				<TextView
+					android:id="@+id/quantity_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Quantity"
+					android:textColor="@android:color/black"
+					android:textSize="14sp"/>
+
+				<Switch
+					android:id="@+id/quantitySwitch"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentEnd="true"
+					android:layout_toEndOf="@id/quantity_title"/>
+
+				<com.appyvet.materialrangebar.RangeBar
+					android:id="@+id/quantityRangeBar"
+					android:layout_width="match_parent"
+					android:layout_below="@id/quantitySwitch"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="16dp"
+					android:layout_marginRight="16dp"
+					app:mrb_pinMaxFont="16sp"
+					app:mrb_pinTextColor="@android:color/white"
+					app:mrb_pinRadius="18dp"
+					app:mrb_rangeBar_rounded="true"
+					app:mrb_tickColor="@android:color/white"
+					app:mrb_rangeBarPaddingBottom="16dp"
+					app:mrb_selectorBoundarySize="4dp"
+					app:mrb_selectorSize="4dp"/>
+
+			</RelativeLayout>
+		</LinearLayout>
 	</LinearLayout>
 </ScrollView>

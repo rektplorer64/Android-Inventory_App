@@ -20,9 +20,8 @@
 
 	<fragment
 		android:id="@+id/itemListFragment"
-		android:name="tanawinwichitcom.android.inventoryapp.Fragments.ItemListFragment"
+		android:name="tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>
-
 
 </LinearLayout>

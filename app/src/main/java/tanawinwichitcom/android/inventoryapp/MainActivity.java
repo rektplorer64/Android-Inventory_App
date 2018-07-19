@@ -22,25 +22,27 @@ import com.kennyc.view.MultiStateView;
 
 import java.util.List;
 
-import tanawinwichitcom.android.inventoryapp.Fragments.CircularRevealFragment;
-import tanawinwichitcom.android.inventoryapp.Fragments.ItemListFragment;
-import tanawinwichitcom.android.inventoryapp.Fragments.ItemProfileFragment;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.Item;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.Entities.User;
-import tanawinwichitcom.android.inventoryapp.RoomDatabaseUtility.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.fragments.CircularRevealFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.User;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class MainActivity extends AppCompatActivity{
-
-    private ItemViewModel itemViewModel;
-
-    private Toolbar toolbar;
-    private MultiStateView itemProfFragMultiState;
 
     // KEY for SHARED_PREFERENCE (ID of the User who currently login)
     public static final String SharedPref_LOGIN_SESSION_DATA = "SharedPref_LOGIN_SESSION_DATA";
     public static final String SharedPrefKey_LOGIN_SESSION_USER_ID = "SharedPrefKey_LOGIN_SESSION_USER_ID";
 
+    private ItemViewModel itemViewModel;
+    private Toolbar toolbar;
+    private MultiStateView itemProfFragMultiState;
+
     private boolean screenIsLargeOrPortrait;
+
     private CardView itemListFragmentCard;
     private FrameLayout itemProfileFragmentFrame;
     private ItemListFragment itemListFragment;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity{
 
         initializeViews();
         setUpActionBar();
-        HelperUtilities.expandActionBarToFitStatusBar(toolbar, this);
+        HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
 
         itemViewModel = new ItemViewModel(getApplication());
 
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity{
     private void initialize(){
         // If the screen size is not considered LARGE and in landscape mode.
         //boolean isLargeAndLandscape = (getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) != Configuration.SCREENLAYOUT_SIZE_LARGE && getResources().getConfiguration().orientation != ORIENTATION_LANDSCAPE;
-        final CircularRevealFragment itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getMinItemId(), 0, 0);
+        final CircularRevealFragment itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0);
         itemProfileFragment.setOnFragmentTouchedListener(new CircularRevealFragment.OnFragmentTouched(){
             @Override
             public void onFragmentTouched(Fragment fragment, float x, float y){
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity{
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     System.out.println("Replacing fragment");
                     fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-                    fragmentTransaction.replace(R.id.itemProfileFragmentFrame, ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getMinItemId(), 0, 0));
+                    fragmentTransaction.replace(R.id.itemProfileFragmentFrame, ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0));
                     fragmentTransaction.commitNow();
                 }
             });
@@ -162,7 +164,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void initializeViews(){
-        screenIsLargeOrPortrait = HelperUtilities.isScreenLargeOrPortrait(this);
+        screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(this);
         toolbar = findViewById(R.id.toolbar);
         itemListFragmentCard = findViewById(R.id.itemListFragmentCard);
         itemProfileFragmentFrame = findViewById(R.id.itemProfileFragmentFrame);
@@ -190,7 +192,7 @@ public class MainActivity extends AppCompatActivity{
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        final boolean screenIsLargeOrPortrait = HelperUtilities.isScreenLargeOrPortrait(this);
+        final boolean screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(this);
 
         switch(menuItem.getItemId()){
             case android.R.id.home:{

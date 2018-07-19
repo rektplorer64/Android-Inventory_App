@@ -24,15 +24,15 @@
 		</activity>
 		<activity
 			android:name=".AddItemActivity"
-			android:screenOrientation="portrait"
-			android:theme="@style/AppTheme.NoActionBar"/>
+			android:theme="@style/AppTheme.NoActionBar"
+			android:launchMode="singleInstance"/>
 		<activity
 			android:name=".ItemProfileContainerActivity"
 			android:theme="@style/AppTheme.NoActionBar">
 		</activity>
 		<activity
 			android:name=".SearchActivity"
-			android:theme="@style/Theme.AppCompat.Translucent">
+			android:theme="@style/AppTheme.NoActionBar">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH"/>
 			</intent-filter>
@@ -46,7 +46,8 @@
 		<activity
 			android:name=".SettingsActivity"
 			android:label="@string/title_activity_settings"
-			android:parentActivityName=".MainActivity">
+			android:parentActivityName=".MainActivity"
+			android:launchMode="singleTop">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="tanawinwichitcom.android.inventoryapp.MainActivity"/>
