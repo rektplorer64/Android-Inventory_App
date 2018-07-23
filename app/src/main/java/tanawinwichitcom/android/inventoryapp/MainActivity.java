@@ -1,12 +1,10 @@
 package tanawinwichitcom.android.inventoryapp;
 
 import android.animation.Animator;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +20,7 @@ import com.kennyc.view.MultiStateView;
 
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.fragments.CircularRevealFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
@@ -29,6 +28,7 @@ import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.User;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
+import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class MainActivity extends AppCompatActivity{
@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity{
     private FrameLayout itemProfileFragmentFrame;
     private ItemListFragment itemListFragment;
 
+    private CircularRevealFragment itemProfileFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -56,21 +58,120 @@ public class MainActivity extends AppCompatActivity{
         setUpActionBar();
         HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
 
+        Toasty.info(this, "Your screen size is " + HelperUtility.getScreenSizeCategory(this)).show();
+
         itemViewModel = new ItemViewModel(getApplication());
 
         itemListFragment = new ItemListFragment();
-        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
-            @Override
-            public void onChanged(@Nullable List<Item> itemList){
-                initialize();
-            }
-        });
+
+        if(itemProfileFragmentFrame != null){
+            // itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0);
+            // TODO: Re-route the interactions between ItemListFragment and ItemProfileFragment to make them independent from MainActivity
+            // ((ItemProfileFragment) itemProfileFragment).setItemChangeListener(changeListener);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item
+                    , itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID)
+                    , 0, 0);
+            ((ItemProfileFragment) itemProfileFragment).setItemStatusListener(new ItemProfileFragment.ItemStatusListener(){
+                @Override
+                public void onItemListEmpty(){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+                }
+
+                @Override
+                public void onItemBinding(){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                }
+
+                @Override
+                public void onItemListNotEmpty(){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                    selectItemInLargeScreenLayout(itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0);
+                }
+            });
+            // itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
+            //     @Override
+            //     public void onChanged(@Nullable List<Item> itemList){
+            //         initialize(itemList, itemProfileFragment);
+            //     }
+            // });
+            ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+            ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment);
+            ft.commit();
+
+            ItemListFragment itemListFragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.itemListFragment);
+            itemListFragment.setItemSelectListener(new ItemAdapter.ItemSelectListener(){
+                @Override
+                public void onSelect(int itemId, int touchCoordinateY){
+                    selectItemInLargeScreenLayout(itemId, touchCoordinateY);
+                }
+            });
+
+        }
+
+        if(!screenIsLargeOrPortrait){
+            toolbar.post(new Runnable(){
+                @Override
+                public void run(){
+                    // System.out.println("toolbar's width " + toolbar.getWidth());
+                    if(toolbar.getWidth() <= 502){
+                        int matchParent = LinearLayout.LayoutParams.MATCH_PARENT;
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent, matchParent);
+
+                        params.weight = 5;
+                        itemListFragmentCard.setLayoutParams(params);
+
+                        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
+                        params1.weight = 10 - params.weight;
+                        itemProfFragMultiState.setLayoutParams(params1);
+                    }
+                }
+            });
+        }
     }
 
-    private void initialize(){
-        // If the screen size is not considered LARGE and in landscape mode.
-        //boolean isLargeAndLandscape = (getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) != Configuration.SCREENLAYOUT_SIZE_LARGE && getResources().getConfiguration().orientation != ORIENTATION_LANDSCAPE;
-        final CircularRevealFragment itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0);
+    private void selectItemInLargeScreenLayout(int itemId, int touchCoordinateY){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        final ItemProfileFragment itemProfileFragment
+                = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemId,
+                0, touchCoordinateY);
+
+        itemProfileFragment.setItemChangeListener(new ItemProfileFragment.ItemChangeListener(){
+            @Override
+            public void onDelete(int itemId){
+
+            }
+
+            @Override
+            public void onEditConfirm(int itemId){
+
+            }
+        });
+        itemProfileFragment.setItemStatusListener(new ItemProfileFragment.ItemStatusListener(){
+            @Override
+            public void onItemListEmpty(){
+                itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+            }
+
+            @Override
+            public void onItemBinding(){
+                itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+            }
+
+            @Override
+            public void onItemListNotEmpty(){
+                itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+            }
+        });
+
+        ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
+        // ft.setCustomAnimations(R.anim.enter, R.anim.exit);
+        ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment);
+        ft.commit();
+    }
+
+    private void initialize(final List<Item> itemList, CircularRevealFragment itemProfileFragment){
+
         itemProfileFragment.setOnFragmentTouchedListener(new CircularRevealFragment.OnFragmentTouched(){
             @Override
             public void onFragmentTouched(Fragment fragment, float x, float y){
@@ -104,63 +205,14 @@ public class MainActivity extends AppCompatActivity{
         });
 
         // Note: To fix "commit() already called exception", FragmentTransaction must be instantiate every time it needed to be used in an interface
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
 
-        // If the screen is portrait
-
-        if(itemProfileFragmentFrame != null){
-            ((ItemProfileFragment) itemProfileFragment).setItemStatusListener(new ItemProfileFragment.ItemStatusListener(){
-                @Override
-                public void onItemListEmpty(){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
-                }
-
-                @Override
-                public void onItemBinding(){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                }
-
-                @Override
-                public void onItemListNotEmpty(){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                }
-            });
-            ((ItemProfileFragment) itemProfileFragment).setItemDeleteListener(new ItemProfileFragment.ItemDeleteListener(){
-                @Override
-                public void onDelete(){
-                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    System.out.println("Replacing fragment");
-                    fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-                    fragmentTransaction.replace(R.id.itemProfileFragmentFrame, ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0));
-                    fragmentTransaction.commitNow();
-                }
-            });
-            fragmentTransaction.replace(R.id.itemProfileFragmentFrame, itemProfileFragment);
+        if(itemList.size() != 0){
+            ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment).commit();
+        }else{
+            itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
         }
-
-        fragmentTransaction.commit();
-
-        if(!screenIsLargeOrPortrait){
-            toolbar.post(new Runnable(){
-                @Override
-                public void run(){
-                    System.out.println("toolbar's width " + toolbar.getWidth());
-                    if(toolbar.getWidth() <= 502){
-                        int matchParent = LinearLayout.LayoutParams.MATCH_PARENT;
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent, matchParent);
-
-                        params.weight = 5;
-                        itemListFragmentCard.setLayoutParams(params);
-
-                        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
-                        params1.weight = 10 - params.weight;
-                        itemProfFragMultiState.setLayoutParams(params1);
-                    }
-                }
-            });
-        }
-        //loadDatabase(itemViewModel);
     }
 
     private void initializeViews(){

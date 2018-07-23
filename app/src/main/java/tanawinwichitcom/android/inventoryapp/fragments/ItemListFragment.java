@@ -22,11 +22,13 @@ import com.kennyc.view.MultiStateView;
 import java.util.List;
 
 import tanawinwichitcom.android.inventoryapp.AddItemActivity;
+import tanawinwichitcom.android.inventoryapp.ItemEditingContainerActivity;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter;
+import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class ItemListFragment extends Fragment{
 
@@ -35,6 +37,8 @@ public class ItemListFragment extends Fragment{
     private MultiStateView rvMultiViewState;
 
     private FloatingActionButton fab;
+
+    private ItemAdapter.ItemSelectListener itemSelectListener;
 
     public ItemListFragment(){
     }
@@ -54,15 +58,25 @@ public class ItemListFragment extends Fragment{
             public void onClick(View view){
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                startActivity(new Intent(getActivity(), AddItemActivity.class));
+                if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                    ItemEditingDialogFragment dialogFragment = ItemEditingDialogFragment.newInstance(0, false);
+                    dialogFragment.show(getFragmentManager(), "itemEditingDialogFragment");
+                }else{
+                    startActivity(new Intent(getActivity(), ItemEditingContainerActivity.class));
+                }
             }
         });
 
         recyclerView = view.findViewById(R.id.itemsList);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setHasFixedSize(true);
+
         rvMultiViewState = view.findViewById(R.id.rvMultiViewState);
 
         itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, getContext(), getActivity());
-
+        recyclerView.setAdapter(itemAdapter);
 
         ItemViewModel itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
         itemViewModel.getAllItems().observe(getActivity(), new Observer<List<Item>>(){
@@ -70,11 +84,6 @@ public class ItemListFragment extends Fragment{
             public void onChanged(@Nullable List<Item> items){
                 if(items != null && !items.isEmpty()){
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-                    recyclerView.setItemAnimator(new DefaultItemAnimator());
-                    recyclerView.setHasFixedSize(true);
-                    recyclerView.setAdapter(itemAdapter);
-                    recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
                     itemAdapter.applyItemDataChanges(items, false);
                 }else{
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
@@ -90,5 +99,10 @@ public class ItemListFragment extends Fragment{
                 }
             }
         });
+    }
+
+    public void setItemSelectListener(ItemAdapter.ItemSelectListener itemSelectListener){
+        this.itemSelectListener = itemSelectListener;
+        itemAdapter.setItemSelectListener(itemSelectListener);
     }
 }

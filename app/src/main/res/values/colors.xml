@@ -4,7 +4,11 @@
 	<color name="colorPrimaryDark">#303F9F</color>
 	<color name="colorAccent">#FF4081</color>
 
+	<color name="colorPrimaryWarm">#ffc107</color>
+	<color name="colorPrimaryLightWarm">#ffb74d</color>
+
 	<color name="colorButton">#56a5fa</color>
+
 
 	<color name="lighter_gray">#ddd</color>
 	<color name="transparent_gray">#b1252525</color>

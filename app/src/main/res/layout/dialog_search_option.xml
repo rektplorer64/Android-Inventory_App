@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<ScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/frameLayoutsScroller">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical">
+
+			<FrameLayout
+				android:id="@+id/filterSettingFrame_dialog"
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:name="tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment">
+			</FrameLayout>
+
+			<View
+				android:background="?android:attr/listDivider"
+				android:layout_height="1dp"
+				android:layout_width="match_parent"/>
+
+			<FrameLayout
+				android:id="@+id/sortSettingFrame_dialog"
+				android:layout_height="wrap_content"
+				android:layout_width="match_parent"
+				android:name="tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment">
+			</FrameLayout>
+
+		</LinearLayout>
+
+	</ScrollView>
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="52dp">
+		<Button
+			android:id="@+id/dialogCloseButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentStart="true"
+			android:layout_margin="8dp"
+			android:background="@android:color/transparent"
+			android:foreground="?android:selectableItemBackgroundBorderless"
+			android:text="Close"/>
+	</RelativeLayout>
+</LinearLayout>

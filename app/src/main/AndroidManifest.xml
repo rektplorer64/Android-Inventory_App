@@ -52,6 +52,13 @@
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="tanawinwichitcom.android.inventoryapp.MainActivity"/>
 		</activity>
+
+		<activity
+			android:name=".ItemEditingContainerActivity"
+			android:parentActivityName=".MainActivity"
+			android:launchMode="singleTop"
+			android:theme="@style/AppTheme.NoActionBar">
+		</activity>
 	</application>
 
 </manifest>

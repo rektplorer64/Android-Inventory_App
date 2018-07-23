@@ -12,21 +12,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import es.dmoral.toasty.Toasty;
+import tanawinwichitcom.android.inventoryapp.ItemEditingFragment;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
-public class ItemProfileDialogFragment extends DialogFragment{
+public class ItemEditingDialogFragment extends DialogFragment{
 
-    public ItemProfileDialogFragment(){
+    private OnDialogConfirmListener onDialogConfirmListener;
+
+    public ItemEditingDialogFragment(){
         setRetainInstance(true);
     }
 
-
-    public static ItemProfileDialogFragment newInstance(int itemId){
+    public static ItemEditingDialogFragment newInstance(int itemId, boolean inEditMode){
         Bundle args = new Bundle();
         args.putInt("itemId", itemId);
-        ItemProfileDialogFragment fragment = new ItemProfileDialogFragment();
+        args.putBoolean("inEditMode", inEditMode);
+        ItemEditingDialogFragment fragment = new ItemEditingDialogFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,24 +65,22 @@ public class ItemProfileDialogFragment extends DialogFragment{
         super.onViewCreated(view, savedInstanceState);
         Bundle bundle = getArguments();
         int itemId = bundle.getInt("itemId");
+        boolean inEditMode = bundle.getBoolean("inEditMode");
         FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-        ItemProfileFragment itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemId,
-                0, 0);
+        ItemEditingFragment itemEditingFragment = ItemEditingFragment.newInstance(itemId, inEditMode);
 
-        itemProfileFragment.setItemChangeListener(new ItemProfileFragment.ItemChangeListener(){
+        itemEditingFragment.setOnConfirmListener(new ItemEditingFragment.OnConfirmListener(){
             @Override
-            public void onDelete(int itemId){
+            public void onConfirm(int itemId){
                 getDialog().dismiss();
-            }
-
-            @Override
-            public void onEditConfirm(int itemId){
-
+                if(onDialogConfirmListener != null){
+                    onDialogConfirmListener.onDialogConfirm(itemId);
+                }
             }
         });
 
         fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        fragmentTransaction.add(R.id.itemProfileFrame, itemProfileFragment, "itemProfileDialog");
+        fragmentTransaction.add(R.id.itemProfileFrame, itemEditingFragment, "itemEditingFragment");
         fragmentTransaction.commit();
     }
 
@@ -91,5 +91,13 @@ public class ItemProfileDialogFragment extends DialogFragment{
         int dialogWidth = HelperUtility.dpToPx(450, getContext());
         int dialogHeight = HelperUtility.dpToPx(750, getContext());
         getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
+    }
+
+    public void setOnDialogConfirmListener(OnDialogConfirmListener onDialogConfirmListener){
+        this.onDialogConfirmListener = onDialogConfirmListener;
+    }
+
+    public interface OnDialogConfirmListener{
+        void onDialogConfirm(int itemId);
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
@@ -13,14 +12,14 @@
 		android:paddingEnd="14dp"
 		android:paddingStart="14dp"
 		android:paddingTop="14dp"
-		android:text="Filters"
+		android:text="Sorting"
 		android:textColor="@color/colorPrimary"
 		android:textSize="12.25sp"
 		android:textStyle="bold"/>
 
 	<!-- Item's Field Filter -->
 	<LinearLayout
-		android:id="@+id/Pref_searchItemBy"
+		android:id="@+id/Pref_sortBy"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:foreground="?selectableItemBackgroundBorderless"
@@ -43,47 +42,25 @@
 			android:paddingTop="14dp">
 
 			<TextView
-				android:id="@+id/searchBy_title"
+				android:id="@+id/sortBy_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Search by"
+				android:text="Sort by"
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
 			<TextView
-				android:id="@+id/searchBy_subtitle"
+				android:id="@+id/sortBy_subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:layout_below="@id/searchBy_title"
-				android:text="Item Name"
+				android:layout_below="@id/sortBy_title"
+				android:text="Item ID"
 				android:textSize="12.25sp"/>
 		</RelativeLayout>
 	</LinearLayout>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
-
-	<!-- Date Created Filter -->
-	<include layout="@layout/search_date_created"/>
-
-	<!-- Date Modified Filter -->
-	<include
-		layout="@layout/search_date_modified"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="38dp"
-		android:layout_marginTop="-14dp"/>
-
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
-
-	<!-- Image Filtering mode -->
 	<LinearLayout
-		android:id="@+id/Pref_containsImage"
+		android:id="@+id/Pref_textLength"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:foreground="?selectableItemBackgroundBorderless"
@@ -96,7 +73,7 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
 			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_image_black_24dp"/>
+			android:src="@drawable/ic_straighten_black_24dp"/>
 
 		<RelativeLayout
 			android:layout_width="match_parent"
@@ -106,90 +83,77 @@
 			android:paddingTop="14dp">
 
 			<TextView
-				android:id="@+id/imageFiltering_title"
+				android:id="@+id/textLength_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Image"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
-
-			<TextView
-				android:id="@+id/imageFiltering_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/imageFiltering_title"
-				android:text="Fetch only Items with an Image"
-				android:textSize="12.25sp"/>
-
-		</RelativeLayout>
-	</LinearLayout>
-
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
-
-	<!-- Contain Quantity Filter -->
-	<LinearLayout
-		android:id="@+id/Pref_quantity"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
-
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginEnd="14dp"
-			android:layout_marginTop="14dp"
-			android:src="@drawable/ic_format_list_numbered_black_24dp"/>
-
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
-
-			<TextView
-				android:id="@+id/quantity_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Quantity"
+				android:layout_centerVertical="true"
+				android:text="Use text length"
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
 			<Switch
-				android:id="@+id/quantitySwitch"
+				android:id="@+id/textLengthSwitch"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_alignParentEnd="true"
-				android:layout_toEndOf="@id/quantity_title"/>
-
-			<com.appyvet.materialrangebar.RangeBar
-				android:id="@+id/quantityRangeBar"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/quantitySwitch"
-				android:layout_marginLeft="16dp"
-				android:layout_marginRight="16dp"
-				app:mrb_connectingLineColor="@color/md_amber_400"
-				app:mrb_pinColor="#ffab40"
-				app:mrb_pinMaxFont="16sp"
-				app:mrb_pinRadius="18dp"
-				app:mrb_pinTextColor="@android:color/white"
-				app:mrb_rangeBarColor="@color/colorPrimaryLightWarm"
-				app:mrb_rangeBarPaddingBottom="16dp"
-				app:mrb_rangeBar_rounded="true"
-				app:mrb_selectorBoundaryColor="@color/colorPrimaryWarm"
-				app:mrb_selectorBoundarySize="4dp"
-				app:mrb_selectorColor="@color/colorPrimaryWarm"
-				app:mrb_selectorSize="4dp"
-				app:mrb_tickColor="@android:color/white"/>
-
+				android:layout_centerVertical="true"
+				android:layout_toEndOf="@id/imageFiltering_title"/>
 		</RelativeLayout>
 	</LinearLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:background="?android:attr/listDivider"/>
+
+	<LinearLayout
+		android:id="@+id/Pref_sortingOrder"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:foreground="?selectableItemBackgroundBorderless"
+		android:orientation="horizontal"
+		android:paddingLeft="14dp"
+		android:paddingRight="14dp">
+
+		<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:layout_marginEnd="14dp"
+			android:src="@drawable/ic_sort_black_24dp"/>
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:paddingBottom="14dp"
+			android:paddingTop="14dp">
+
+			<TextView
+				android:id="@+id/sortingOrder_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Sorting order"
+				android:textColor="@android:color/black"
+				android:textSize="14sp"/>
+
+			<TextView
+				android:id="@+id/sortingOrder_subtitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/sortingOrder_title"
+				android:text="Descending Order"
+				android:textSize="12.25sp"/>
+
+			<Switch
+				android:id="@+id/sortingSwitch"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentEnd="true"
+				android:layout_centerVertical="true"
+				android:layout_toEndOf="@id/imageFiltering_title"/>
+		</RelativeLayout>
+	</LinearLayout>
+
 </LinearLayout>
 

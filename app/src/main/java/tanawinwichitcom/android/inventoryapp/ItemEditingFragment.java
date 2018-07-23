@@ -16,10 +16,13 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -36,37 +39,20 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
+import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.utility.ColorUtility;
 import tanawinwichitcom.android.inventoryapp.utility.ImageUtility;
 
+import static android.app.Activity.RESULT_OK;
 import static tanawinwichitcom.android.inventoryapp.utility.ColorUtility.darkenColor;
 
-public class AddItemActivity extends AppCompatActivity implements ColorChooserDialog.ColorCallback{
+public class ItemEditingFragment extends Fragment implements ColorChooserDialog.ColorCallback{
 
-    public static Integer[] predefinedColorsResourceIDs = {R.color.md_red_400, R.color.md_pink_400,
-                                                           R.color.md_purple_400,
-                                                           R.color.md_deeppurple_400,
-                                                           R.color.md_indigo_400,
-                                                           R.color.md_blue_400,
-                                                           R.color.md_lightblue_400,
-                                                           R.color.md_cyan_400, R.color.md_teal_400,
-                                                           R.color.md_green_400,
-                                                           R.color.md_lightgreen_400,
-                                                           R.color.md_lime_400,
-                                                           R.color.md_yellow_400,
-                                                           R.color.md_amber_400,
-                                                           R.color.md_orange_400,
-                                                           R.color.md_deeporange_400,
-                                                           R.color.md_brown_400,
-                                                           R.color.md_gray_400,
-                                                           R.color.md_bluegray_400};
     private LinearLayout linearLayoutEdit;
     private int PICK_IMAGE_REQUEST = 1;
     private int REQUEST_PERMISSION = 1;
@@ -84,23 +70,43 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
     private ImageView itemImageView, nameIconImageView, descriptionIconImageView;
     private ItemViewModel itemViewModel;
 
+    private OnConfirmListener onConfirmListener;
+
     @ColorInt
     private Integer selectedColorInt;
 
+    public ItemEditingFragment(){
+    }
+
+    public static ItemEditingFragment newInstance(int itemId, boolean isInEditMode){
+        Bundle args = new Bundle();
+        args.putInt("itemId", itemId);
+        args.putBoolean("inEditMode", isInEditMode);
+        ItemEditingFragment fragment = new ItemEditingFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
+        return inflater.inflate(R.layout.activity_add_item, container, false);
+    }
+
     @SuppressLint("ResourceType")
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState){
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_item);
 
-        initializeViews();
+        initializeViews(view);
 
-        Bundle bundle = getIntent().getExtras();
+        Bundle bundle = getArguments();
         // Persistence data source
         itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
 
         // If the bundle is not null, that means it is the edit mode
-        isInEditMode = bundle != null;
+        isInEditMode = bundle.getBoolean("inEditMode");
 
         if(!isInEditMode){
             selectedColorInt = Color.parseColor(getResources().getString(R.color.md_red_400));
@@ -137,7 +143,7 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
             });
         }
 
-        final Activity activity = this;
+        final Activity activity = getActivity();
         imageHeaderRelativeLayout.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -150,7 +156,36 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
                 startActivityForResult(Intent.createChooser(intent, "Select a picture"), PICK_IMAGE_REQUEST);
             }
         });
+    }
 
+    private void initializeViews(View view){
+        // Gets the Window in order to change Status Bar's Color
+        window = getActivity().getWindow();
+        linearLayoutEdit = view.findViewById(R.id.linearLayoutEdit);
+        collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
+        imageHeaderRelativeLayout = view.findViewById(R.id.imageHeaderRelativeLayout);
+        floatingActionButton = view.findViewById(R.id.fabConfirmAddItem);
+
+        nameEditText = view.findViewById(R.id.nameEditText);
+        nameEditWrapper = view.findViewById(R.id.nameEditWrapper);
+
+        quantityEditText = view.findViewById(R.id.quantityEditText);
+        quantityEditWrapper = view.findViewById(R.id.quantityEditWrapper);
+
+        descriptionEditText = view.findViewById(R.id.descriptionEditText);
+        descriptionEditWrapper = view.findViewById(R.id.descriptionEditWrapper);
+
+        selectColorButton = view.findViewById(R.id.colorEditButton);
+
+        circleImageView = view.findViewById(R.id.colorCircle);
+
+        // Setting up the toolbar
+        toolbar = view.findViewById(R.id.toolbar);
+
+        itemImageView = view.findViewById(R.id.itemImageView);
+
+        nameIconImageView = view.findViewById(R.id.nameIconImageView);
+        descriptionIconImageView = view.findViewById(R.id.descriptionIconImageView);
     }
 
     private void setupDialogButton(){
@@ -162,39 +197,29 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
                         .preselect(selectedColorInt)
                         .allowUserColorInputAlpha(false)
                         .dynamicButtonColor(false)
-                        .show(getSupportFragmentManager());
+                        .show(getChildFragmentManager());
             }
         });
     }
 
-    private void initializeViews(){
-        // Gets the Window in order to change Status Bar's Color
-        window = getWindow();
-        linearLayoutEdit = findViewById(R.id.linearLayoutEdit);
-        collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
-        imageHeaderRelativeLayout = findViewById(R.id.imageHeaderRelativeLayout);
-        floatingActionButton = findViewById(R.id.fabConfirmAddItem);
+    private void setSystemBarsColor(int selectedColorInt){
+        int frontColorInt = ColorUtility.getSuitableFrontColor(getContext(), selectedColorInt, true);
+        if(getActivity() instanceof ItemEditingContainerActivity){
+            window.setStatusBarColor(darkenColor(selectedColorInt));
+            window.setNavigationBarColor(selectedColorInt);
+        }
 
-        nameEditText = findViewById(R.id.nameEditText);
-        nameEditWrapper = findViewById(R.id.nameEditWrapper);
+        // Changes Toolbar's color according to the selected color
+        toolbar.setBackgroundColor(selectedColorInt);
+        toolbar.setTitleTextColor(frontColorInt);
+        toolbar.getNavigationIcon().setTint(frontColorInt);
+        collapsingToolbarLayout.setContentScrimColor(selectedColorInt);
 
-        quantityEditText = findViewById(R.id.quantityEditText);
-        quantityEditWrapper = findViewById(R.id.quantityEditWrapper);
+        // Changes Navigation Icon (Back Arrow Icon)'s color
+        toolbar.getNavigationIcon().setTint(frontColorInt);
 
-        descriptionEditText = findViewById(R.id.descriptionEditText);
-        descriptionEditWrapper = findViewById(R.id.descriptionEditWrapper);
-
-        selectColorButton = findViewById(R.id.colorEditButton);
-
-        circleImageView = findViewById(R.id.colorCircle);
-
-        // Setting up the toolbar
-        toolbar = findViewById(R.id.toolbar);
-
-        itemImageView = findViewById(R.id.itemImageView);
-
-        nameIconImageView = findViewById(R.id.nameIconImageView);
-        descriptionIconImageView = findViewById(R.id.descriptionIconImageView);
+        // Changes Square Color Icon's color according to the selected color
+        circleImageView.setBackgroundColor(selectedColorInt);
     }
 
     private void setEditTextOnFocus(@ColorInt final int colorInt){
@@ -226,6 +251,48 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         linearLayoutEdit.requestFocus();
     }
 
+    private void setUpStatusAndToolbar(@ColorInt int backColorInt){
+        if(getActivity() instanceof ItemEditingContainerActivity){
+            AppCompatActivity activity = (AppCompatActivity) getActivity();
+            activity.setSupportActionBar(toolbar);
+            if(!isInEditMode){
+                activity.setTitle("Add an item");
+            }else{
+                activity.setTitle("Edit an item");
+            }
+
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+            // clear FLAG_TRANSLUCENT_STATUS flag:
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
+            // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        }else{
+            // TODO: Define toolbar behavior outside container activity
+            if(!isInEditMode){
+                toolbar.setTitle("Add an item");
+            }else{
+                toolbar.setTitle("Edit an item");
+            }
+
+            toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
+        }
+        setSystemBarsColor(backColorInt);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(getActivity() instanceof ItemEditingContainerActivity){
+                    getActivity().finish();
+                }else{
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(getParentFragment()).commit();
+                }
+            }
+        });
+
+    }
+
     private void fillTextEditForm(Item item){
         nameEditText.setText(item.getName());
         quantityEditText.setText(String.valueOf(item.getQuantity()));
@@ -233,32 +300,6 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         if(item.getImageFile() != null){
             Glide.with(this).load(item.getImageFile()).into(itemImageView);
         }
-    }
-
-    private void setUpStatusAndToolbar(@ColorInt int backColorInt){
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-        setSupportActionBar(toolbar);
-        if(!isInEditMode){
-            setTitle("Add an item");
-        }else{
-            setTitle("Edit an item");
-        }
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-
-        toolbar.setNavigationOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                finish();
-            }
-        });
-        setSystemBarsColor(backColorInt);
     }
 
     public void takeAction(ActionCode actionCode, ItemViewModel itemViewModel, Item item){
@@ -346,7 +387,19 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         // }
 
         //startActivity(new Intent(mContext, MainActivity.class));
-        finish();
+
+        if(onConfirmListener != null){
+            if(isInEditMode){
+                onConfirmListener.onConfirm(item.getId());
+            }else{
+                onConfirmListener.onConfirm(itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MAX_VALUE, DataRepository.ITEM_FIELD_ID));
+            }
+        }
+
+        if(getActivity() instanceof ItemEditingContainerActivity){
+            getActivity().finish();
+        }else{
+        }
 
     }
 
@@ -368,23 +421,34 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
 
     }
 
-    private void setSystemBarsColor(int selectedColorInt){
-        int frontColorInt = ColorUtility.getSuitableFrontColor(this, selectedColorInt, true);
-        window.setStatusBarColor(darkenColor(selectedColorInt));
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        try{
+            if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                    && data != null && data.getData() != null){
 
-        window.setNavigationBarColor(selectedColorInt);
+                if(isInEditMode && originalImageFile != null){
+                    try{
+                        FileUtils.forceDelete(originalImageFile);
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+                }
 
-        // Changes Toolbar's color according to the selected color
-        toolbar.setBackgroundColor(selectedColorInt);
-        toolbar.setTitleTextColor(frontColorInt);
-        toolbar.getNavigationIcon().setTint(frontColorInt);
-        collapsingToolbarLayout.setContentScrimColor(selectedColorInt);
+                originalImageFile = new File(ImageUtility.getPathFromUri(getContext(), data.getData()));
+                System.out.println("getPathFromUri() : " + ImageUtility.getPathFromUri(getContext(), data.getData()));
+                Glide.with(getContext()).load(originalImageFile).into(itemImageView);
 
-        // Changes Navigation Icon (Back Arrow Icon)'s color
-        toolbar.getNavigationIcon().setTint(frontColorInt);
-
-        // Changes Square Color Icon's color according to the selected color
-        circleImageView.setBackgroundColor(selectedColorInt);
+                // String fileName =
+                // FileUtils.copyDirectory(originalFile, new File(this.getFilesDir().toURI().getPath() + ""));
+                // System.out.println();
+                //TODO: Don't copy the selected file yet. Wait until user press the FAB.
+            }
+        }catch(SecurityException e){
+            Toast.makeText(getContext(), "Exception throwed: Storage Permission Denied", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     private void validatePermissionRequests(Activity activity){
@@ -413,38 +477,8 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        try{
-            if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                    && data != null && data.getData() != null){
-
-                if(isInEditMode && originalImageFile != null){
-                    try{
-                        FileUtils.forceDelete(originalImageFile);
-                    }catch(IOException e){
-                        e.printStackTrace();
-                    }
-                }
-
-                originalImageFile = new File(ImageUtility.getPathFromUri(getApplicationContext(), data.getData()));
-                System.out.println("getPathFromUri() : " + ImageUtility.getPathFromUri(getApplicationContext(), data.getData()));
-                Glide.with(getApplicationContext()).load(originalImageFile).into(itemImageView);
-
-                // String fileName =
-                // FileUtils.copyDirectory(originalFile, new File(this.getFilesDir().toURI().getPath() + ""));
-                // System.out.println();
-                //TODO: Don't copy the selected file yet. Wait until user press the FAB.
-            }
-        }catch(SecurityException e){
-            Toast.makeText(this, "Exception throwed: Storage Permission Denied", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-    }
-
     private String getSelectedImageUrl(File originalImageFile, long timestamp) throws IOException{
-        String internalStoragePath = this.getFilesDir().toURI().getPath();
+        String internalStoragePath = getActivity().getFilesDir().toURI().getPath();
         String fileName = String.valueOf(timestamp) + ".jpg";
 
         File newFile = new File(internalStoragePath + fileName);
@@ -452,5 +486,13 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         return internalStoragePath + fileName;
     }
 
-    private enum ActionCode{ADD_ITEM, UPDATE_ITEM}
+    private enum ActionCode{ADD_ITEM, UPDATE_ITEM;}
+
+    public void setOnConfirmListener(OnConfirmListener onConfirmListener){
+        this.onConfirmListener = onConfirmListener;
+    }
+
+    public interface OnConfirmListener{
+        void onConfirm(int itemId);
+    }
 }

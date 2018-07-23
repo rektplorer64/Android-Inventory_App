@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	android:id="@+id/frameLayoutsScroller"
+	android:layout_height="wrap_content"
+	android:layout_width="match_parent"
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="vertical">
+
+		<fragment
+			android:id="@+id/filterSettingFrame"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:name="tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment">
+		</fragment>
+
+		<View
+			android:background="?android:attr/listDivider"
+			android:layout_height="1dp"
+			android:layout_width="match_parent"/>
+
+		<fragment
+			android:id="@+id/sortSettingFrame"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent"
+			android:name="tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment">
+		</fragment>
+
+	</LinearLayout>
+</ScrollView>

@@ -118,8 +118,8 @@ public abstract class AppDatabase extends RoomDatabase{
         }
 
         private void populateItems(){
-            Item[] items = new Item[100];
-            for(int i = 0; i < 100; i++){
+            Item[] items = new Item[1000];
+            for(int i = 0; i < 1000; i++){
                 int timeStamp = (new Random()).nextInt(1000000) + 100000;
                 int colorArrPosition = (new Random()).nextInt(AddItemActivity.predefinedColorsResourceIDs.length);
                 int colorValue = Color.parseColor(context.getResources().getString(AddItemActivity.predefinedColorsResourceIDs[colorArrPosition]));
@@ -177,9 +177,9 @@ public abstract class AppDatabase extends RoomDatabase{
         @Override
         protected Void doInBackground(Void... voids){
             //Toast.makeText(context, "Populating Database", Toast.LENGTH_SHORT).show();
-            populateItems();
+            // populateItems();
             populateUsers();
-            populateReviews();
+            // populateReviews();
             return null;
         }
     }

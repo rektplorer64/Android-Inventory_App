@@ -5,11 +5,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
@@ -17,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -29,20 +34,23 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
+import tanawinwichitcom.android.inventoryapp.SortingAsyncTaskLoader;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileDialogFragment;
-import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
+import tanawinwichitcom.android.inventoryapp.objectdiffutil.ItemDiffCallback;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.DatePreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
+
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.SEARCH_ALL_ITEMS;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> implements Filterable{
 
@@ -57,6 +65,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     private Context context;
 
     private SearchPreference searchPref;
+    private SortPreference sortPref;
+
+    private ItemLoadFinishListener itemLoadFinishListener;
+    private ItemSelectListener itemSelectListener;
 
     /*
      * Private Field for basically a HashMap, but with a better memory efficiency
@@ -66,7 +78,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     private ItemFilter itemFilter;
     private Activity activity;
 
-
     public ItemAdapter(int layoutMode, Context context, Activity activity){
         this.context = context;
         this.activity = activity;
@@ -75,6 +86,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         this.layoutMode = layoutMode;
 
         this.searchPref = new SearchPreference();
+        this.sortPref = new SortPreference();
     }
 
     @NonNull
@@ -178,7 +190,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
         holder.cardView.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v){
+            public void onClick(final View v){
                 if(screenIsLargeOrPortrait){
                     // Toast.makeText(v.getContext(), "Item #" + position + " is clicked...", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(v.getContext(), ItemProfileContainerActivity.class);
@@ -190,26 +202,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
                             .getSupportFragmentManager().beginTransaction();
                     if(activity instanceof MainActivity){
                         if(!listElementWrappers.get(position).isShowing()){
-                            listElementWrappers.get(position)
-                                    .setShowing(!listElementWrappers.get(position).isShowing());
-
+                            listElementWrappers.get(position).setShowing(!listElementWrappers.get(position).isShowing());
                             ItemListElementWrapper
                                     .clearOlderShowFlags(listElementWrappers, listElementWrappers.get(position).getItem());
 
                             notifyDataSetChanged();
                             changeCardState(holder, position);
 
-
-                            System.out.println("X:" + touchCoordinate[0] + ", Y:" + touchCoordinate[1]);
-
-                            ItemProfileFragment itemProfileFragment
-                                    = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, item.getId(),
-                                    0, touchCoordinate[1]);
-
-                            fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-                            // fragmentTransaction.setCustomAnimations(R.anim.enter, R.anim.exit);
-                            fragmentTransaction.replace(R.id.itemProfileFragmentFrame, itemProfileFragment);
-                            fragmentTransaction.commit();
+                            if(itemSelectListener != null){
+                                itemSelectListener.onSelect(item.getId(), touchCoordinate[1]);
+                            }
                         }
                     }else{
                         ItemProfileDialogFragment itemProfileDialog = ItemProfileDialogFragment.newInstance(item.getId());
@@ -218,8 +220,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
                 }
             }
         });
-
-
     }
 
     private void changeCardState(ViewHolder holder, int position){
@@ -243,13 +243,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     }
 
     public void applyItemDataChanges(List<Item> itemArrayList, boolean isFiltering){
-        this.listElementWrappers.clear();
-        notifyDataSetChanged();     // Notifies data changes after clearance to prevent java.lang.IndexOutOfBoundsException: Inconsistency detected.
-        if(itemArrayList == null){
-            return;
+        // this.listElementWrappers.clear();
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ItemDiffCallback(itemList, itemArrayList));
+        diffResult.dispatchUpdatesTo(this);
+
+        // notifyDataSetChanged();     // Notifies data changes after clearance to prevent java.lang.IndexOutOfBoundsException: Inconsistency detected.
+        if(itemLoadFinishListener != null){
+            int size;
+            if(itemArrayList != null){
+                size = itemArrayList.size();
+            }else{
+                size = 0;
+            }
+            itemLoadFinishListener.onItemFinishUpdate(size);
         }
 
-        if(itemArrayList.size() == 0){
+        if(itemArrayList == null || itemArrayList.size() == 0){
             return;
         }
 
@@ -257,13 +266,41 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
             itemList = itemArrayList;
         }
 
+        listElementWrappers.clear();
+        notifyDataSetChanged();
         for(Item item : itemArrayList){
             this.listElementWrappers.add(new ItemListElementWrapper(item));
         }
 
-        if(!this.listElementWrappers.isEmpty() && this.listElementWrappers.get(0) != null){
-            this.listElementWrappers.get(0).setShowing(true);
+        // if(this.listElementWrappers.size() != 0 && this.listElementWrappers.get(0) != null){
+        //     this.listElementWrappers.get(0).setShowing(true);
+        // }
+        // notifyDataSetChanged();
+    }
+
+    public void applySorting(){
+        if(((AppCompatActivity) context).getSupportLoaderManager().hasRunningLoaders()){
+            ((AppCompatActivity) context).getSupportLoaderManager().destroyLoader(1);
         }
+        ((AppCompatActivity) context).getSupportLoaderManager().initLoader(1, null, new LoaderManager.LoaderCallbacks<List<ItemListElementWrapper>>(){
+            @NonNull
+            @Override
+            public Loader<List<ItemListElementWrapper>> onCreateLoader(int id, @Nullable Bundle args){
+                return new SortingAsyncTaskLoader(context, listElementWrappers, sortPref);
+            }
+
+            @Override
+            public void onLoadFinished(@NonNull Loader<List<ItemListElementWrapper>> loader, List<ItemListElementWrapper> data){
+                listElementWrappers = data;
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onLoaderReset(@NonNull Loader<List<ItemListElementWrapper>> loader){
+
+            }
+        }).forceLoad();
+
         notifyDataSetChanged();
     }
 
@@ -276,12 +313,60 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         return searchPref;
     }
 
+    public void setSearchPreference(SearchPreference searchPref){
+        this.searchPref = searchPref;
+    }
+
+    public void setSortPreference(SortPreference sortPref){
+        this.sortPref = sortPref;
+    }
+
     @Override
     public Filter getFilter(){
         if(itemFilter == null){
             itemFilter = new ItemFilter();
         }
         return itemFilter;
+    }
+
+    public void invokeItemPressing(int num, final RecyclerView recyclerView, boolean isItemId){
+        int index = num;
+        if(isItemId){
+            for(int i = 0; i < listElementWrappers.size(); i++){
+                if(num == listElementWrappers.get(i).getItem().getId()){
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        final int finalIndex = index;
+        // new Handler().postDelayed(new Runnable(){
+        //     @Override
+        //     public void run(){
+        //         recyclerView.findViewHolderForAdapterPosition(finalIndex).itemView.performClick();
+        //     }
+        // }, 1);
+        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener(){
+            @Override
+            public boolean onPreDraw(){
+                recyclerView.findViewHolderForAdapterPosition(finalIndex).itemView.performClick();
+                recyclerView.getViewTreeObserver().addOnPreDrawListener(this);
+                return true;
+            }
+        });
+    }
+
+    public SortPreference getSortPref(){
+        return sortPref;
+    }
+
+    public void setItemLoadFinishListener(ItemLoadFinishListener itemLoadFinishListener){
+        this.itemLoadFinishListener = itemLoadFinishListener;
+    }
+
+    public void setItemSelectListener(ItemSelectListener itemSelectListener){
+        this.itemSelectListener = itemSelectListener;
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder{
@@ -306,7 +391,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         }
     }
 
-    static class ItemListElementWrapper{
+    public static class ItemListElementWrapper{
         private Item item;
         private boolean isShowing;
 
@@ -316,7 +401,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         }
 
         public static void clearOlderShowFlags(List<ItemListElementWrapper> itemListElementWrappers, Item newlyFlaggedItem){
-            for(ItemListElementWrapper itemListElementWrapper : itemListElementWrappers){
+            for(int i = 0; i < itemListElementWrappers.size(); i++){
+                ItemListElementWrapper itemListElementWrapper = itemListElementWrappers.get(i);
                 if(newlyFlaggedItem != itemListElementWrapper.getItem()){
                     itemListElementWrapper.setShowing(false);
                 }
@@ -340,240 +426,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         }
     }
 
-    public static class SearchPreference implements Parcelable{
-        private SearchBy searchByPref;
-        private boolean containsImage;
-        private HashMap<DateType, DatePreference> datePrefHashMap = new HashMap<>();
-        private QuantityPreference quantityPreference;
-        private String keyword;
-
-        public SearchPreference(){
-            // Set Default Preferences
-            Date currentTime = Calendar.getInstance().getTime();
-            for(DateType dateType : DateType.values()){
-                this.datePrefHashMap.put(dateType, new DatePreference(currentTime));
-            }
-            searchByPref = SearchBy.ItemName;
-            containsImage = false;
-            quantityPreference = new QuantityPreference();
-        }
-
-        public void setDatePreference(DateType dateType, Date date){
-            if(!datePrefHashMap.containsKey(dateType)){
-                datePrefHashMap.put(dateType, new DatePreference(date));
-            }else{
-                datePrefHashMap.get(dateType).setDate(date);
-            }
-        }
-
-        public DatePreference getDatePreference(DateType dateType){
-            return datePrefHashMap.get(dateType);
-        }
-
-        public SearchBy getSearchBy(){
-            return searchByPref;
-        }
-
-        public void setSearchBy(SearchBy searchBy){
-            if(searchBy != null){
-                this.searchByPref = searchBy;
-            }else{
-                this.searchByPref = SearchBy.ItemName;
-            }
-        }
-
-        public boolean isContainsImage(){
-            return containsImage;
-        }
-
-        public void setContainsImage(boolean containsImage){
-            this.containsImage = containsImage;
-        }
-
-        public String getKeyword(){
-            return keyword;
-        }
-
-        public void setKeyword(String keyword){
-            this.keyword = keyword;
-        }
-
-        public QuantityPreference getQuantityPreference(){
-            return quantityPreference;
-        }
-
-        @Override
-        public String toString(){
-            StringBuilder stringBuilder = new StringBuilder();
-
-            for(DateType dateType : datePrefHashMap.keySet()){
-                stringBuilder.append("\t\t" + dateType.toString() + ": " + datePrefHashMap.get(dateType).isPreferenceEnabled() + ", " + datePrefHashMap.get(dateType).getDate().getTime() + "\n");
-            }
-
-            return "SearchPreference{" +
-                    "searchByPref = " + searchByPref.toString() +
-                    ", containsImage = " + containsImage +
-                    ", datePrefHashMap = \n" + stringBuilder +
-                    ", keyword = '" + keyword + '\'' +
-                    '}';
-        }
-
-        public enum SearchBy{ItemName, ItemId, ItemDescription;}
-
-        public enum DateType{DateCreated_From, DateCreated_To, DateModified_From, DateModified_To}
-
-        public static class SwitchablePreference{
-            private boolean isPreferenceEnabled;
-
-            public boolean isPreferenceEnabled(){
-                return isPreferenceEnabled;
-            }
-
-            public void setPreferenceEnabled(boolean preferenceEnabled){
-                isPreferenceEnabled = preferenceEnabled;
-            }
-        }
-
-        public static class DatePreference extends SwitchablePreference implements Parcelable{
-            private Date date;
-
-            public DatePreference(Date date){
-                this.date = date;
-            }
-
-            public Date getDate(){
-                return date;
-            }
-
-            public void setDate(Date date){
-                this.date = date;
-            }
-
-            @Override
-            public String toString(){
-                final StringBuilder sb = new StringBuilder("DatePreference{");
-                sb.append("date = ").append(date.getTime());
-                sb.append(", isPreferenceEnabled = ").append(super.isPreferenceEnabled);
-                sb.append('}');
-                return sb.toString();
-            }
-
-            @Override
-            public int describeContents(){
-                return 0;
-            }
-
-            @Override
-            public void writeToParcel(Parcel dest, int flags){
-                dest.writeLong(this.date != null ? this.date.getTime() : -1);
-            }
-
-            protected DatePreference(Parcel in){
-                long tmpDate = in.readLong();
-                this.date = tmpDate == -1 ? null : new Date(tmpDate);
-            }
-
-            public static final Creator<DatePreference> CREATOR = new Creator<DatePreference>(){
-                @Override
-                public DatePreference createFromParcel(Parcel source){
-                    return new DatePreference(source);
-                }
-
-                @Override
-                public DatePreference[] newArray(int size){
-                    return new DatePreference[size];
-                }
-            };
-        }
-
-        public static class QuantityPreference extends SwitchablePreference implements Parcelable{
-            private int maxRange;
-            private int minRange;
-
-            public QuantityPreference(){
-            }
-
-            public int getMaxRange(){
-                return maxRange;
-            }
-
-            public void setMaxRange(int maxRange){
-                this.maxRange = maxRange;
-            }
-
-            public int getMinRange(){
-                return minRange;
-            }
-
-            public void setMinRange(int minRange){
-                this.minRange = minRange;
-            }
-
-            @Override
-            public int describeContents(){
-                return 0;
-            }
-
-            @Override
-            public void writeToParcel(Parcel dest, int flags){
-                dest.writeInt(this.maxRange);
-                dest.writeInt(this.minRange);
-            }
-
-            protected QuantityPreference(Parcel in){
-                this.maxRange = in.readInt();
-                this.minRange = in.readInt();
-            }
-
-            public static final Creator<QuantityPreference> CREATOR = new Creator<QuantityPreference>(){
-                @Override
-                public QuantityPreference createFromParcel(Parcel source){
-                    return new QuantityPreference(source);
-                }
-
-                @Override
-                public QuantityPreference[] newArray(int size){
-                    return new QuantityPreference[size];
-                }
-            };
-        }
-
-        @Override
-        public int describeContents(){
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags){
-            dest.writeInt(this.searchByPref == null ? -1 : this.searchByPref.ordinal());
-            dest.writeByte(this.containsImage ? (byte) 1 : (byte) 0);
-            dest.writeSerializable(this.datePrefHashMap);
-            dest.writeParcelable(this.quantityPreference, flags);
-            dest.writeString(this.keyword);
-        }
-
-        protected SearchPreference(Parcel in){
-            int tmpSearchByPref = in.readInt();
-            this.searchByPref = tmpSearchByPref == -1 ? null : SearchBy.values()[tmpSearchByPref];
-            this.containsImage = in.readByte() != 0;
-            this.datePrefHashMap = (HashMap<DateType, DatePreference>) in.readSerializable();
-            this.quantityPreference = in.readParcelable(QuantityPreference.class.getClassLoader());
-            this.keyword = in.readString();
-        }
-
-        public static final Parcelable.Creator<SearchPreference> CREATOR = new Parcelable.Creator<SearchPreference>(){
-            @Override
-            public SearchPreference createFromParcel(Parcel source){
-                return new SearchPreference(source);
-            }
-
-            @Override
-            public SearchPreference[] newArray(int size){
-                return new SearchPreference[size];
-            }
-        };
-    }
-
     private class ItemFilter extends Filter{
 
         public ItemFilter(){
@@ -585,10 +437,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
             List<Item> resultList = new ArrayList<>();
 
-            String query;
-            if(constraint != null){
+            String query = null;
+            if(constraint != null && !constraint.toString().equals(SEARCH_ALL_ITEMS)){
                 query = constraint.toString();
-            }else{
+            }else if(constraint == null){
+                query = null;
+            }else if(constraint.toString().equals(SEARCH_ALL_ITEMS)){
                 query = null;
             }
             System.out.println(searchPref.toString());
@@ -627,37 +481,37 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
         private void filterList(SearchPreference preference, Item item, List<Item> resultList){
             // TODO: Fix this shit
-            SearchPreference.DatePreference dateCreatedFromPref = preference.getDatePreference(SearchPreference.DateType.DateCreated_From);
-            SearchPreference.DatePreference dateCreatedToPref = preference.getDatePreference(SearchPreference.DateType.DateCreated_To);
-            SearchPreference.DatePreference dateModifiedFromPref = preference.getDatePreference(SearchPreference.DateType.DateModified_From);
-            SearchPreference.DatePreference dateModifiedToPref = preference.getDatePreference(SearchPreference.DateType.DateModified_To);
+            DatePreference dateCreatedFromPref = preference.getDatePreference(SearchPreference.DateType.DateCreated_From);
+            DatePreference dateCreatedToPref = preference.getDatePreference(SearchPreference.DateType.DateCreated_To);
+            DatePreference dateModifiedFromPref = preference.getDatePreference(SearchPreference.DateType.DateModified_From);
+            DatePreference dateModifiedToPref = preference.getDatePreference(SearchPreference.DateType.DateModified_To);
 
-            System.out.println("dateCreatedFromPref: \n" + dateCreatedFromPref.toString());
-            System.out.println("dateCreatedToPref: \n" + dateCreatedToPref.toString());
-            System.out.println("dateModifiedFromPref: \n" + dateModifiedFromPref.toString());
-            System.out.println("dateModifiedToPref: \n" + dateModifiedToPref.toString());
+            // System.out.println("dateCreatedFromPref: \n" + dateCreatedFromPref.toString());
+            // System.out.println("dateCreatedToPref: \n" + dateCreatedToPref.toString());
+            // System.out.println("dateModifiedFromPref: \n" + dateModifiedFromPref.toString());
+            // System.out.println("dateModifiedToPref: \n" + dateModifiedToPref.toString());
 
             if(dateCreatedFromPref.isPreferenceEnabled()
                     && !(dateCreatedFromPref.getDate().getTime() <= item.getDateCreated().getTime())){
-                System.out.println("Removed Item State #1");
+                // System.out.println("Removed Item State #1");
                 return;
             }
 
             if(dateCreatedToPref.isPreferenceEnabled()
                     && !(dateCreatedToPref.getDate().getTime() >= item.getDateCreated().getTime())){
-                System.out.println("Removed Item State #2");
+                // System.out.println("Removed Item State #2");
                 return;
             }
 
             if(dateModifiedFromPref.isPreferenceEnabled()
                     && !(dateModifiedFromPref.getDate().getTime() <= item.getDateModified().getTime())){
-                System.out.println("Removed Item State #3");
+                // System.out.println("Removed Item State #3");
                 return;
             }
 
             if(dateModifiedToPref.isPreferenceEnabled()
                     && !(dateModifiedToPref.getDate().getTime() >= item.getDateModified().getTime())){
-                System.out.println("Removed Item State #4");
+                // System.out.println("Removed Item State #4");
                 return;
             }
 
@@ -667,9 +521,11 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
             }
 
             // System.out.println("itemImageFile: " + item.getImageFile());
-            if(!((searchPref.isContainsImage()) ? item.getImageFile() != null
-                    : item.getImageFile() == null)){
-                return;
+            if(searchPref.getImageMode() != SearchPreference.ANY_IMAGE){
+                if(!((searchPref.getImageMode() == SearchPreference.CONTAINS_IMAGE) ? item.getImageFile() != null
+                        : item.getImageFile() == null)){
+                    return;
+                }
             }
             resultList.add(item);
         }
@@ -691,5 +547,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
             }
         }
     }
+
+    public interface ItemLoadFinishListener{
+        void onItemFinishUpdate(int size);
+    }
+
+    public interface ItemSelectListener{
+        void onSelect(int itemId, int touchCoordinateY);
+    }
+
 }
 

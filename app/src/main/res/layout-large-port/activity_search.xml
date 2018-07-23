@@ -19,8 +19,8 @@
 			android:id="@+id/searchView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginLeft="200dp"
-			android:layout_marginRight="200dp"
+			android:layout_marginLeft="100dp"
+			android:layout_marginRight="100dp"
 			app:search_hint="Search items"
 			app:search_logo="arrow"
 			app:search_version="toolbar"/>
@@ -45,20 +45,22 @@
 			android:id="@+id/containerCardView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_marginLeft="120dp"
-			android:layout_marginRight="120dp">
+			android:layout_marginLeft="65dp"
+			android:layout_marginRight="65dp">
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
+				android:orientation="vertical"
 				android:weightSum="10">
 
 				<android.support.v7.widget.CardView
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
 					android:layout_marginBottom="8dp"
-					android:layout_marginStart="8dp"
-					android:layout_marginTop="8dp"
+					android:layout_marginLeft="16dp"
+					android:layout_marginRight="16dp"
+					android:layout_marginTop="16dp"
 					android:layout_weight="4"
 					app:cardCornerRadius="7dp"
 					app:cardElevation="3dp">
@@ -66,36 +68,45 @@
 					<LinearLayout
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:orientation="vertical">
+						android:orientation="horizontal"
+						android:weightSum="10">
 
-						<include
-							layout="@layout/pane_search_option"/>
+						<ScrollView
+							android:layout_width="0dp"
+							android:layout_weight="5"
+							android:layout_height="match_parent">
 
-						<RelativeLayout
-							android:layout_width="match_parent"
-							android:layout_height="52dp">
+							<fragment
+								android:id="@+id/filterSettingFrame"
+								android:name="tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content">
+							</fragment>
+						</ScrollView>
 
-							<Button
-								android:id="@+id/dialogSaveButton"
-								android:layout_width="wrap_content"
-								android:layout_height="wrap_content"
-								android:layout_alignParentEnd="true"
-								android:layout_margin="8dp"
-								android:background="@android:color/transparent"
-								android:foreground="?android:selectableItemBackgroundBorderless"
-								android:text="Save"
-								android:textColor="@color/colorPrimaryDark"
-								android:textStyle="bold"/>
-						</RelativeLayout>
+						<ScrollView
+							android:layout_width="0dp"
+							android:layout_weight="5"
+							android:layout_height="match_parent">
+
+							<fragment
+								android:id="@+id/sortSettingFrame"
+								android:name="tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment"
+								android:layout_width="match_parent"
+								android:layout_height="wrap_content">
+							</fragment>
+						</ScrollView>
 					</LinearLayout>
-
 
 				</android.support.v7.widget.CardView>
 
 				<android.support.v7.widget.CardView
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_margin="8dp"
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:layout_marginBottom="16dp"
+					android:layout_marginLeft="16dp"
+					android:layout_marginRight="16dp"
+					android:layout_marginTop="8dp"
 					android:layout_weight="6"
 					app:cardCornerRadius="7dp">
 

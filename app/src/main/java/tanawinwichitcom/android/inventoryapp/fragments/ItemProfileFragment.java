@@ -35,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -52,8 +53,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import es.dmoral.toasty.Toasty;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
-import tanawinwichitcom.android.inventoryapp.AddItemActivity;
+import tanawinwichitcom.android.inventoryapp.ItemEditingContainerActivity;
 import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
@@ -74,7 +76,7 @@ import static tanawinwichitcom.android.inventoryapp.utility.ColorUtility.darkenC
 
 public class ItemProfileFragment extends CircularRevealFragment{
 
-    private ItemDeleteListener itemDeleteListener;
+    private ItemChangeListener itemChangeListener;
 
     private Window window;
     private NestedScrollView nestedScrollView;
@@ -83,7 +85,7 @@ public class ItemProfileFragment extends CircularRevealFragment{
     private ItemViewModel itemViewModel;
     private Toolbar toolbar;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    private ImageView itemImageView, moreInfoIcon;
+    private ImageView itemImageView;
     private TextView itemNameTextView, quantityTextView, descriptionTextView;
     //private RatingBar ratingBar;
 
@@ -104,11 +106,10 @@ public class ItemProfileFragment extends CircularRevealFragment{
     // private TextView ratedDateTextView;
     // private MaterialRatingBar indicatorScoreRatingBar;
 
-    private int itemId = 1;
+    private int itemId = 0;
 
     public ItemProfileFragment(){
     }
-
     public static ItemProfileFragment newInstance(int fragmentLayoutRes, int itemId, int centerX, int centerY){
         Bundle args = new Bundle();
         args.putInt("resLayout", fragmentLayoutRes);
@@ -131,23 +132,20 @@ public class ItemProfileFragment extends CircularRevealFragment{
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState){
         itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
-
         final Bundle bundle = getArguments();
 
         itemId = itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID);
-        // System.out.println("ItemProfileFragment, itemId = " + itemId);
         if(bundle != null){
             itemId = bundle.getInt("itemId");
-            // System.out.println("bundle != null; " + itemId);
         }
 
         if(bundle.getBoolean("isAfterDeletion")){
             itemId = itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID);
-            // System.out.println("isAfterDeletion; " + itemId);
         }
 
         final int finalItemId = itemId;
         initializeViews(view);
+        setupUiScales(view);
 
         itemInfoAdapter = new ItemInfoAdapter(getContext());
         itemInfoAdapter.setHasStableIds(true);
@@ -155,7 +153,7 @@ public class ItemProfileFragment extends CircularRevealFragment{
         userReviewAdapter = new UserReviewAdapter(finalItemId, getContext());
         userReviewAdapter.setHasStableIds(true);
 
-        final ItemProfileFragment ogFragment = this;
+        final ItemProfileFragment originalFragment = this;
 
         itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             @Override
@@ -171,6 +169,7 @@ public class ItemProfileFragment extends CircularRevealFragment{
                 }
             }
         });
+
         itemViewModel.getItemById(itemId).observe(this, new Observer<Item>(){
             @Override
             public void onChanged(@Nullable final Item item){
@@ -178,10 +177,33 @@ public class ItemProfileFragment extends CircularRevealFragment{
                     @Override
                     public boolean onMenuItemClick(MenuItem menuItem){
                         switch(menuItem.getItemId()){
+                            case R.id.action_more_info:{
+                                new MaterialDialog.Builder(getContext()).title("Info")
+                                        .adapter(itemInfoAdapter, new LinearLayoutManager(getContext()))
+                                        .negativeText("Close")
+                                        .build()
+                                        .show();
+                                break;
+                            }
                             case R.id.action_edit:{
-                                Intent intent = new Intent(getActivity(), AddItemActivity.class);
-                                intent.putExtra("itemId", itemId);
-                                startActivity(intent);
+                                if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                                    ItemEditingDialogFragment editingDialog = ItemEditingDialogFragment.newInstance(itemId, true);
+                                    editingDialog.setOnDialogConfirmListener(new ItemEditingDialogFragment.OnDialogConfirmListener(){
+                                        @Override
+                                        public void onDialogConfirm(int itemId){
+                                            Toasty.success(getContext(), "Successfully saved!").show();
+                                            if(itemChangeListener != null){
+                                                itemChangeListener.onEditConfirm(itemId);
+                                            }
+                                        }
+                                    });
+                                    editingDialog.show(getFragmentManager(), "itemEditingDialogFragment");
+                                }else{
+                                    Intent intent = new Intent(getActivity(), ItemEditingContainerActivity.class);
+                                    intent.putExtra("itemId", itemId);
+                                    intent.putExtra("inEditMode", true);
+                                    startActivity(intent);
+                                }
                                 break;
                             }
                             case R.id.action_delete:{
@@ -191,6 +213,7 @@ public class ItemProfileFragment extends CircularRevealFragment{
                                             @Override
                                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
                                                 itemViewModel.delete(item);
+                                                // Toasty.success(getContext(), "Item Deleted successfully").show();
                                                 if(getActivity() instanceof ItemProfileContainerActivity){
                                                     view.requestFocus();
                                                     closeActivityCircularly();
@@ -198,15 +221,15 @@ public class ItemProfileFragment extends CircularRevealFragment{
                                                     bundle.putBoolean("isAfterDeletion", true);
                                                     getFragmentManager()
                                                             .beginTransaction()
-                                                            .detach(ogFragment)
-                                                            .attach(ogFragment)
+                                                            .detach(originalFragment)
+                                                            .attach(originalFragment)
                                                             .commitAllowingStateLoss();
-                                                    if(itemDeleteListener != null){
-                                                        itemDeleteListener.onDelete();
+                                                    if(itemChangeListener != null){
+                                                        itemChangeListener.onDelete(item.getId());
                                                     }
                                                 }else if(getActivity() instanceof SearchActivity){
-                                                    if(itemDeleteListener != null){
-                                                        itemDeleteListener.onDelete();
+                                                    if(itemChangeListener != null){
+                                                        itemChangeListener.onDelete(item.getId());
                                                     }
                                                 }
                                             }
@@ -449,36 +472,13 @@ public class ItemProfileFragment extends CircularRevealFragment{
                 }
             });
 
-            // If this fragment is launched in ItemProfileContainerActivity and the screen size at least LARGE
-            if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
-                // If the screen is too wide, sets the side padding of fragment's LinearLayout.
-                int padding = HelperUtility.dpToPx(100, getContext());
-                itemProfileLinearLayout.setPadding(padding, 0, padding, 0);
-                // itemImageView.getLayoutParams().height = HelperUtility.dpToPx(1000, getContext());
-                // itemImageView.requestLayout();
-            }
-
             // Changes Status bar's color according to the selected color
             window.setStatusBarColor(darkenColor(backColorInt));
 
             // Changes Navigation Bar (Soft keys bar) color
             window.setNavigationBarColor(darkenColor(backColorInt, 0.5f));
         }else if(getActivity() instanceof MainActivity){
-            HelperUtility.expandActionBarToFitStatusBar(toolbar, getContext());     // Expands ActionBar to fit the translucent statusBar
             collapsingToolbarLayout.setContentScrimColor(darkenColor(backColorInt));    // Set scrimColor
-
-            /* Adjusts Layout According to the screen size */
-            rootView.post(new Runnable(){
-                @Override
-                public void run(){
-                    // System.out.println("ItemProfile RootView's Width: " + rootView.getWidth());
-                    if(rootView.getWidth() > 838){      // If the app takes the entire screen (too wide in landscape)
-                        // Sets the horizontal padding
-                        int padding = HelperUtility.dpToPx(120, rootView.getContext());
-                        itemProfileLinearLayout.setPadding(padding, 0, padding, 0);
-                    }
-                }
-            });
         }else{
             collapsingToolbarLayout.setContentScrimColor(darkenColor(backColorInt));    // Set scrimColor
             toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
@@ -489,6 +489,33 @@ public class ItemProfileFragment extends CircularRevealFragment{
                 @Override
                 public void onClick(View v){
                     getActivity().getSupportFragmentManager().beginTransaction().remove(getParentFragment()).commit();
+                }
+            });
+        }
+    }
+
+    private void setupUiScales(final View rootView){
+        if(getActivity() instanceof ItemProfileContainerActivity){
+            // If this fragment is launched in ItemProfileContainerActivity and the screen size at least LARGE
+            if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                // If the screen is too wide, sets the side padding of fragment's LinearLayout.
+                int padding = HelperUtility.dpToPx(100, getContext());
+                itemProfileLinearLayout.setPadding(padding, 0, padding, 0);
+                // itemImageView.getLayoutParams().height = HelperUtility.dpToPx(1000, getContext());
+                // itemImageView.requestLayout();
+            }
+        }else if(getActivity() instanceof MainActivity){
+            HelperUtility.expandActionBarToFitStatusBar(toolbar, getContext());     // Expands ActionBar to fit the translucent statusBar
+            /* Adjusts Layout According to the screen size */
+            rootView.post(new Runnable(){
+                @Override
+                public void run(){
+                    // System.out.println("ItemProfile RootView's Width: " + rootView.getWidth());
+                    if(rootView.getWidth() > 1174){      // If the app takes the entire screen (too wide in landscape)
+                        // Sets the horizontal padding
+                        int padding = HelperUtility.dpToPx(120, rootView.getContext());
+                        itemProfileLinearLayout.setPadding(padding, 0, padding, 0);
+                    }
                 }
             });
         }
@@ -542,7 +569,6 @@ public class ItemProfileFragment extends CircularRevealFragment{
         itemProfileLinearLayout = view.findViewById(R.id.itemProfileLinearLayout);
         collapsingToolbarLayout = view.findViewById(R.id.collapsingToolbar);
         itemImageView = view.findViewById(R.id.itemImageView);
-        moreInfoIcon = view.findViewById(R.id.moreInfoIcon);
         itemNameTextView = view.findViewById(R.id.itemTextView);
         quantityTextView = view.findViewById(R.id.quantityTextView);
         //ratingBar = view.findViewById(R.id.ratingBarView);
@@ -568,27 +594,30 @@ public class ItemProfileFragment extends CircularRevealFragment{
         scoreBarRatioViewList.add(view.findViewById(R.id.fiveStarRec));
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId()){
-            case R.id.action_edit:{
-                // Toast.makeText(getContext(), "Clicked edit button...", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getContext(), AddItemActivity.class);
-                intent.putExtra("itemId", getActivity().getIntent().getExtras().getInt("itemId"));
-                startActivity(intent);
-                return true;
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    // @Override
+    // public boolean onOptionsItemSelected(MenuItem item){
+    //     switch(item.getItemId()){
+    //         case R.id.action_edit:{
+    //             // Toast.makeText(getContext(), "Clicked edit button...", Toast.LENGTH_SHORT).show();
+    //             Intent intent = new Intent(getContext(), AddItemActivity.class);
+    //             intent.putExtra("itemId", getActivity().getIntent().getExtras().getInt("itemId"));
+    //             startActivity(intent);
+    //             return true;
+    //         }
+    //     }
+    //     return super.onOptionsItemSelected(item);
+    // }
 
     public void setItemStatusListener(ItemStatusListener itemStatusListener){
         this.itemStatusListener = itemStatusListener;
     }
 
+    public void setItemChangeListener(ItemChangeListener itemChangeListener){
+        this.itemChangeListener = itemChangeListener;
+    }
+
     private void onItemDataChanged(@Nullable Item item, View rootView){
         if(item == null){
-            // System.out.println("onItemDataChanged(): " + item.getId());
             return;
         }
 
@@ -621,17 +650,6 @@ public class ItemProfileFragment extends CircularRevealFragment{
                 .toString());
 
         itemInfoAdapter.applyInfoDataChanges(item);
-        moreInfoIcon.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                // Toast.makeText(getContext(), "ImageButton Clicked", Toast.LENGTH_SHORT).show();
-                new MaterialDialog.Builder(getContext()).title("Info")
-                        .adapter(itemInfoAdapter, new LinearLayoutManager(getContext()))
-                        .negativeText("Close")
-                        .build()
-                        .show();
-            }
-        });
 
         // if(item.getComment() != null){
         //     ratingBar.setRating(Float.valueOf(String.valueOf(item.getComment())));
@@ -715,10 +733,6 @@ public class ItemProfileFragment extends CircularRevealFragment{
         }
     }
 
-    public void setItemDeleteListener(ItemDeleteListener itemDeleteListener){
-        this.itemDeleteListener = itemDeleteListener;
-    }
-
     public interface ItemStatusListener{
         void onItemListEmpty();
 
@@ -727,7 +741,9 @@ public class ItemProfileFragment extends CircularRevealFragment{
         void onItemListNotEmpty();
     }
 
-    public interface ItemDeleteListener{
-        void onDelete();
+    public interface ItemChangeListener{
+        void onDelete(int itemId);
+
+        void onEditConfirm(int itemId);
     }
 }

@@ -66,4 +66,28 @@
 	<string name="color_palette">Select Palette</string>
 	<string name="colors">Select Color</string>
 	<string name="noReviewAvailable">No reviews available</string>
+
+
+
+	<string name="pref_search_filter">search_filter_preference</string>
+
+	<string name="pref_title_search_search_by">Search by</string>
+	<string name="pref_title_date_created">Date Created</string>
+	<string name="pref_title_date_modified">Date Modified</string>
+	<string name="pref_title_search_image">Image</string>
+	<string name="pref_title_search_quantity">Quantity</string>
+
+	<string name="pref_value_date_created_from">Date Created from</string>
+	<string name="pref_value_date_created_to">Date Created to</string>
+	<string name="pref_value_date_modified_from">Date Modified from</string>
+	<string name="pref_value_date_modified_to">Date Modified to</string>
+
+	<string name="pref_value_date_created_from_switch">Date Created from switch</string>
+	<string name="pref_value_date_created_to_switch">Date Created to switch</string>
+	<string name="pref_value_date_modified_from_switch">Date Modified from switch</string>
+	<string name="pref_value_date_modified_to_switch">Date Modified to switch</string>
+
+	<string name="pref_value_search_quantity_from">Quantity from</string>
+	<string name="pref_value_search_quantity_to">Quantity to</string>
+	<string name="pref_title_keyword">Keyword</string>
 </resources>
