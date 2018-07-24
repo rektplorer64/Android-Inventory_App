@@ -54,9 +54,7 @@ public class SortPreferenceFragment extends Fragment{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         // setRetainInstance(true);
-        sortPreference = new SortPreference();
         initializeViews(view);
-        setOnClick();
     }
 
     private void initializeViews(View view){
@@ -165,6 +163,19 @@ public class SortPreferenceFragment extends Fragment{
     public void onSaveInstanceState(@NonNull Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putParcelable("sortPreference", sortPreference);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        sortPreference = SortPreference.loadFromSharedPreference(getActivity());
+        setOnClick();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        SortPreference.saveToSharedPreference(getActivity(), sortPreference);
     }
 
     public interface SortPreferenceUpdateListener{

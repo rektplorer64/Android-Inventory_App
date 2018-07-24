@@ -90,4 +90,9 @@
 	<string name="pref_value_search_quantity_from">Quantity from</string>
 	<string name="pref_value_search_quantity_to">Quantity to</string>
 	<string name="pref_title_keyword">Keyword</string>
+
+	<string name="search_sort_preference">search_sort_preference</string>
+	<string name="pref_title_sort_sort_by">Sort by</string>
+	<string name="pref_title_sort_string_length">Use Text length</string>
+	<string name="pref_value_sort_sorting_order">Sorting order</string>
 </resources>

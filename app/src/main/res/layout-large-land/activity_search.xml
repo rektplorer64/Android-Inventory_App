@@ -111,6 +111,7 @@
 							android:padding="16dp"
 							android:text="Total Search Result: 0"
 							android:textAllCaps="true"
+							android:background="?android:selectableItemBackgroundBorderless"
 							android:textColor="@android:color/black"
 							android:textStyle="bold"/>
 

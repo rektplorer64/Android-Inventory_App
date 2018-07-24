@@ -1,10 +1,14 @@
 package tanawinwichitcom.android.inventoryapp.searchpreferencehelper;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
+
+import tanawinwichitcom.android.inventoryapp.R;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
@@ -55,6 +59,29 @@ public class SortPreference implements Parcelable{
 
     public void setStringLength(boolean stringLength){
         this.stringLength = stringLength;
+    }
+
+    public static void saveToSharedPreference(Context c, SortPreference sortPreference){
+        SharedPreferences sharedPreferences = c.getSharedPreferences(c.getString(R.string.search_sort_preference), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+
+        editor.putInt(c.getString(R.string.pref_title_sort_sort_by), sortPreference.getField());
+        editor.putBoolean(c.getString(R.string.pref_title_sort_string_length), sortPreference.isStringLength());
+        editor.putBoolean(c.getString(R.string.pref_value_sort_sorting_order), sortPreference.isInAscendingOrder());
+
+        editor.commit();
+    }
+
+    public static SortPreference loadFromSharedPreference(Context c){
+        SharedPreferences sharedPreferences = c.getSharedPreferences(c.getString(R.string.search_sort_preference), Context.MODE_PRIVATE);
+
+        SortPreference sortPreference = new SortPreference();
+        sortPreference.setField(sharedPreferences.getInt(c.getString(R.string.pref_title_sort_sort_by), 0));
+        sortPreference.setStringLength(sharedPreferences.getBoolean(c.getString(R.string.pref_title_sort_string_length), false));
+        sortPreference.setStringLength(sharedPreferences.getBoolean(c.getString(R.string.pref_value_sort_sorting_order), true));
+
+        return sortPreference;
     }
 
     @Override

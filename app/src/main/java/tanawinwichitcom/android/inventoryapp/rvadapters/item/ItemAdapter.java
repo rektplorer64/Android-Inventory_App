@@ -257,7 +257,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         }
     }
 
-    public SortPreference getSortPref(){
+    public SortPreference getSortPreference(){
         return sortPref;
     }
 

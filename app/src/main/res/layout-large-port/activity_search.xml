@@ -32,7 +32,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="84dp"
 		android:layout_below="@id/appBarLayout"
-		android:background="?attr/colorPrimary"
+		android:background="@color/colorPrimary"
 		android:elevation="4dp"/>
 
 	<FrameLayout
@@ -73,8 +73,8 @@
 
 						<ScrollView
 							android:layout_width="0dp"
-							android:layout_weight="5"
-							android:layout_height="match_parent">
+							android:layout_height="match_parent"
+							android:layout_weight="5">
 
 							<fragment
 								android:id="@+id/filterSettingFrame"
@@ -86,8 +86,8 @@
 
 						<ScrollView
 							android:layout_width="0dp"
-							android:layout_weight="5"
-							android:layout_height="match_parent">
+							android:layout_height="match_parent"
+							android:layout_weight="5">
 
 							<fragment
 								android:id="@+id/sortSettingFrame"
@@ -119,6 +119,7 @@
 							android:id="@+id/totalSearchTextView"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
+							android:background="?android:selectableItemBackgroundBorderless"
 							android:padding="16dp"
 							android:text="Total Search Result: 0"
 							android:textAllCaps="true"

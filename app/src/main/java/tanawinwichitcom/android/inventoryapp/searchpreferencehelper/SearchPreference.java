@@ -105,31 +105,6 @@ public class SearchPreference implements Parcelable{
         return quantityPreference;
     }
 
-    public static SearchPreference loadFromSharedPreference(Context c){
-        SharedPreferences sharedPref = c.getSharedPreferences(c.getString(R.string.pref_search_filter), Context.MODE_PRIVATE);
-
-        SearchPreference searchPref = new SearchPreference();
-        searchPref.setSearchBy(SearchBy.values()[sharedPref.getInt(c.getString(R.string.pref_title_search_search_by), 0)]);
-
-        int dateValueStringRes[] = new int[]{R.string.pref_value_date_created_from, R.string.pref_value_date_created_to, R.string.pref_value_date_modified_from, R.string.pref_value_date_modified_to};
-        int dateBooleanStringRes[] = new int[]{R.string.pref_value_date_created_from_switch, R.string.pref_value_date_created_to_switch, R.string.pref_value_date_modified_from_switch, R.string.pref_value_date_modified_to_switch};
-        int i = 0;
-        for(DateType d : DateType.values()){
-            Date date = new Date();
-            date.setTime(sharedPref.getLong(c.getString(dateValueStringRes[i]), Calendar.getInstance().getTimeInMillis()));
-            searchPref.setDatePreference(d, date);
-            searchPref.getDatePreference(d).setPreferenceEnabled(sharedPref.getBoolean(c.getString(dateBooleanStringRes[i++]), false));
-        }
-
-        searchPref.setImageMode(sharedPref.getInt(c.getString(R.string.pref_title_search_image), 0));
-
-        searchPref.getQuantityPreference().setPreferenceEnabled(sharedPref.getBoolean(c.getString(R.string.pref_title_search_quantity), false));
-        searchPref.getQuantityPreference().setMinRange(sharedPref.getInt(c.getString(R.string.pref_value_search_quantity_from), 1));
-        searchPref.getQuantityPreference().setMaxRange(sharedPref.getInt(c.getString(R.string.pref_value_search_quantity_to), 1000));
-
-        return searchPref;
-    }
-
     public static void saveToSharedPreference(Context c, SearchPreference searchPref){
         SharedPreferences sharedPreferences = c.getSharedPreferences(c.getString(R.string.pref_search_filter), Context.MODE_PRIVATE);
         SharedPreferences.Editor e = sharedPreferences.edit();
@@ -153,6 +128,31 @@ public class SearchPreference implements Parcelable{
         e.putInt(c.getString(R.string.pref_value_search_quantity_to), searchPref.getQuantityPreference().getMaxRange());
 
         e.commit();
+    }
+
+    public static SearchPreference loadFromSharedPreference(Context c){
+        SharedPreferences sharedPref = c.getSharedPreferences(c.getString(R.string.pref_search_filter), Context.MODE_PRIVATE);
+
+        SearchPreference searchPref = new SearchPreference();
+        searchPref.setSearchBy(SearchBy.values()[sharedPref.getInt(c.getString(R.string.pref_title_search_search_by), 0)]);
+
+        int dateValueStringRes[] = new int[]{R.string.pref_value_date_created_from, R.string.pref_value_date_created_to, R.string.pref_value_date_modified_from, R.string.pref_value_date_modified_to};
+        int dateBooleanStringRes[] = new int[]{R.string.pref_value_date_created_from_switch, R.string.pref_value_date_created_to_switch, R.string.pref_value_date_modified_from_switch, R.string.pref_value_date_modified_to_switch};
+        int i = 0;
+        for(DateType d : DateType.values()){
+            Date date = new Date();
+            date.setTime(sharedPref.getLong(c.getString(dateValueStringRes[i]), Calendar.getInstance().getTimeInMillis()));
+            searchPref.setDatePreference(d, date);
+            searchPref.getDatePreference(d).setPreferenceEnabled(sharedPref.getBoolean(c.getString(dateBooleanStringRes[i++]), false));
+        }
+
+        searchPref.setImageMode(sharedPref.getInt(c.getString(R.string.pref_title_search_image), 0));
+
+        searchPref.getQuantityPreference().setPreferenceEnabled(sharedPref.getBoolean(c.getString(R.string.pref_title_search_quantity), false));
+        searchPref.getQuantityPreference().setMinRange(sharedPref.getInt(c.getString(R.string.pref_value_search_quantity_from), 1));
+        searchPref.getQuantityPreference().setMaxRange(sharedPref.getInt(c.getString(R.string.pref_value_search_quantity_to), 1000));
+
+        return searchPref;
     }
 
     @Override

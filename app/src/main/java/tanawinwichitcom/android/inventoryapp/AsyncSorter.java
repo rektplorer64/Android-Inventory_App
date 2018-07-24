@@ -60,7 +60,7 @@ public class AsyncSorter extends AsyncTaskLoader<List<Item>>{
                         if(sortPref.isStringLength()){
                             return Integer.compare(string1.length(), string2.length());
                         }else{
-                            return string1.compareTo(string2);
+                            return string2.compareTo(string1);
                         }
                     case DESCRIPTION:
                         string1 = o1.getDescription();

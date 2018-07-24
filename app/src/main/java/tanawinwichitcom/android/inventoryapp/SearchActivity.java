@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.paging.PagedList;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchOptionDialogFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
@@ -130,7 +130,8 @@ public class SearchActivity extends AppCompatActivity
     @Override
     protected void onResume(){
         super.onResume();
-        itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
+        itemAdapter.setSortPreference(SortPreference.loadFromSharedPreference(getApplication()));
+        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
         itemAdapter.applySorting();
     }
 
@@ -232,7 +233,7 @@ public class SearchActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putParcelable(BUNDLE_PREFERENCE_FILTER, itemAdapter.getSearchPreference());
-        outState.putParcelable(BUNDLE_PREFERENCE_SORTING, itemAdapter.getSortPref());
+        outState.putParcelable(BUNDLE_PREFERENCE_SORTING, itemAdapter.getSortPreference());
         // getSupportFragmentManager().putFragment(outState, "searchPreferenceFragment", searchPreferenceFragment);
         // getSupportFragmentManager().putFragment(outState, "sortPreferenceFragment", sortPreferenceFragment);
     }
@@ -289,10 +290,18 @@ public class SearchActivity extends AppCompatActivity
                 itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
             }
 
-            if(itemAdapter.getSortPref() != null){
+            if(itemAdapter.getSortPreference() != null){
                 itemAdapter.applySorting();
             }
         }
+
+        totalSearchTextView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                resultsRecyclerView.scrollToPosition(0);
+                Toasty.info(v.getContext(), "Scrolled to top!").show();
+            }
+        });
 
         ItemViewModel itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
@@ -408,24 +417,25 @@ public class SearchActivity extends AppCompatActivity
 
     @Override
     public void onSortByPrefChange(int field){
-        itemAdapter.getSortPref().setField(field);
+        itemAdapter.getSortPreference().setField(field);
         refreshSearchResult();
     }
 
     @Override
     public void onTextLengthSwitchChange(boolean isChecked){
-        itemAdapter.getSortPref().setStringLength(isChecked);
+        itemAdapter.getSortPreference().setStringLength(isChecked);
         refreshSearchResult();
     }
 
     @Override
     public void onSortOrderSwitchChange(boolean isChecked){
-        itemAdapter.getSortPref().setInAscendingOrder(isChecked);
+        itemAdapter.getSortPreference().setInAscendingOrder(isChecked);
         refreshSearchResult();
     }
 
     private void refreshSearchResult(){
         itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
         itemAdapter.applySorting();
+        resultsRecyclerView.scrollToPosition(0);
     }
 }
