@@ -2,7 +2,6 @@ package tanawinwichitcom.android.inventoryapp.roomdatabase;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.paging.DataSource;
 import android.os.AsyncTask;
 import android.support.annotation.IntDef;
 
@@ -51,7 +50,7 @@ public class DataRepository{
     private ReviewDAO reviewDAO;
     private UserDAO userDAO;
 
-    private DataSource.Factory<Integer, Item> allItems;
+    private LiveData<List<Item>> allItems;
     private LiveData<List<Review>> allReviews;
     private LiveData<List<User>> allUsers;
 
@@ -87,7 +86,7 @@ public class DataRepository{
         return 0;
     }
 
-    public DataSource.Factory<Integer, Item> getAllItems(){
+    public LiveData<List<Item>> getAllItems(){
         return allItems;
     }
 

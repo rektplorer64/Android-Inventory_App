@@ -1,45 +1,67 @@
 package tanawinwichitcom.android.inventoryapp.rvadapters.item;
 
 import android.annotation.SuppressLint;
-import android.arch.paging.PagedListAdapter;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.recyclerview.extensions.ListAdapter;
 import android.support.v7.util.DiffUtil;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
+import tanawinwichitcom.android.inventoryapp.AsyncSorter;
+import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
+import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
-import tanawinwichitcom.android.inventoryapp.SortingAsyncTaskLoader;
-import tanawinwichitcom.android.inventoryapp.objectdiffutil.ItemDiffCallback;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.DatePreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
+import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.SEARCH_ALL_ITEMS;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.COLOR_ACCENT;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.DATE_CREATED;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.DATE_MODIFIED;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.DESCRIPTION;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.ID;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.NAME;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.QUANTITY;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.RATING;
 
-public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implements Filterable{
+public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> implements Filterable{
 
     public static final int FULL_CARD_LAYOUT = 0;
     public static final int NORMAL_CARD_LAYOUT = 1;
     public static final int SMALL_CARD_LAYOUT = 2;
     public static final int COMPACT_CARD_LAYOUT = 3;
 
-    private List<ItemListWrapper> listElementWrappers;
     private List<Item> itemList;
     private int layoutMode;
 
@@ -61,6 +83,7 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
         public boolean areContentsTheSame(Item oldItem, Item newItem){
             return oldItem.equals(newItem);
         }
+
     };
 
     /*
@@ -73,7 +96,7 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
     public ItemAdapter(int layoutMode, Context context){
         super(DIFF_CALLBACK);
         this.context = context;
-        this.listElementWrappers = new ArrayList<>();
+
         this.reviewHashMap = new SparseArray<>();
         this.layoutMode = layoutMode;
 
@@ -109,15 +132,14 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
         if(item != null){
             final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
 
-            holder.bindDataToView(reviewArrayList, this, layoutMode, item, position);
-            holder.setElementClickListener(listElementWrappers, itemSelectListener, this
-                    , item, position);
+            holder.bindDataToView(reviewArrayList, layoutMode, item);
+            holder.setElementClickListener(itemSelectListener, this, item, position);
         }
 
     }
 
     public void changeCardState(ItemViewHolder holder, int position){
-        if(listElementWrappers.get(position).isShowing()){
+        if(getItem(position).showing){
             //holder.cardView.setCardBackgroundColor(Color.parseColor("#dbe8ff"));
             holder.cardView.setCardBackgroundColor(Color.parseColor("#F6F7F2"));
             holder.cardView.setElevation(5);
@@ -139,9 +161,6 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
 
     public void applyItemDataChanges(List<Item> itemArrayList, boolean isFiltering){
         // this.listElementWrappers.clear();
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ItemDiffCallback(itemList, itemArrayList));
-        diffResult.dispatchUpdatesTo(this);
-
         // notifyDataSetChanged();     // Notifies data changes after clearance to prevent java.lang.IndexOutOfBoundsException: Inconsistency detected.
         if(itemLoadFinishListener != null){
             int size;
@@ -161,26 +180,9 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
             itemList = itemArrayList;
         }
 
-        // Find old selected item id
-        int oldSelectedItemId = 1;
-        for(int i = 0; i < listElementWrappers.size(); i++){
-            if(listElementWrappers.get(i).isShowing()){
-                oldSelectedItemId = i;
-                break;
-            }
-        }
-
-        listElementWrappers.clear();
         notifyDataSetChanged();
 
-        for(int i = 0; i < itemArrayList.size(); i++){
-            this.listElementWrappers.add(new ItemListWrapper(itemArrayList.get(i)));
-            if(oldSelectedItemId == listElementWrappers.get(i).getItem().getId()){
-                listElementWrappers.get(i).setShowing(true);
-                notifyDataSetChanged();
-            }
-        }
-
+        submitList(itemArrayList);
         // if(this.listElementWrappers.size() != 0 && this.listElementWrappers.get(0) != null){
         //     this.listElementWrappers.get(0).setShowing(true);
         // }
@@ -191,26 +193,32 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
         if(((AppCompatActivity) context).getSupportLoaderManager().hasRunningLoaders()){
             ((AppCompatActivity) context).getSupportLoaderManager().destroyLoader(1);
         }
-        ((AppCompatActivity) context).getSupportLoaderManager().initLoader(1, null, new LoaderManager.LoaderCallbacks<List<ItemListWrapper>>(){
-            @NonNull
-            @Override
-            public Loader<List<ItemListWrapper>> onCreateLoader(int id, @Nullable Bundle args){
-                return new SortingAsyncTaskLoader(context, listElementWrappers, sortPref);
-            }
+        // ((AppCompatActivity) context).getSupportLoaderManager().initLoader(1, null, new LoaderManager.LoaderCallbacks<List<Item>>(){
+        //     @NonNull
+        //     @Override
+        //     public Loader<List<Item>> onCreateLoader(int id, @Nullable Bundle args){
+        //         return new AsyncSorter(context, itemList, sortPref);
+        //     }
+        //
+        //     @Override
+        //     public void onLoadFinished(@NonNull Loader<List<Item>> loader, List<Item> data){
+        //         itemList = data;
+        //         submitList(itemList);
+        //         // notifyDataSetChanged();
+        //     }
+        //
+        //     @Override
+        //     public void onLoaderReset(@NonNull Loader<List<Item>> loader){
+        //
+        //     }
+        // }).forceLoad();
 
-            @Override
-            public void onLoadFinished(@NonNull Loader<List<ItemListWrapper>> loader, List<ItemListWrapper> data){
-                listElementWrappers = data;
-                notifyDataSetChanged();
-            }
+        if(itemList == null){
+            return;
+        }
 
-            @Override
-            public void onLoaderReset(@NonNull Loader<List<ItemListWrapper>> loader){
-
-            }
-        }).forceLoad();
-
-        notifyDataSetChanged();
+        itemList = AsyncSorter.sort(itemList, sortPref);
+        applyItemDataChanges(itemList, true);
     }
 
     public void applyReviewDataChanges(SparseArray<ArrayList<Review>> reviewHashMap){
@@ -239,11 +247,11 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
     }
 
     public void setSelected(int itemId){
-        for(int i = 0; i < listElementWrappers.size(); i++){
-            if(listElementWrappers.get(i).getItem().getId() == itemId){
-                listElementWrappers.get(i).setShowing(true);
+        for(int i = 0; i < getItemCount(); i++){
+            if(getItem(i).getId() == itemId){
+                getItem(i).showing = true;
             }else{
-                listElementWrappers.get(i).setShowing(false);
+                getItem(i).showing = false;
             }
         }
     }
@@ -314,7 +322,7 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
             }else if(constraint.toString().equals(SEARCH_ALL_ITEMS)){
                 query = null;
             }
-            System.out.println(searchPref.toString());
+            // System.out.println(searchPref.toString());
             for(Item item : itemList){
                 // System.out.println("ID: " + item.getId() + ", "+ item.getName());
 
@@ -402,18 +410,19 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results){
             List<Item> itemList = (List<Item>) results.values;
-            if(itemList != null){
-                if(!itemList.isEmpty()){
-                    applyItemDataChanges(itemList, true);
-                }
-            }else{
-                applyItemDataChanges(null, true);
-                return;
-            }
-
-            if(itemList.isEmpty()){
-                applyItemDataChanges(null, true);
-            }
+            applyItemDataChanges(itemList, true);
+            // if(itemList != null){
+            //     if(!itemList.isEmpty()){
+            //         applyItemDataChanges(itemList, true);
+            //     }
+            // }else{
+            //     applyItemDataChanges(null, true);
+            //     return;
+            // }
+            //
+            // if(itemList.isEmpty()){
+            //     applyItemDataChanges(null, true);
+            // }
         }
     }
 
@@ -425,5 +434,121 @@ public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implemen
         void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter);
     }
 
+    static class ItemViewHolder extends RecyclerView.ViewHolder{
+        CardView cardView;
+        private TextView nameTextView, ratingTextView, quantityTextView, descriptionTextView;
+        private RatingBar ratingBar;
+        private ImageView imageView;
+
+        ItemViewHolder(View itemView, int layoutMode){
+            super(itemView);
+            cardView = itemView.findViewById(R.id.itemCardView);
+            nameTextView = itemView.findViewById(R.id.itemTextView);
+            ratingTextView = itemView.findViewById(R.id.ratingTextView);
+            imageView = itemView.findViewById(R.id.imageView);
+            quantityTextView = itemView.findViewById(R.id.quantityTextView);
+
+            if(layoutMode == FULL_CARD_LAYOUT){
+                descriptionTextView = itemView.findViewById(R.id.shortDescriptionTextView);
+            }
+
+            ratingBar = itemView.findViewById(R.id.ratingBarView);
+        }
+
+        public void bindDataToView(List<Review> reviewArrayList, int layoutMode, Item item){
+            final Context context = cardView.getContext();
+
+            final boolean screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(context);
+
+            double averageRating = Review.calculateAverage(reviewArrayList);
+            item.setRating(averageRating);
+            int numberOfReviews = (reviewArrayList == null) ? 0 : reviewArrayList.size();
+
+
+            // if(!screenIsLargeOrPortrait && context instanceof MainActivity){
+            //     itemAdapter.changeCardState(this, position);
+            // }
+
+            if(item.getImageFile() != null){
+                Glide.with(cardView.getContext())
+                        .load(item.getImageFile())
+                        .apply(RequestOptions.centerCropTransform())
+                        .thumbnail(0.01f)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .into(imageView);
+            }else{
+                Glide.with(cardView.getContext())
+                        .load(R.drawable.md_wallpaper_placeholder)
+                        .apply(RequestOptions.centerCropTransform())
+                        .thumbnail(0.01f)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .into(imageView);
+            }
+
+            nameTextView.setText(item.getName());
+
+            String rating = String.format(HelperUtility.getCurrentLocale(context), "%.1f", item.getRating());
+            String numbersOfReviews = NumberFormat.getNumberInstance(Locale.US).format(numberOfReviews);
+            String shortenQuantityNumber = HelperUtility.shortenNumber((long) item.getQuantity());
+
+            ratingTextView.setText(new StringBuilder().append(rating).append(" (").append(numbersOfReviews).append(")").toString());
+            quantityTextView.setText(new StringBuilder().append(shortenQuantityNumber).toString());
+            if(layoutMode == FULL_CARD_LAYOUT){
+                descriptionTextView.setText(item.getDescription());
+            }
+            if(item.getRating() != null){
+                ratingBar.setRating(Float.valueOf(String.valueOf(item.getRating())));
+            }else{
+                ratingBar.setRating((float) 0.0);
+            }
+
+
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        public void setElementClickListener(final ItemSelectListener itemSelectListener, final ItemAdapter itemAdapter
+                , final Item item, final int position){
+            final int touchCoordinate[] = new int[2];
+
+            cardView.setOnTouchListener(new View.OnTouchListener(){
+                @Override
+                public boolean onTouch(View v, MotionEvent event){
+                    // save the X,Y coordinates
+                    if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
+                        v.getLocationOnScreen(touchCoordinate);
+                        // touchCoordinate[0] = event.getX();
+                        // touchCoordinate[1] = (int) event.getY();
+                    }
+                    return false;
+                }
+            });
+
+            final ItemViewHolder viewHolder = this;
+            cardView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(final View v){
+                    if(HelperUtility.isScreenLargeOrPortrait(v.getContext())){
+                        // Toast.makeText(v.getContext(), "Item #" + position + " is clicked...", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(v.getContext(), ItemProfileContainerActivity.class);
+                        intent.putExtra("itemId", item.getId());
+                        v.getContext().startActivity(intent);
+                    }else{
+                        FragmentTransaction fragmentTransaction = ((AppCompatActivity) v.getContext()).getSupportFragmentManager().beginTransaction();
+                        if(v.getContext() instanceof MainActivity){
+                            if(!item.showing){
+                                itemAdapter.changeCardState(viewHolder, position);
+                                if(itemSelectListener != null){
+                                    itemSelectListener.onSelect(item.getId(), touchCoordinate[1], itemAdapter);
+                                }
+                            }
+                        }else{
+                            ItemProfileDialogFragment itemProfileDialog = ItemProfileDialogFragment.newInstance(item.getId());
+                            itemProfileDialog.show(fragmentTransaction, "itemProfileDialog");
+                        }
+                    }
+                }
+            });
+        }
+    }
 }
 

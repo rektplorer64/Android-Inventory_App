@@ -295,9 +295,9 @@ public class SearchActivity extends AppCompatActivity
         }
 
         ItemViewModel itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
-        itemViewModel.getAllItems().observe(this, new Observer<android.arch.paging.PagedList<Item>>(){
+        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             @Override
-            public void onChanged(@Nullable PagedList<Item> items){
+            public void onChanged(@Nullable List<Item> items){
                 // Toast.makeText(SearchActivity.this, "Database reinitialized", Toast.LENGTH_SHORT).show();
                 totalSearchTextView.setText(new StringBuilder().append("Total Search Result: ")
                         .append(items.size()).toString());
@@ -358,39 +358,34 @@ public class SearchActivity extends AppCompatActivity
     public void onDateChange(SearchPreference.DateType dateType, Date date){
         // Toast.makeText(SearchActivity.this, "Date Pref Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().setDatePreference(dateType, date);
-        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onDateSwitchChange(SearchPreference.DateType dateType, boolean isCheck){
         // Toast.makeText(SearchActivity.this, "Date Pref Switch Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().getDatePreference(dateType).setPreferenceEnabled(isCheck);
-        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onSearchByDialogChange(SearchPreference.SearchBy searchBy){
         // Toast.makeText(SearchActivity.this, "Search by Pref Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().setSearchBy(searchBy);
-        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onImageModePrefChange(int imageMode){
         // Toast.makeText(SearchActivity.this, "Contain Image Pref Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().setImageMode(imageMode);
-        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onQuantitySwitchChange(boolean isChecked){
         itemAdapter.getSearchPreference().getQuantityPreference().setPreferenceEnabled(isChecked);
-        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
@@ -399,8 +394,7 @@ public class SearchActivity extends AppCompatActivity
         if(itemAdapter.getSearchPreference().getQuantityPreference().isPreferenceEnabled()){
             itemAdapter.getSearchPreference().getQuantityPreference().setMinRange(min);
             itemAdapter.getSearchPreference().getQuantityPreference().setMaxRange(max);
-            itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-            itemAdapter.applySorting();
+            refreshSearchResult();
         }
     }
 
@@ -409,24 +403,29 @@ public class SearchActivity extends AppCompatActivity
         // Toasty.info(getApplicationContext(), "onResuming...").show();
         itemAdapter.setSearchPreference(searchPreference);
         itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onSortByPrefChange(int field){
         itemAdapter.getSortPref().setField(field);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onTextLengthSwitchChange(boolean isChecked){
         itemAdapter.getSortPref().setStringLength(isChecked);
-        itemAdapter.applySorting();
+        refreshSearchResult();
     }
 
     @Override
     public void onSortOrderSwitchChange(boolean isChecked){
         itemAdapter.getSortPref().setInAscendingOrder(isChecked);
+        refreshSearchResult();
+    }
+
+    private void refreshSearchResult(){
+        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
         itemAdapter.applySorting();
     }
 }

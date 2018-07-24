@@ -2,6 +2,7 @@ package tanawinwichitcom.android.inventoryapp.roomdatabase.Entities;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.ColorInt;
@@ -50,6 +51,11 @@ public class Item{
 
     @ColumnInfo(name = "tags")
     private String tags;
+
+    @Ignore
+    public boolean showing;
+    @Ignore
+    public boolean selected;
 
     public Item(String name, int quantity, String description, @ColorInt int itemColorAccent, String tags, File imageFile, Date dateCreated, Date dateModified){
         this.name = name;

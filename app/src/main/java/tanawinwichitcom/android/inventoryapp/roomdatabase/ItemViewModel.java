@@ -2,19 +2,14 @@ package tanawinwichitcom.android.inventoryapp.roomdatabase;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.paging.DataSource;
-import android.arch.paging.LivePagedListBuilder;
-import android.arch.paging.PagedList;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import tanawinwichitcom.android.inventoryapp.roomdatabase.DAOs.ItemDAO;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.User;
@@ -23,7 +18,7 @@ public class ItemViewModel extends AndroidViewModel{
 
     private DataRepository dataRepository;
 
-    private LiveData<PagedList<Item>> allItems;
+    private LiveData<List<Item>> allItems;
     private LiveData<List<Review>> allReviews;
     private LiveData<List<User>> allUsers;
 
@@ -32,12 +27,7 @@ public class ItemViewModel extends AndroidViewModel{
 
         dataRepository = new DataRepository(application);
 
-        DataSource.Factory<Integer, Item> itemDataFactory = dataRepository.getAllItems();
-        PagedList.Config config = new PagedList.Config.Builder().setPageSize(30)
-                .setEnablePlaceholders(true)
-                .setInitialLoadSizeHint(50).build();
-        allItems = new LivePagedListBuilder<>(itemDataFactory, config).build();
-
+        allItems = dataRepository.getAllItems();
         allReviews = dataRepository.getAllReviews();
         allUsers = dataRepository.getAllUsers();
     }
@@ -78,7 +68,7 @@ public class ItemViewModel extends AndroidViewModel{
         return dataRepository.getItemDomain(entityType, domainType, itemFieldType);
     }
 
-    public LiveData<PagedList<Item>> getAllItems(){
+    public LiveData<List<Item>> getAllItems(){
         return allItems;
     }
 

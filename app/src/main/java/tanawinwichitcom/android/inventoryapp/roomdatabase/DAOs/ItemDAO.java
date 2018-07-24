@@ -8,13 +8,16 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
+import java.util.List;
+
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 
 @Dao
 public interface ItemDAO{
 
     @Query("SELECT * FROM items")
-    DataSource.Factory<Integer, Item> getAll();
+    LiveData<List<Item>> getAll();
 
     @Query("SELECT * FROM items WHERE name LIKE :name LIMIT 1")
     LiveData<Item> getItemByName(String name);

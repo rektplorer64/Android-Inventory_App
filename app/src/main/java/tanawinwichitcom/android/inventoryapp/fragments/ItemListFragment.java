@@ -82,9 +82,9 @@ public class ItemListFragment extends Fragment{
         recyclerView.setAdapter(itemAdapter);
 
         ItemViewModel itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
-        itemViewModel.getAllItems().observe(getActivity(), new Observer<PagedList<Item>>(){
+        itemViewModel.getAllItems().observe(getActivity(), new Observer<List<Item>>(){
             @Override
-            public void onChanged(@Nullable PagedList<Item> items){
+            public void onChanged(@Nullable List<Item> items){
                 if(items != null && !items.isEmpty()){
                     // Toasty.success(getContext(), "Total Items: " + items.size()).show();
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);

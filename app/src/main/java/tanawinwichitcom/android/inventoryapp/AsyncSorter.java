@@ -1,16 +1,17 @@
 package tanawinwichitcom.android.inventoryapp;
 
 import android.content.Context;
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
-import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter.ItemListWrapper;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.COLOR_ACCENT;
@@ -22,12 +23,12 @@ import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortP
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.QUANTITY;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.RATING;
 
-public class SortingAsyncTaskLoader extends AsyncTaskLoader<List<ItemListWrapper>>{
+public class AsyncSorter extends AsyncTaskLoader<List<Item>>{
 
-    private final List<ItemListWrapper> itemList;
+    private final List<Item> itemList;
     private final SortPreference sortPref;
 
-    public SortingAsyncTaskLoader(@NonNull Context context, List<ItemListWrapper> itemList, SortPreference sortPref){
+    public AsyncSorter(@NonNull Context context, List<Item> itemList, SortPreference sortPref){
         super(context);
         this.itemList = itemList;
         this.sortPref = sortPref;
@@ -35,28 +36,35 @@ public class SortingAsyncTaskLoader extends AsyncTaskLoader<List<ItemListWrapper
 
     @Nullable
     @Override
-    public List<ItemListWrapper> loadInBackground(){
-        Collections.sort(itemList, new Comparator<ItemListWrapper>(){
+    public List<Item> loadInBackground(){
+        return sort(itemList, sortPref);
+    }
+
+    @CheckResult
+    public static List<Item> sort(List<Item> itemList, final SortPreference sortPref){
+        if(itemList == null){
+            return new ArrayList<>();
+        }
+
+        Collections.sort(itemList, new Comparator<Item>(){
             @Override
-            public int compare(ItemListWrapper o1, ItemListWrapper o2){
-                Item item1 = o1.getItem();
-                Item item2 = o2.getItem();
+            public int compare(Item o1, Item o2){
                 String string1;
                 String string2;
                 switch(sortPref.getField()){
                     case ID:
-                        return Integer.compare(item1.getId(), item2.getId());
+                        return Integer.compare(o1.getId(), o2.getId());
                     case NAME:
-                        string1 = item1.getName().toLowerCase();
-                        string2 = item2.getName().toLowerCase();
+                        string1 = o1.getName().toLowerCase();
+                        string2 = o2.getName().toLowerCase();
                         if(sortPref.isStringLength()){
                             return Integer.compare(string1.length(), string2.length());
                         }else{
                             return string1.compareTo(string2);
                         }
                     case DESCRIPTION:
-                        string1 = item1.getDescription();
-                        string2 = item2.getDescription();
+                        string1 = o1.getDescription();
+                        string2 = o2.getDescription();
                         if(sortPref.isStringLength()){
                             return Integer.compare(string1.length(), string2.length());
                         }else{
@@ -64,25 +72,25 @@ public class SortingAsyncTaskLoader extends AsyncTaskLoader<List<ItemListWrapper
                         }
                     case DATE_CREATED:
                         try{
-                            return Long.compare(item1.getDateCreated().getTime(), item2.getDateCreated().getTime());
+                            return Long.compare(o1.getDateCreated().getTime(), o2.getDateCreated().getTime());
                         }catch(NullPointerException e){
                             e.printStackTrace();
                             return 0;
                         }
                     case DATE_MODIFIED:
                         try{
-                            return Long.compare(item1.getDateModified().getTime(), item2.getDateModified().getTime());
+                            return Long.compare(o1.getDateModified().getTime(), o2.getDateModified().getTime());
                         }catch(NullPointerException e){
                             e.printStackTrace();
                             return 0;
                         }
                     case COLOR_ACCENT:
-                        return Integer.compare(item1.getItemColorAccent(), item2.getItemColorAccent());
+                        return Integer.compare(o1.getItemColorAccent(), o2.getItemColorAccent());
                     case QUANTITY:
-                        return Integer.compare(item1.getQuantity(), item2.getQuantity());
+                        return Integer.compare(o1.getQuantity(), o2.getQuantity());
                     case RATING:
                         try{
-                            return Double.compare(item1.getRating(), item2.getRating());
+                            return Double.compare(o1.getRating(), o2.getRating());
                         }catch(NullPointerException e){
                             e.printStackTrace();
                             return 0;
