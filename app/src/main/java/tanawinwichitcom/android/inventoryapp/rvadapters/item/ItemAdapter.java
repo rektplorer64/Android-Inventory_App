@@ -247,6 +247,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
     }
 
     public void setSelected(int itemId){
+        // TODO: Fix selection issue
         for(int i = 0; i < getItemCount(); i++){
             if(getItem(i).getId() == itemId){
                 getItem(i).showing = true;
@@ -266,41 +267,6 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
     public void setItemSelectListener(ItemSelectListener itemSelectListener){
         this.itemSelectListener = itemSelectListener;
-    }
-
-    public static class ItemListWrapper{
-        private Item item;
-        private boolean isShowing;
-
-        public ItemListWrapper(Item item){
-            this.item = item;
-            this.isShowing = false;
-        }
-
-        public static void clearOlderShowFlags(List<ItemListWrapper> itemListWrappers, Item newlyFlaggedItem){
-            for(int i = 0; i < itemListWrappers.size(); i++){
-                ItemListWrapper itemListWrapper = itemListWrappers.get(i);
-                if(newlyFlaggedItem != itemListWrapper.getItem()){
-                    itemListWrapper.setShowing(false);
-                }
-            }
-        }
-
-        public Item getItem(){
-            return item;
-        }
-
-        public void setItem(Item item){
-            this.item = item;
-        }
-
-        public boolean isShowing(){
-            return isShowing;
-        }
-
-        public void setShowing(boolean showing){
-            isShowing = showing;
-        }
     }
 
     private class ItemFilter extends Filter{
