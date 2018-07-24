@@ -43,6 +43,7 @@ import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.kennyc.view.MultiStateView;
 
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -74,9 +75,11 @@ import tanawinwichitcom.android.inventoryapp.utility.UserInterfaceUtility;
 
 import static tanawinwichitcom.android.inventoryapp.utility.ColorUtility.darkenColor;
 
-public class ItemProfileFragment extends CircularRevealFragment{
+public class ItemProfileFragment extends CircularRevealFragment implements Toolbar.OnMenuItemClickListener{
 
     private ItemChangeListener itemChangeListener;
+
+    private MultiStateView itemProfFragMultiState;
 
     private Window window;
     private NestedScrollView nestedScrollView;
@@ -96,15 +99,13 @@ public class ItemProfileFragment extends CircularRevealFragment{
     private CardView scoreRatioCardView;
     private ArrayList<View> scoreBarRatioViewList;
 
-    private ItemStatusListener itemStatusListener;
     private ItemInfoAdapter itemInfoAdapter;
     private UserReviewAdapter userReviewAdapter;
 
     // In case of the user already rated this item
     private ImageButton reviewOptionImageButton;
-    // private TextView userNameTextView;
-    // private TextView ratedDateTextView;
-    // private MaterialRatingBar indicatorScoreRatingBar;
+
+    private Item CURRENT_ITEM;
 
     private int itemId = 0;
 
@@ -129,6 +130,10 @@ public class ItemProfileFragment extends CircularRevealFragment{
         setHasOptionsMenu(true);
     }
 
+    public void redrawFragment(){
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+    }
+
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState){
         itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
@@ -137,10 +142,6 @@ public class ItemProfileFragment extends CircularRevealFragment{
         itemId = itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID);
         if(bundle != null){
             itemId = bundle.getInt("itemId");
-        }
-
-        if(bundle.getBoolean("isAfterDeletion")){
-            itemId = itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID);
         }
 
         final int finalItemId = itemId;
@@ -153,92 +154,23 @@ public class ItemProfileFragment extends CircularRevealFragment{
         userReviewAdapter = new UserReviewAdapter(finalItemId, getContext());
         userReviewAdapter.setHasStableIds(true);
 
-        final ItemProfileFragment originalFragment = this;
-
-        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
-            @Override
-            public void onChanged(@Nullable List<Item> itemList){
-                if(itemList == null || itemList.isEmpty()){
-                    if(itemStatusListener != null){
-                        itemStatusListener.onItemListEmpty();
-                    }
-                }else{
-                    if(itemStatusListener != null){
-                        itemStatusListener.onItemListNotEmpty();
-                    }
-                }
-            }
-        });
-
+        final Toolbar.OnMenuItemClickListener menuItemClickListener = this;
         itemViewModel.getItemById(itemId).observe(this, new Observer<Item>(){
             @Override
             public void onChanged(@Nullable final Item item){
-                toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener(){
-                    @Override
-                    public boolean onMenuItemClick(MenuItem menuItem){
-                        switch(menuItem.getItemId()){
-                            case R.id.action_more_info:{
-                                new MaterialDialog.Builder(getContext()).title("Info")
-                                        .adapter(itemInfoAdapter, new LinearLayoutManager(getContext()))
-                                        .negativeText("Close")
-                                        .build()
-                                        .show();
-                                break;
-                            }
-                            case R.id.action_edit:{
-                                if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
-                                    ItemEditingDialogFragment editingDialog = ItemEditingDialogFragment.newInstance(itemId, true);
-                                    editingDialog.setOnDialogConfirmListener(new ItemEditingDialogFragment.OnDialogConfirmListener(){
-                                        @Override
-                                        public void onDialogConfirm(int itemId){
-                                            Toasty.success(getContext(), "Successfully saved!").show();
-                                            if(itemChangeListener != null){
-                                                itemChangeListener.onEditConfirm(itemId);
-                                            }
-                                        }
-                                    });
-                                    editingDialog.show(getFragmentManager(), "itemEditingDialogFragment");
-                                }else{
-                                    Intent intent = new Intent(getActivity(), ItemEditingContainerActivity.class);
-                                    intent.putExtra("itemId", itemId);
-                                    intent.putExtra("inEditMode", true);
-                                    startActivity(intent);
-                                }
-                                break;
-                            }
-                            case R.id.action_delete:{
-                                new MaterialDialog.Builder(getContext()).title("Delete " + item.getName() + "?")
-                                        .negativeText("No").positiveText("Yes")
-                                        .onPositive(new MaterialDialog.SingleButtonCallback(){
-                                            @Override
-                                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
-                                                itemViewModel.delete(item);
-                                                // Toasty.success(getContext(), "Item Deleted successfully").show();
-                                                if(getActivity() instanceof ItemProfileContainerActivity){
-                                                    view.requestFocus();
-                                                    closeActivityCircularly();
-                                                }else if(getActivity() instanceof MainActivity){
-                                                    bundle.putBoolean("isAfterDeletion", true);
-                                                    getFragmentManager()
-                                                            .beginTransaction()
-                                                            .detach(originalFragment)
-                                                            .attach(originalFragment)
-                                                            .commitAllowingStateLoss();
-                                                    if(itemChangeListener != null){
-                                                        itemChangeListener.onDelete(item.getId());
-                                                    }
-                                                }else if(getActivity() instanceof SearchActivity){
-                                                    if(itemChangeListener != null){
-                                                        itemChangeListener.onDelete(item.getId());
-                                                    }
-                                                }
-                                            }
-                                        }).show();
-                            }
-                        }
-                        return true;
+                if(item == null){
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+
+                    if(itemChangeListener != null){
+                        itemChangeListener.onItemNotFound(itemId);
                     }
-                });
+
+                    return;
+                }else{
+                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                }
+                CURRENT_ITEM = item;
+                toolbar.setOnMenuItemClickListener(menuItemClickListener);
                 onItemDataChanged(item, view);
             }
         });
@@ -549,6 +481,12 @@ public class ItemProfileFragment extends CircularRevealFragment{
             // // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         }
+
+        itemProfFragMultiState = view.findViewById(R.id.itemProfFragMultiState);
+        if(getActivity() instanceof ItemProfileContainerActivity){
+            itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+        }
+
         nestedScrollView = view.findViewById(R.id.nestedScrollView);
         toolbar = view.findViewById(R.id.fragmentToolbar);      // Binds toolbar
         if(getActivity() instanceof ItemProfileContainerActivity){      // If fragment launches inside ItemProfileContainerActivity
@@ -608,10 +546,6 @@ public class ItemProfileFragment extends CircularRevealFragment{
     //     return super.onOptionsItemSelected(item);
     // }
 
-    public void setItemStatusListener(ItemStatusListener itemStatusListener){
-        this.itemStatusListener = itemStatusListener;
-    }
-
     public void setItemChangeListener(ItemChangeListener itemChangeListener){
         this.itemChangeListener = itemChangeListener;
     }
@@ -619,10 +553,6 @@ public class ItemProfileFragment extends CircularRevealFragment{
     private void onItemDataChanged(@Nullable Item item, View rootView){
         if(item == null){
             return;
-        }
-
-        if(itemStatusListener != null){
-            itemStatusListener.onItemBinding();
         }
 
         //window.setStatusBarColor(darkenColor(item.getItemColorAccent()));
@@ -733,17 +663,59 @@ public class ItemProfileFragment extends CircularRevealFragment{
         }
     }
 
-    public interface ItemStatusListener{
-        void onItemListEmpty();
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem){
+        final Item item = CURRENT_ITEM;
+        switch(menuItem.getItemId()){
+            case R.id.action_more_info:{
+                new MaterialDialog.Builder(getContext()).title("Info")
+                        .adapter(itemInfoAdapter, new LinearLayoutManager(getContext()))
+                        .negativeText("Close")
+                        .build()
+                        .show();
+                break;
+            }
+            case R.id.action_edit:{
+                if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                    ItemEditingDialogFragment editingDialog = ItemEditingDialogFragment.newInstance(itemId, true);
+                    editingDialog.setOnDialogConfirmListener(new ItemEditingDialogFragment.OnDialogConfirmListener(){
+                        @Override
+                        public void onDialogConfirm(int itemId){
+                            Toasty.success(getContext(), "Successfully saved!").show();
+                        }
+                    });
+                    editingDialog.show(getFragmentManager(), "itemEditingDialogFragment");
+                }else{
+                    Intent intent = new Intent(getActivity(), ItemEditingContainerActivity.class);
+                    intent.putExtra("itemId", itemId);
+                    intent.putExtra("inEditMode", true);
+                    startActivity(intent);
+                }
+                break;
+            }
+            case R.id.action_delete:{
+                new MaterialDialog.Builder(getContext()).title("Delete " + item.getName() + "?")
+                        .negativeText("No").positiveText("Yes")
+                        .onPositive(new MaterialDialog.SingleButtonCallback(){
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
+                                itemViewModel.delete(item);
+                                // Toasty.success(getContext(), "Item Deleted successfully").show();
+                                if(getActivity() instanceof ItemProfileContainerActivity){
+                                    closeActivityCircularly();
+                                }else if(getActivity() instanceof MainActivity){
 
-        void onItemBinding();
+                                }else if(getActivity() instanceof SearchActivity){
 
-        void onItemListNotEmpty();
+                                }
+                            }
+                        }).show();
+            }
+        }
+        return true;
     }
 
     public interface ItemChangeListener{
-        void onDelete(int itemId);
-
-        void onEditConfirm(int itemId);
+        void onItemNotFound(int itemId);
     }
 }

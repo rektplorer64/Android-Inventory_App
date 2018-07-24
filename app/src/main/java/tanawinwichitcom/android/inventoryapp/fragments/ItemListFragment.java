@@ -2,6 +2,7 @@ package tanawinwichitcom.android.inventoryapp.fragments;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,13 +22,14 @@ import com.kennyc.view.MultiStateView;
 
 import java.util.List;
 
-import tanawinwichitcom.android.inventoryapp.AddItemActivity;
+import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.ItemEditingContainerActivity;
+import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
-import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter;
+import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class ItemListFragment extends Fragment{
@@ -71,25 +73,43 @@ public class ItemListFragment extends Fragment{
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setHasFixedSize(false);
 
         rvMultiViewState = view.findViewById(R.id.rvMultiViewState);
 
-        itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, getContext(), getActivity());
+        itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, getContext());
+
         recyclerView.setAdapter(itemAdapter);
 
         ItemViewModel itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
-        itemViewModel.getAllItems().observe(getActivity(), new Observer<List<Item>>(){
+        itemViewModel.getAllItems().observe(getActivity(), new Observer<PagedList<Item>>(){
             @Override
-            public void onChanged(@Nullable List<Item> items){
+            public void onChanged(@Nullable PagedList<Item> items){
                 if(items != null && !items.isEmpty()){
+                    // Toasty.success(getContext(), "Total Items: " + items.size()).show();
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                    itemAdapter.applyItemDataChanges(items, false);
+                    // itemAdapter.applyItemDataChanges(items, false);
+                    itemAdapter.submitList(items);
+                    // itemAdapter.notifyDataSetChanged();
                 }else{
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
                 }
             }
         });
+
+        if(getActivity() instanceof MainActivity){
+            // Tap toolbar to scroll to top
+            ((MainActivity) getActivity()).setToolbarClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView
+                            .getLayoutManager();
+                    layoutManager.setSmoothScrollbarEnabled(true);
+                    layoutManager.smoothScrollToPosition(recyclerView, new RecyclerView.State(), 0);
+                    Toasty.normal(v.getContext(), "Scrolled to top!").show();
+                }
+            });
+        }
 
         itemViewModel.getAllReviews().observe(getActivity(), new Observer<List<Review>>(){
             @Override

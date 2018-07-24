@@ -4,7 +4,9 @@ import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -12,11 +14,10 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import com.kennyc.view.MultiStateView;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.User;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
-import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter;
+import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class MainActivity extends AppCompatActivity{
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity{
 
     private ItemViewModel itemViewModel;
     private Toolbar toolbar;
-    private MultiStateView itemProfFragMultiState;
 
     private boolean screenIsLargeOrPortrait;
 
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity{
     private ItemListFragment itemListFragment;
 
     private CircularRevealFragment itemProfileFragment;
+    private View.OnClickListener toolbarClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -72,23 +73,6 @@ public class MainActivity extends AppCompatActivity{
             itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item
                     , itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID)
                     , 0, 0);
-            ((ItemProfileFragment) itemProfileFragment).setItemStatusListener(new ItemProfileFragment.ItemStatusListener(){
-                @Override
-                public void onItemListEmpty(){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
-                }
-
-                @Override
-                public void onItemBinding(){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                }
-
-                @Override
-                public void onItemListNotEmpty(){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                    selectItemInLargeScreenLayout(itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0);
-                }
-            });
             // itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             //     @Override
             //     public void onChanged(@Nullable List<Item> itemList){
@@ -102,12 +86,14 @@ public class MainActivity extends AppCompatActivity{
             ItemListFragment itemListFragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.itemListFragment);
             itemListFragment.setItemSelectListener(new ItemAdapter.ItemSelectListener(){
                 @Override
-                public void onSelect(int itemId, int touchCoordinateY){
-                    selectItemInLargeScreenLayout(itemId, touchCoordinateY);
+                public void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter){
+                    selectItemInLargeScreenLayout(itemId, touchCoordinateY, itemAdapter);
                 }
             });
 
         }
+
+        toolbar.setOnClickListener(toolbarClickListener);
 
         if(!screenIsLargeOrPortrait){
             toolbar.post(new Runnable(){
@@ -123,44 +109,35 @@ public class MainActivity extends AppCompatActivity{
 
                         LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
                         params1.weight = 10 - params.weight;
-                        itemProfFragMultiState.setLayoutParams(params1);
+                        itemProfileFragmentFrame.setLayoutParams(params1);
                     }
                 }
             });
         }
     }
 
-    private void selectItemInLargeScreenLayout(int itemId, int touchCoordinateY){
+    private void selectItemInLargeScreenLayout(int itemId, final int touchCoordinateY, final ItemAdapter itemAdapter){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final ItemProfileFragment itemProfileFragment
                 = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemId,
                 0, touchCoordinateY);
 
+        itemAdapter.setSelected(itemId);
+        itemAdapter.notifyDataSetChanged();
+
         itemProfileFragment.setItemChangeListener(new ItemProfileFragment.ItemChangeListener(){
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
-            public void onDelete(int itemId){
+            public void onItemNotFound(int itemId){
+                int[] nearestIds = itemViewModel.getBothNearestIds(itemId);
 
-            }
-
-            @Override
-            public void onEditConfirm(int itemId){
-
-            }
-        });
-        itemProfileFragment.setItemStatusListener(new ItemProfileFragment.ItemStatusListener(){
-            @Override
-            public void onItemListEmpty(){
-                itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
-            }
-
-            @Override
-            public void onItemBinding(){
-                itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-            }
-
-            @Override
-            public void onItemListNotEmpty(){
-                itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                int newId = 0;
+                if(nearestIds.length == 1){
+                    newId = nearestIds[0];
+                }else if(nearestIds.length == 2){
+                    newId = Integer.min(nearestIds[0], nearestIds[1]);
+                }
+                selectItemInLargeScreenLayout(newId, touchCoordinateY, itemAdapter);
             }
         });
 
@@ -208,11 +185,8 @@ public class MainActivity extends AppCompatActivity{
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
 
-        if(itemList.size() != 0){
-            ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment).commit();
-        }else{
-            itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
-        }
+        ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment).commit();
+
     }
 
     private void initializeViews(){
@@ -220,8 +194,6 @@ public class MainActivity extends AppCompatActivity{
         toolbar = findViewById(R.id.toolbar);
         itemListFragmentCard = findViewById(R.id.itemListFragmentCard);
         itemProfileFragmentFrame = findViewById(R.id.itemProfileFragmentFrame);
-        itemProfFragMultiState = findViewById(R.id.itemProfFragMultiState);
-        //itemListFragMultiState = findViewById(R.id.itemListFragMultiState);
     }
 
     private void setUpActionBar(){
@@ -273,5 +245,9 @@ public class MainActivity extends AppCompatActivity{
                 .getInt(SharedPrefKey_LOGIN_SESSION_USER_ID, -1);
         String toastMsg = "Logged in as: ID#" + loggedID;
         Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
+    }
+
+    public void setToolbarClickListener(View.OnClickListener toolbarClickListener){
+        this.toolbarClickListener = toolbarClickListener;
     }
 }

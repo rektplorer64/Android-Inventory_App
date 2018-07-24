@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.paging.PagedList;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,14 +34,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchOptionDialogFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
-import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter;
+import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
@@ -183,7 +183,7 @@ public class SearchActivity extends AppCompatActivity
 
         resultsRecyclerView = findViewById(R.id.resultsRecyclerView);
         resultsRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, this, this);
+        itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, this);
 
         itemListMultistateView = findViewById(R.id.itemListMultistateView);
         itemAdapter.setItemLoadFinishListener(new ItemAdapter.ItemLoadFinishListener(){
@@ -295,13 +295,14 @@ public class SearchActivity extends AppCompatActivity
         }
 
         ItemViewModel itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
-        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
+        itemViewModel.getAllItems().observe(this, new Observer<android.arch.paging.PagedList<Item>>(){
             @Override
-            public void onChanged(@Nullable List<Item> items){
+            public void onChanged(@Nullable PagedList<Item> items){
                 // Toast.makeText(SearchActivity.this, "Database reinitialized", Toast.LENGTH_SHORT).show();
                 totalSearchTextView.setText(new StringBuilder().append("Total Search Result: ")
                         .append(items.size()).toString());
                 itemAdapter.applyItemDataChanges(items, false);
+                itemAdapter.submitList(items);
 
                 /* These lines of code below are required in order to preserve searching-state when there are changes in database (Insertion, Editing And Deletion) */
                 if(itemAdapter.getSearchPreference().getKeyword() != null

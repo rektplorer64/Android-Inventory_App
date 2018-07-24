@@ -69,13 +69,8 @@ public class ItemProfileDialogFragment extends DialogFragment{
 
         itemProfileFragment.setItemChangeListener(new ItemProfileFragment.ItemChangeListener(){
             @Override
-            public void onDelete(int itemId){
+            public void onItemNotFound(int itemId){
                 getDialog().dismiss();
-            }
-
-            @Override
-            public void onEditConfirm(int itemId){
-
             }
         });
 

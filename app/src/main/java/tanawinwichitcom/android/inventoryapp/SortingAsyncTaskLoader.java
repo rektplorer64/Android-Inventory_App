@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
-import tanawinwichitcom.android.inventoryapp.rvadapters.ItemAdapter.ItemListElementWrapper;
+import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter.ItemListWrapper;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.COLOR_ACCENT;
@@ -22,12 +22,12 @@ import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortP
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.QUANTITY;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.RATING;
 
-public class SortingAsyncTaskLoader extends AsyncTaskLoader<List<ItemListElementWrapper>>{
+public class SortingAsyncTaskLoader extends AsyncTaskLoader<List<ItemListWrapper>>{
 
-    private final List<ItemListElementWrapper> itemList;
+    private final List<ItemListWrapper> itemList;
     private final SortPreference sortPref;
 
-    public SortingAsyncTaskLoader(@NonNull Context context, List<ItemListElementWrapper> itemList, SortPreference sortPref){
+    public SortingAsyncTaskLoader(@NonNull Context context, List<ItemListWrapper> itemList, SortPreference sortPref){
         super(context);
         this.itemList = itemList;
         this.sortPref = sortPref;
@@ -35,10 +35,10 @@ public class SortingAsyncTaskLoader extends AsyncTaskLoader<List<ItemListElement
 
     @Nullable
     @Override
-    public List<ItemListElementWrapper> loadInBackground(){
-        Collections.sort(itemList, new Comparator<ItemListElementWrapper>(){
+    public List<ItemListWrapper> loadInBackground(){
+        Collections.sort(itemList, new Comparator<ItemListWrapper>(){
             @Override
-            public int compare(ItemListElementWrapper o1, ItemListElementWrapper o2){
+            public int compare(ItemListWrapper o1, ItemListWrapper o2){
                 Item item1 = o1.getItem();
                 Item item2 = o2.getItem();
                 String string1;

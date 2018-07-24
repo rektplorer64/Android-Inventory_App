@@ -1,64 +1,45 @@
-package tanawinwichitcom.android.inventoryapp.rvadapters;
+package tanawinwichitcom.android.inventoryapp.rvadapters.item;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.arch.paging.PagedListAdapter;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
-import android.widget.RatingBar;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
-
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
-import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.SortingAsyncTaskLoader;
-import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileDialogFragment;
 import tanawinwichitcom.android.inventoryapp.objectdiffutil.ItemDiffCallback;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.DatePreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
-import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.SEARCH_ALL_ITEMS;
 
-public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> implements Filterable{
+public class ItemAdapter extends PagedListAdapter<Item, ItemViewHolder> implements Filterable{
 
     public static final int FULL_CARD_LAYOUT = 0;
     public static final int NORMAL_CARD_LAYOUT = 1;
     public static final int SMALL_CARD_LAYOUT = 2;
     public static final int COMPACT_CARD_LAYOUT = 3;
-    private List<ItemListElementWrapper> listElementWrappers;
+
+    private List<ItemListWrapper> listElementWrappers;
     private List<Item> itemList;
     private int layoutMode;
 
@@ -70,17 +51,28 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     private ItemLoadFinishListener itemLoadFinishListener;
     private ItemSelectListener itemSelectListener;
 
+    private static final DiffUtil.ItemCallback<Item> DIFF_CALLBACK = new DiffUtil.ItemCallback<Item>(){
+        @Override
+        public boolean areItemsTheSame(Item oldItem, Item newItem){
+            return oldItem.getId() == newItem.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(Item oldItem, Item newItem){
+            return oldItem.equals(newItem);
+        }
+    };
+
     /*
      * Private Field for basically a HashMap, but with a better memory efficiency
      * Binds like HashMap<Integer (itemId), Review (Review Class)>
      */
     private SparseArray<ArrayList<Review>> reviewHashMap;
     private ItemFilter itemFilter;
-    private Activity activity;
 
-    public ItemAdapter(int layoutMode, Context context, Activity activity){
+    public ItemAdapter(int layoutMode, Context context){
+        super(DIFF_CALLBACK);
         this.context = context;
-        this.activity = activity;
         this.listElementWrappers = new ArrayList<>();
         this.reviewHashMap = new SparseArray<>();
         this.layoutMode = layoutMode;
@@ -91,7 +83,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
     @NonNull
     @Override
-    public ItemAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
+    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
         View itemView = null;
         switch(layoutMode){
             case FULL_CARD_LAYOUT:
@@ -107,122 +99,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_compact, parent, false);
                 break;
         }
-        return new ItemAdapter.ViewHolder(itemView, layoutMode);
+        return new ItemViewHolder(itemView, layoutMode);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public void onBindViewHolder(@NonNull final ItemAdapter.ViewHolder holder, final int position){
-        final Item item = listElementWrappers.get(position).getItem();
-        final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
+    public void onBindViewHolder(@NonNull final ItemViewHolder holder, final int position){
+        final Item item = getItem(position);
+        if(item != null){
+            final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
 
-        final boolean screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(holder.cardView.getContext());
-
-        double averageRating = Review.calculateAverage(reviewArrayList);
-        item.setRating(averageRating);
-        int numberOfReviews = (reviewArrayList == null) ? 0 : reviewArrayList.size();
-
-        // if(position == 0){
-        //     ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.cardView.getLayoutParams();
-        //     int pxMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, holder.cardView.getContext().getResources().getDisplayMetrics());
-        //     int pxMargin2 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, holder.cardView.getContext().getResources().getDisplayMetrics());
-        //     params.setMargins(pxMargin, pxMargin, pxMargin, pxMargin2);
-        //     holder.cardView.setLayoutParams(params);
-        // }else if(position == listElementWrappers.size() - 1){
-        //     ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.cardView.getLayoutParams();
-        //     int pxMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, holder.cardView.getContext().getResources().getDisplayMetrics());
-        //     int pxMargin2 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, holder.cardView.getContext().getResources().getDisplayMetrics());
-        //     params.setMargins(pxMargin, pxMargin2, pxMargin, pxMargin);
-        //     holder.cardView.setLayoutParams(params);
-        // }
-
-        if(!screenIsLargeOrPortrait && activity instanceof MainActivity){
-            changeCardState(holder, position);
+            holder.bindDataToView(reviewArrayList, this, layoutMode, item, position);
+            holder.setElementClickListener(listElementWrappers, itemSelectListener, this
+                    , item, position);
         }
 
-        if(item.getImageFile() != null){
-            Glide.with(holder.cardView.getContext())
-                    .load(item.getImageFile())
-                    .apply(RequestOptions.centerCropTransform())
-                    .thumbnail(0.01f)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(holder.imageView);
-        }else{
-            Glide.with(holder.cardView.getContext())
-                    .load(R.drawable.md_wallpaper_placeholder)
-                    .apply(RequestOptions.centerCropTransform())
-                    .thumbnail(0.01f)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .into(holder.imageView);
-        }
-
-        holder.nameTextView.setText(item.getName());
-
-        String rating = String.format(HelperUtility.getCurrentLocale(context), "%.1f", item.getRating());
-        String numbersOfReviews = NumberFormat.getNumberInstance(Locale.US).format(numberOfReviews);
-        String shortenQuantityNumber = HelperUtility.shortenNumber((long) item.getQuantity());
-
-        holder.ratingTextView.setText(new StringBuilder().append(rating).append(" (").append(numbersOfReviews).append(")").toString());
-        holder.quantityTextView.setText(new StringBuilder().append(shortenQuantityNumber).toString());
-        if(layoutMode == FULL_CARD_LAYOUT){
-            holder.descriptionTextView.setText(item.getDescription());
-        }
-        if(item.getRating() != null){
-            holder.ratingBar.setRating(Float.valueOf(String.valueOf(item.getRating())));
-        }else{
-            holder.ratingBar.setRating((float) 0.0);
-        }
-
-        final int touchCoordinate[] = new int[2];
-
-        holder.cardView.setOnTouchListener(new View.OnTouchListener(){
-            @Override
-            public boolean onTouch(View v, MotionEvent event){
-                // save the X,Y coordinates
-                if(event.getActionMasked() == MotionEvent.ACTION_DOWN){
-                    v.getLocationOnScreen(touchCoordinate);
-                    // touchCoordinate[0] = event.getX();
-                    // touchCoordinate[1] = event.getY();
-                }
-                return false;
-            }
-        });
-
-        holder.cardView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(final View v){
-                if(screenIsLargeOrPortrait){
-                    // Toast.makeText(v.getContext(), "Item #" + position + " is clicked...", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(v.getContext(), ItemProfileContainerActivity.class);
-                    intent.putExtra("itemId", item.getId());
-                    v.getContext().startActivity(intent);
-                }else{
-                    FragmentTransaction fragmentTransaction
-                            = ((AppCompatActivity) v.getContext())
-                            .getSupportFragmentManager().beginTransaction();
-                    if(activity instanceof MainActivity){
-                        if(!listElementWrappers.get(position).isShowing()){
-                            listElementWrappers.get(position).setShowing(!listElementWrappers.get(position).isShowing());
-                            ItemListElementWrapper
-                                    .clearOlderShowFlags(listElementWrappers, listElementWrappers.get(position).getItem());
-
-                            notifyDataSetChanged();
-                            changeCardState(holder, position);
-
-                            if(itemSelectListener != null){
-                                itemSelectListener.onSelect(item.getId(), touchCoordinate[1]);
-                            }
-                        }
-                    }else{
-                        ItemProfileDialogFragment itemProfileDialog = ItemProfileDialogFragment.newInstance(item.getId());
-                        itemProfileDialog.show(fragmentTransaction, "itemProfileDialog");
-                    }
-                }
-            }
-        });
     }
 
-    private void changeCardState(ViewHolder holder, int position){
+    public void changeCardState(ItemViewHolder holder, int position){
         if(listElementWrappers.get(position).isShowing()){
             //holder.cardView.setCardBackgroundColor(Color.parseColor("#dbe8ff"));
             holder.cardView.setCardBackgroundColor(Color.parseColor("#F6F7F2"));
@@ -235,11 +129,12 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
 
     @Override
     public int getItemCount(){
-        if(listElementWrappers != null){
-            return listElementWrappers.size();
-        }else{
-            return 0;
-        }
+        // if(listElementWrappers != null){
+        //     return listElementWrappers.size();
+        // }else{
+        //     return 0;
+        // }
+        return super.getItemCount();
     }
 
     public void applyItemDataChanges(List<Item> itemArrayList, boolean isFiltering){
@@ -266,10 +161,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
             itemList = itemArrayList;
         }
 
+        // Find old selected item id
+        int oldSelectedItemId = 1;
+        for(int i = 0; i < listElementWrappers.size(); i++){
+            if(listElementWrappers.get(i).isShowing()){
+                oldSelectedItemId = i;
+                break;
+            }
+        }
+
         listElementWrappers.clear();
         notifyDataSetChanged();
-        for(Item item : itemArrayList){
-            this.listElementWrappers.add(new ItemListElementWrapper(item));
+
+        for(int i = 0; i < itemArrayList.size(); i++){
+            this.listElementWrappers.add(new ItemListWrapper(itemArrayList.get(i)));
+            if(oldSelectedItemId == listElementWrappers.get(i).getItem().getId()){
+                listElementWrappers.get(i).setShowing(true);
+                notifyDataSetChanged();
+            }
         }
 
         // if(this.listElementWrappers.size() != 0 && this.listElementWrappers.get(0) != null){
@@ -282,21 +191,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         if(((AppCompatActivity) context).getSupportLoaderManager().hasRunningLoaders()){
             ((AppCompatActivity) context).getSupportLoaderManager().destroyLoader(1);
         }
-        ((AppCompatActivity) context).getSupportLoaderManager().initLoader(1, null, new LoaderManager.LoaderCallbacks<List<ItemListElementWrapper>>(){
+        ((AppCompatActivity) context).getSupportLoaderManager().initLoader(1, null, new LoaderManager.LoaderCallbacks<List<ItemListWrapper>>(){
             @NonNull
             @Override
-            public Loader<List<ItemListElementWrapper>> onCreateLoader(int id, @Nullable Bundle args){
+            public Loader<List<ItemListWrapper>> onCreateLoader(int id, @Nullable Bundle args){
                 return new SortingAsyncTaskLoader(context, listElementWrappers, sortPref);
             }
 
             @Override
-            public void onLoadFinished(@NonNull Loader<List<ItemListElementWrapper>> loader, List<ItemListElementWrapper> data){
+            public void onLoadFinished(@NonNull Loader<List<ItemListWrapper>> loader, List<ItemListWrapper> data){
                 listElementWrappers = data;
                 notifyDataSetChanged();
             }
 
             @Override
-            public void onLoaderReset(@NonNull Loader<List<ItemListElementWrapper>> loader){
+            public void onLoaderReset(@NonNull Loader<List<ItemListWrapper>> loader){
 
             }
         }).forceLoad();
@@ -329,32 +238,14 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         return itemFilter;
     }
 
-    public void invokeItemPressing(int num, final RecyclerView recyclerView, boolean isItemId){
-        int index = num;
-        if(isItemId){
-            for(int i = 0; i < listElementWrappers.size(); i++){
-                if(num == listElementWrappers.get(i).getItem().getId()){
-                    index = i;
-                    break;
-                }
+    public void setSelected(int itemId){
+        for(int i = 0; i < listElementWrappers.size(); i++){
+            if(listElementWrappers.get(i).getItem().getId() == itemId){
+                listElementWrappers.get(i).setShowing(true);
+            }else{
+                listElementWrappers.get(i).setShowing(false);
             }
         }
-
-        final int finalIndex = index;
-        // new Handler().postDelayed(new Runnable(){
-        //     @Override
-        //     public void run(){
-        //         recyclerView.findViewHolderForAdapterPosition(finalIndex).itemView.performClick();
-        //     }
-        // }, 1);
-        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener(){
-            @Override
-            public boolean onPreDraw(){
-                recyclerView.findViewHolderForAdapterPosition(finalIndex).itemView.performClick();
-                recyclerView.getViewTreeObserver().addOnPreDrawListener(this);
-                return true;
-            }
-        });
     }
 
     public SortPreference getSortPref(){
@@ -369,42 +260,20 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
         this.itemSelectListener = itemSelectListener;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder{
-        CardView cardView;
-        TextView nameTextView, ratingTextView, quantityTextView, descriptionTextView;
-        RatingBar ratingBar;
-        ImageView imageView;
-
-        ViewHolder(View itemView, int layoutMode){
-            super(itemView);
-            cardView = itemView.findViewById(R.id.itemCardView);
-            nameTextView = itemView.findViewById(R.id.itemTextView);
-            ratingTextView = itemView.findViewById(R.id.ratingTextView);
-            imageView = itemView.findViewById(R.id.imageView);
-            quantityTextView = itemView.findViewById(R.id.quantityTextView);
-
-            if(layoutMode == ItemAdapter.FULL_CARD_LAYOUT){
-                descriptionTextView = itemView.findViewById(R.id.shortDescriptionTextView);
-            }
-
-            ratingBar = itemView.findViewById(R.id.ratingBarView);
-        }
-    }
-
-    public static class ItemListElementWrapper{
+    public static class ItemListWrapper{
         private Item item;
         private boolean isShowing;
 
-        public ItemListElementWrapper(Item item){
+        public ItemListWrapper(Item item){
             this.item = item;
             this.isShowing = false;
         }
 
-        public static void clearOlderShowFlags(List<ItemListElementWrapper> itemListElementWrappers, Item newlyFlaggedItem){
-            for(int i = 0; i < itemListElementWrappers.size(); i++){
-                ItemListElementWrapper itemListElementWrapper = itemListElementWrappers.get(i);
-                if(newlyFlaggedItem != itemListElementWrapper.getItem()){
-                    itemListElementWrapper.setShowing(false);
+        public static void clearOlderShowFlags(List<ItemListWrapper> itemListWrappers, Item newlyFlaggedItem){
+            for(int i = 0; i < itemListWrappers.size(); i++){
+                ItemListWrapper itemListWrapper = itemListWrappers.get(i);
+                if(newlyFlaggedItem != itemListWrapper.getItem()){
+                    itemListWrapper.setShowing(false);
                 }
             }
         }
@@ -553,7 +422,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder> im
     }
 
     public interface ItemSelectListener{
-        void onSelect(int itemId, int touchCoordinateY);
+        void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter);
     }
 
 }

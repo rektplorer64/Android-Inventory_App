@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "tanawinwichitcom.android.inventoryapp"
         minSdkVersion 22
@@ -60,4 +60,6 @@ dependencies {
     implementation 'com.appyvet:materialrangebar:1.4.3'
     implementation 'com.alespero:expandable-cardview:0.8'
     implementation 'com.github.GrenderG:Toasty:1.3.0'
+
+    implementation "android.arch.paging:runtime:1.0.0"
 }

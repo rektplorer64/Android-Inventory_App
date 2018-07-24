@@ -167,6 +167,19 @@ public class Item{
         if(id != item.id){
             return false;
         }
+        if(quantity != item.quantity){
+            return false;
+        }
+        if(itemColorAccent != item.itemColorAccent){
+            return false;
+        }
+        if(!name.equals(item.name)){
+            return false;
+        }
+        if(!description.equals(item.description)){
+            return false;
+        }
+
         return dateCreated.equals(item.dateCreated);
     }
 

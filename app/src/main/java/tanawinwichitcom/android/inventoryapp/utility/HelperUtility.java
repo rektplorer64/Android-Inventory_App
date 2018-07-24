@@ -36,7 +36,7 @@ public class HelperUtility{
                 return SCREENSIZE_NORMAL;
             case Configuration.SCREENLAYOUT_SIZE_LARGE:
                 return SCREENSIZE_LARGE;
-            case 4:
+            case Configuration.SCREENLAYOUT_SIZE_XLARGE:
                 return SCREENSIZE_XLARGE;
             default:
                 return SCREENSIZE_UNDEFINED;

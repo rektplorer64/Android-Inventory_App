@@ -2,6 +2,7 @@ package tanawinwichitcom.android.inventoryapp.roomdatabase;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.arch.paging.DataSource;
 import android.os.AsyncTask;
 import android.support.annotation.IntDef;
 
@@ -50,7 +51,7 @@ public class DataRepository{
     private ReviewDAO reviewDAO;
     private UserDAO userDAO;
 
-    private LiveData<List<Item>> allItems;
+    private DataSource.Factory<Integer, Item> allItems;
     private LiveData<List<Review>> allReviews;
     private LiveData<List<User>> allUsers;
 
@@ -64,6 +65,8 @@ public class DataRepository{
         allReviews = reviewDAO.getAll();
         allUsers = userDAO.getAll();
     }
+
+
 
     public LiveData<Review> getReviewByItemAndUserId(int itemId, int userId){
         return reviewDAO.getReviewByItemAndUserId(itemId, userId);
@@ -84,7 +87,7 @@ public class DataRepository{
         return 0;
     }
 
-    public LiveData<List<Item>> getAllItems(){
+    public DataSource.Factory<Integer, Item> getAllItems(){
         return allItems;
     }
 
@@ -102,6 +105,17 @@ public class DataRepository{
 
     public LiveData<List<Review>> getReviewsByItemId(int itemId){
         return reviewDAO.findByItemId(itemId);
+    }
+
+    public int[] getBothNearestIds(int itemId){
+        try{
+            return new FindBothNearestIds(itemDAO).execute(itemId).get();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }catch(ExecutionException e){
+            e.printStackTrace();
+        }
+        return new int[]{0};
     }
 
     public void insert(Object o){
@@ -155,12 +169,14 @@ public class DataRepository{
 
         @Override
         protected Void doInBackground(Object... objects){
-            if(objects[0] instanceof Item){
-                itemDAO.delete((Item) objects[0]);
-            }else if(objects[0] instanceof Review){
-                reviewDAO.delete((Review) objects[0]);
-            }else if(objects[0] instanceof User){
-                userDAO.delete((User) objects[0]);
+            for(int i = 0; i < objects.length; i++){
+                if(objects[i] instanceof Item){
+                    itemDAO.delete((Item) objects[i]);
+                }else if(objects[i] instanceof Review){
+                    reviewDAO.delete((Review) objects[i]);
+                }else if(objects[i] instanceof User){
+                    userDAO.delete((User) objects[i]);
+                }
             }
             return null;
         }
@@ -221,5 +237,17 @@ public class DataRepository{
         }
     }
 
+    private static class FindBothNearestIds extends AsyncTask<Integer, Void, int[]>{
 
+        private final ItemDAO itemDAO;
+
+        public FindBothNearestIds(ItemDAO itemDAO){
+            this.itemDAO = itemDAO;
+        }
+
+        @Override
+        protected int[] doInBackground(Integer... integers){
+            return itemDAO.getBothNearestIds(integers[0]);
+        }
+    }
 }
