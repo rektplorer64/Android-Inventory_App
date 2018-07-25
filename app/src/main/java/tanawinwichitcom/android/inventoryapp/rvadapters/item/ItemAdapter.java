@@ -28,8 +28,6 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -46,14 +44,6 @@ import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreferen
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.SEARCH_ALL_ITEMS;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.COLOR_ACCENT;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.DATE_CREATED;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.DATE_MODIFIED;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.DESCRIPTION;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.ID;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.NAME;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.QUANTITY;
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference.RATING;
 
 public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> implements Filterable{
 
@@ -132,21 +122,15 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         if(item != null){
             final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
 
-            holder.bindDataToView(reviewArrayList, layoutMode, item);
+            holder.bindDataToView(reviewArrayList, layoutMode, item, position);
             holder.setElementClickListener(itemSelectListener, this, item, position);
         }
 
     }
 
-    public void changeCardState(ItemViewHolder holder, int position){
-        if(getItem(position).showing){
-            //holder.cardView.setCardBackgroundColor(Color.parseColor("#dbe8ff"));
-            holder.cardView.setCardBackgroundColor(Color.parseColor("#F6F7F2"));
-            holder.cardView.setElevation(5);
-        }else{
-            holder.cardView.setCardBackgroundColor(Color.WHITE);
-            holder.cardView.setElevation(2);
-        }
+    @Override
+    public long getItemId(int position){
+        return getItem(position).getId();
     }
 
     @Override
@@ -163,12 +147,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         // this.listElementWrappers.clear();
         // notifyDataSetChanged();     // Notifies data changes after clearance to prevent java.lang.IndexOutOfBoundsException: Inconsistency detected.
         if(itemLoadFinishListener != null){
-            int size;
-            if(itemArrayList != null){
-                size = itemArrayList.size();
-            }else{
-                size = 0;
-            }
+            int size = (itemArrayList != null) ? itemArrayList.size() : 0;
             itemLoadFinishListener.onItemFinishUpdate(size);
         }
 
@@ -244,17 +223,6 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             itemFilter = new ItemFilter();
         }
         return itemFilter;
-    }
-
-    public void setSelected(int itemId){
-        // TODO: Fix selection issue
-        for(int i = 0; i < getItemCount(); i++){
-            if(getItem(i).getId() == itemId){
-                getItem(i).showing = true;
-            }else{
-                getItem(i).showing = false;
-            }
-        }
     }
 
     public SortPreference getSortPreference(){
@@ -400,7 +368,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter);
     }
 
-    static class ItemViewHolder extends RecyclerView.ViewHolder{
+    class ItemViewHolder extends RecyclerView.ViewHolder{
         CardView cardView;
         private TextView nameTextView, ratingTextView, quantityTextView, descriptionTextView;
         private RatingBar ratingBar;
@@ -421,35 +389,26 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             ratingBar = itemView.findViewById(R.id.ratingBarView);
         }
 
-        public void bindDataToView(List<Review> reviewArrayList, int layoutMode, Item item){
+        public void bindDataToView(List<Review> reviewArrayList, int layoutMode, Item item, int position){
             final Context context = cardView.getContext();
 
             final boolean screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(context);
 
             double averageRating = Review.calculateAverage(reviewArrayList);
             item.setRating(averageRating);
-            int numberOfReviews = (reviewArrayList == null) ? 0 : reviewArrayList.size();
+            int numberOfReviews = (reviewArrayList != null) ? reviewArrayList.size() : 0;
 
 
             // if(!screenIsLargeOrPortrait && context instanceof MainActivity){
-            //     itemAdapter.changeCardState(this, position);
+            //     changeCardState(this, position);
             // }
 
-            if(item.getImageFile() != null){
-                Glide.with(cardView.getContext())
-                        .load(item.getImageFile())
-                        .apply(RequestOptions.centerCropTransform())
-                        .thumbnail(0.01f)
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(imageView);
-            }else{
-                Glide.with(cardView.getContext())
-                        .load(R.drawable.md_wallpaper_placeholder)
-                        .apply(RequestOptions.centerCropTransform())
-                        .thumbnail(0.01f)
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(imageView);
-            }
+            Glide.with(cardView.getContext())
+                    .load((item.getImageFile() != null) ? item.getImageFile() : R.drawable.md_wallpaper_placeholder)
+                    .apply(RequestOptions.centerCropTransform())
+                    .thumbnail(0.01f)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(imageView);
 
             nameTextView.setText(item.getName());
 
@@ -462,11 +421,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             if(layoutMode == FULL_CARD_LAYOUT){
                 descriptionTextView.setText(item.getDescription());
             }
-            if(item.getRating() != null){
-                ratingBar.setRating(Float.valueOf(String.valueOf(item.getRating())));
-            }else{
-                ratingBar.setRating((float) 0.0);
-            }
+            ratingBar.setRating((item.getRating() != null) ? Float.valueOf(String.valueOf(item.getRating())) : 0f);
 
 
         }
@@ -501,11 +456,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                     }else{
                         FragmentTransaction fragmentTransaction = ((AppCompatActivity) v.getContext()).getSupportFragmentManager().beginTransaction();
                         if(v.getContext() instanceof MainActivity){
-                            if(!item.showing){
-                                itemAdapter.changeCardState(viewHolder, position);
-                                if(itemSelectListener != null){
-                                    itemSelectListener.onSelect(item.getId(), touchCoordinate[1], itemAdapter);
-                                }
+                            if(itemSelectListener != null){
+                                itemSelectListener.onSelect(item.getId(), touchCoordinate[1], itemAdapter);
                             }
                         }else{
                             ItemProfileDialogFragment itemProfileDialog = ItemProfileDialogFragment.newInstance(item.getId());

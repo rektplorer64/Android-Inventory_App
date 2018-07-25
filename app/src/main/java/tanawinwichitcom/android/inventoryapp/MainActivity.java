@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity{
     private ItemViewModel itemViewModel;
     private Toolbar toolbar;
 
+    private DrawerLayout navDrawerLayout;
+
     private boolean screenIsLargeOrPortrait;
 
     private CardView itemListFragmentCard;
@@ -59,10 +63,9 @@ public class MainActivity extends AppCompatActivity{
         setUpActionBar();
         HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
 
-        Toasty.info(this, "Your screen size is " + HelperUtility.getScreenSizeCategory(this)).show();
+        // Toasty.info(this, "Your screen size is " + HelperUtility.getScreenSizeCategory(this)).show();
 
         itemViewModel = new ItemViewModel(getApplication());
-
         itemListFragment = new ItemListFragment();
 
         if(itemProfileFragmentFrame != null){
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity{
 
         toolbar.setOnClickListener(toolbarClickListener);
 
-        if(!screenIsLargeOrPortrait){
+        // if(!screenIsLargeOrPortrait){
             toolbar.post(new Runnable(){
                 @Override
                 public void run(){
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity{
                     }
                 }
             });
-        }
+        // }
     }
 
     private void selectItemInLargeScreenLayout(int itemId, final int touchCoordinateY, final ItemAdapter itemAdapter){
@@ -122,15 +125,13 @@ public class MainActivity extends AppCompatActivity{
                 = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemId,
                 0, touchCoordinateY);
 
-        itemAdapter.setSelected(itemId);
-        itemAdapter.notifyDataSetChanged();
+        // itemAdapter.notifyDataSetChanged();
 
         itemProfileFragment.setItemChangeListener(new ItemProfileFragment.ItemChangeListener(){
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onItemNotFound(int itemId){
                 int[] nearestIds = itemViewModel.getBothNearestIds(itemId);
-
                 int newId = 0;
                 if(nearestIds.length == 1){
                     newId = nearestIds[0];
@@ -192,6 +193,7 @@ public class MainActivity extends AppCompatActivity{
     private void initializeViews(){
         screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(this);
         toolbar = findViewById(R.id.toolbar);
+        navDrawerLayout = findViewById(R.id.navDrawerLayout);
         itemListFragmentCard = findViewById(R.id.itemListFragmentCard);
         itemProfileFragmentFrame = findViewById(R.id.itemProfileFragmentFrame);
     }
@@ -199,7 +201,6 @@ public class MainActivity extends AppCompatActivity{
     private void setUpActionBar(){
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
     }
 
@@ -220,10 +221,8 @@ public class MainActivity extends AppCompatActivity{
 
         switch(menuItem.getItemId()){
             case android.R.id.home:{
-                if(!screenIsLargeOrPortrait){
-
-                }
-                break;
+                navDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
             }
             case R.id.launchSearchButton:{
                 Intent intent = new Intent(this, SearchActivity.class);
