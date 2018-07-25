@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<androidx.core.widget.NestedScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -19,7 +19,7 @@
 		android:orientation="vertical"
 		android:id="@+id/itemProfileLinearLayout">
 
-		<android.support.v7.widget.CardView
+		<androidx.cardview.widget.CardView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="8dp"
@@ -103,16 +103,16 @@
 					android:textColor="@android:color/black"
 					android:textSize="14sp"/>
 
-				<android.support.v7.widget.RecyclerView
+				<androidx.recyclerview.widget.RecyclerView
 					android:id="@+id/tagsRecycleView"
 					android:layout_width="match_parent"
 					android:layout_height="32dp"
 					android:layout_below="@id/tagsTextView"
 					android:paddingBottom="28dp"
 					android:paddingTop="14dp">
-				</android.support.v7.widget.RecyclerView>
+				</androidx.recyclerview.widget.RecyclerView>
 			</RelativeLayout>
-		</android.support.v7.widget.CardView>
+		</androidx.cardview.widget.CardView>
 
 		<include
 			layout="@layout/rating_card"
@@ -122,4 +122,4 @@
 			android:layout_marginEnd="8dp"
 			android:layout_marginStart="8dp"/>
 	</LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</androidx.core.widget.NestedScrollView>

@@ -2,8 +2,8 @@ package tanawinwichitcom.android.inventoryapp.roomdatabase;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import android.util.SparseArray;
 
 import java.util.ArrayList;

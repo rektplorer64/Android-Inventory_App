@@ -1,11 +1,11 @@
 package tanawinwichitcom.android.inventoryapp.roomdatabase.Entities;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.TypeConverters;
-import android.support.annotation.ColorInt;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+import androidx.annotation.ColorInt;
 
 import java.io.File;
 import java.util.Arrays;
@@ -183,6 +183,14 @@ public class Item{
             return false;
         }
         if(!description.equals(item.description)){
+            return false;
+        }
+
+        if(imageFile == null || item.imageFile == null){
+            return false;
+        }
+
+        if(!imageFile.equals(item.imageFile)){
             return false;
         }
 

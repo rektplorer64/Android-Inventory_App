@@ -4,13 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.recyclerview.extensions.ListAdapter;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -38,6 +40,7 @@ import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
+import tanawinwichitcom.android.inventoryapp.rvadapters.Detailable;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.DatePreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
@@ -77,11 +80,12 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
     };
 
     /*
-     * Private Field for basically a HashMap, but with a better memory efficiency
+     * Private Field for basically a HashMap, but with better memory efficiency
      * Binds like HashMap<Integer (itemId), Review (Review Class)>
      */
     private SparseArray<ArrayList<Review>> reviewHashMap;
     private ItemFilter itemFilter;
+    private SelectionTracker selectionTracker;
 
     public ItemAdapter(int layoutMode, Context context){
         super(DIFF_CALLBACK);
@@ -123,7 +127,9 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
 
             holder.bindDataToView(reviewArrayList, layoutMode, item, position);
-            holder.setElementClickListener(itemSelectListener, this, item, position);
+
+            boolean isSelected = (selectionTracker != null)? selectionTracker.isSelected(item) : false;
+            holder.setElementClickListener(itemSelectListener, this, item, isSelected);
         }
 
     }
@@ -158,9 +164,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         if(!isFiltering){
             itemList = itemArrayList;
         }
-
         notifyDataSetChanged();
-
         submitList(itemArrayList);
         // if(this.listElementWrappers.size() != 0 && this.listElementWrappers.get(0) != null){
         //     this.listElementWrappers.get(0).setShowing(true);
@@ -169,9 +173,9 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
     }
 
     public void applySorting(){
-        if(((AppCompatActivity) context).getSupportLoaderManager().hasRunningLoaders()){
-            ((AppCompatActivity) context).getSupportLoaderManager().destroyLoader(1);
-        }
+        // if(((AppCompatActivity) context).getSupportLoaderManager().hasRunningLoaders()){
+        //     ((AppCompatActivity) context).getSupportLoaderManager().destroyLoader(1);
+        // }
         // ((AppCompatActivity) context).getSupportLoaderManager().initLoader(1, null, new LoaderManager.LoaderCallbacks<List<Item>>(){
         //     @NonNull
         //     @Override
@@ -235,6 +239,10 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
     public void setItemSelectListener(ItemSelectListener itemSelectListener){
         this.itemSelectListener = itemSelectListener;
+    }
+
+    public void setSetSelectionTracker(SelectionTracker selectionTracker){
+        this.selectionTracker = selectionTracker;
     }
 
     private class ItemFilter extends Filter{
@@ -368,7 +376,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter);
     }
 
-    class ItemViewHolder extends RecyclerView.ViewHolder{
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements Detailable{
         CardView cardView;
         private TextView nameTextView, ratingTextView, quantityTextView, descriptionTextView;
         private RatingBar ratingBar;
@@ -428,7 +436,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
         @SuppressLint("ClickableViewAccessibility")
         public void setElementClickListener(final ItemSelectListener itemSelectListener, final ItemAdapter itemAdapter
-                , final Item item, final int position){
+                , final Item item, final boolean isFocused){
             final int touchCoordinate[] = new int[2];
 
             cardView.setOnTouchListener(new View.OnTouchListener(){
@@ -444,7 +452,12 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                 }
             });
 
-            final ItemViewHolder viewHolder = this;
+            if(isFocused){
+                cardView.setCardBackgroundColor(Color.parseColor("#E5E1E0"));
+                // cardView.setCardBackgroundColor(Color.RED);
+            }else{
+                cardView.setCardBackgroundColor(Color.WHITE);
+            }
             cardView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(final View v){
@@ -456,7 +469,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                     }else{
                         FragmentTransaction fragmentTransaction = ((AppCompatActivity) v.getContext()).getSupportFragmentManager().beginTransaction();
                         if(v.getContext() instanceof MainActivity){
-                            if(itemSelectListener != null){
+                            if(itemSelectListener != null && !isFocused){
                                 itemSelectListener.onSelect(item.getId(), touchCoordinate[1], itemAdapter);
                             }
                         }else{
@@ -466,6 +479,21 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                     }
                 }
             });
+        }
+
+        @Override
+        public ItemDetailsLookup.ItemDetails getItemDetails(){
+            return new ItemDetailsLookup.ItemDetails(){
+                @Override
+                public int getPosition(){
+                    return getAdapterPosition();
+                }
+
+                @Override
+                public Object getSelectionKey(){
+                    return getItem(getAdapterPosition());
+                }
+            };
         }
     }
 }

@@ -32,4 +32,5 @@
 	<color name="md_brown_400">#8d6e63</color>
 	<color name="md_gray_400">#bdbdbd</color>
 	<color name="md_bluegray_400">#78909c</color>
+	<color name="selected_background">#E5E1E0</color>
 </resources>

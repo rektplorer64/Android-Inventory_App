@@ -8,7 +8,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"/>
 
-	<android.support.v7.widget.CardView
+	<androidx.cardview.widget.CardView
 		android:id="@+id/search_cardView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
@@ -46,7 +46,7 @@
 					android:paddingRight="@dimen/search_key_line_8"
 					android:paddingStart="@dimen/search_key_line_8">
 
-					<android.support.v7.widget.AppCompatAutoCompleteTextView
+					<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"
 						android:background="@android:color/transparent"
@@ -98,6 +98,6 @@
 
 		</LinearLayout>
 
-	</android.support.v7.widget.CardView>
+	</androidx.cardview.widget.CardView>
 
 </merge>

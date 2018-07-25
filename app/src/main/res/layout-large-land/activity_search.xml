@@ -10,7 +10,7 @@
 	android:orientation="vertical"
 	tools:context=".SearchActivity">
 
-	<android.support.design.widget.AppBarLayout
+	<com.google.android.material.appbar.AppBarLayout
 		android:id="@+id/appBarLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
@@ -25,7 +25,7 @@
 			app:search_logo="arrow"
 			app:search_version="toolbar"/>
 
-	</android.support.design.widget.AppBarLayout>
+	</com.google.android.material.appbar.AppBarLayout>
 
 	<FrameLayout
 		android:id="@+id/v_toolbar_extension"
@@ -41,7 +41,7 @@
 		android:layout_below="@id/appBarLayout"
 		android:elevation="5dp">
 
-		<android.support.v7.widget.CardView
+		<androidx.cardview.widget.CardView
 			android:id="@+id/containerCardView"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -53,7 +53,7 @@
 				android:layout_height="match_parent"
 				android:weightSum="10">
 
-				<android.support.v7.widget.CardView
+				<androidx.cardview.widget.CardView
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
 					android:layout_marginBottom="8dp"
@@ -90,9 +90,9 @@
 					</LinearLayout>
 
 
-				</android.support.v7.widget.CardView>
+				</androidx.cardview.widget.CardView>
 
-				<android.support.v7.widget.CardView
+				<androidx.cardview.widget.CardView
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
 					android:layout_margin="8dp"
@@ -124,7 +124,7 @@
 							app:msv_loadingView="@layout/item_list_loading"
 							app:msv_viewState="loading">
 
-							<android.support.v7.widget.RecyclerView
+							<androidx.recyclerview.widget.RecyclerView
 								android:id="@+id/resultsRecyclerView"
 								android:layout_width="match_parent"
 								android:layout_height="match_parent"/>
@@ -132,9 +132,9 @@
 
 
 					</LinearLayout>
-				</android.support.v7.widget.CardView>
+				</androidx.cardview.widget.CardView>
 			</LinearLayout>
-		</android.support.v7.widget.CardView>
+		</androidx.cardview.widget.CardView>
 	</FrameLayout>
 
 

@@ -15,7 +15,7 @@
 		android:layout_gravity="center_horizontal"
 		android:text="Write a short review"/>
 
-	<android.support.design.widget.TextInputLayout
+	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/commentEditWrapper"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
 			android:paddingEnd="12dp"
 			android:textColor="@android:color/black"
 			android:textSize="16sp"/>
-	</android.support.design.widget.TextInputLayout>
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<Button
 		android:id="@+id/submitReviewButton"

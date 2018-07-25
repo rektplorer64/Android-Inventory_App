@@ -1,25 +1,25 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.fragment.app.Fragment;
+import androidx.core.widget.NestedScrollView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -155,23 +155,32 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         userReviewAdapter.setHasStableIds(true);
 
         final Toolbar.OnMenuItemClickListener menuItemClickListener = this;
-        itemViewModel.getItemById(itemId).observe(this, new Observer<Item>(){
+        itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             @Override
-            public void onChanged(@Nullable final Item item){
-                if(item == null){
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
-
-                    if(itemChangeListener != null){
-                        itemChangeListener.onItemNotFound(itemId);
-                    }
-
-                    return;
-                }else{
-                    itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+            public void onChanged(final List<Item> items){
+                if(itemViewModel.getItemById(itemId).hasActiveObservers()){
+                    itemViewModel.getItemById(itemId).removeObservers(getViewLifecycleOwner());
                 }
-                CURRENT_ITEM = item;
-                toolbar.setOnMenuItemClickListener(menuItemClickListener);
-                onItemDataChanged(item, view);
+                itemViewModel.getItemById(itemId).observe(getViewLifecycleOwner(), new Observer<Item>(){
+                    @Override
+                    public void onChanged(@Nullable final Item item){
+                        if(item == null){
+                            // itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+                            view.setVisibility(View.INVISIBLE);
+
+                            if(itemChangeListener != null){
+                                itemChangeListener.onItemNotFound(itemId);
+                            }
+
+                            return;
+                        }else{
+                            itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                        }
+                        CURRENT_ITEM = item;
+                        toolbar.setOnMenuItemClickListener(menuItemClickListener);
+                        onItemDataChanged(item, view);
+                    }
+                });
             }
         });
 

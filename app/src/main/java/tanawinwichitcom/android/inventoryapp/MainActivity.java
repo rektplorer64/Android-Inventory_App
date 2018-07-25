@@ -6,14 +6,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -134,11 +134,12 @@ public class MainActivity extends AppCompatActivity{
                 int[] nearestIds = itemViewModel.getBothNearestIds(itemId);
                 int newId = 0;
                 if(nearestIds.length == 1){
-                    newId = nearestIds[0];
+                    // newId = nearestIds[0];
                 }else if(nearestIds.length == 2){
                     newId = Integer.min(nearestIds[0], nearestIds[1]);
+                    selectItemInLargeScreenLayout(newId, touchCoordinateY, itemAdapter);
                 }
-                selectItemInLargeScreenLayout(newId, touchCoordinateY, itemAdapter);
+
             }
         });
 

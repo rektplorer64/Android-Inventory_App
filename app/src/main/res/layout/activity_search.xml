@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -14,7 +14,7 @@
 		android:layout_height="match_parent"
 		android:orientation="vertical">
 
-		<android.support.design.widget.AppBarLayout
+		<com.google.android.material.appbar.AppBarLayout
 			android:id="@+id/appBarLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content">
@@ -27,7 +27,7 @@
 				app:search_hint="Search items"
 				app:search_logo="arrow"
 				app:search_version="toolbar"/>
-		</android.support.design.widget.AppBarLayout>
+		</com.google.android.material.appbar.AppBarLayout>
 
 		<FrameLayout
 			android:id="@+id/v_toolbar_extension"
@@ -37,7 +37,7 @@
 			android:background="@color/colorPrimary"
 			android:elevation="4dp"/>
 
-		<android.support.v7.widget.CardView
+		<androidx.cardview.widget.CardView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_below="@id/appBarLayout"
@@ -73,17 +73,17 @@
 					app:msv_loadingView="@layout/item_list_loading"
 					app:msv_viewState="loading">
 
-					<android.support.v7.widget.RecyclerView
+					<androidx.recyclerview.widget.RecyclerView
 						android:id="@+id/resultsRecyclerView"
 						android:layout_width="match_parent"
 						android:layout_height="match_parent"/>
 				</com.kennyc.view.MultiStateView>
 			</LinearLayout>
 
-		</android.support.v7.widget.CardView>
+		</androidx.cardview.widget.CardView>
 	</RelativeLayout>
 
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		android:id="@+id/searchDialogButton"
 		android:layout_width="56dp"
 		android:layout_height="56dp"
@@ -95,4 +95,4 @@
 		android:scaleType="center"
 		android:src="@drawable/ic_settings_white_24dp"/>
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
