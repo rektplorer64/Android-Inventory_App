@@ -1,4 +1,4 @@
-package tanawinwichitcom.android.inventoryapp.fragments;
+package tanawinwichitcom.android.inventoryapp.fragments.dialogfragment;
 
 import android.animation.Animator;
 import android.app.Activity;

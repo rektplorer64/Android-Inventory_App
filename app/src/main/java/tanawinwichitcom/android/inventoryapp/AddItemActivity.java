@@ -304,7 +304,7 @@ public class AddItemActivity extends AppCompatActivity implements ColorChooserDi
         }
 
         if(actionCode == ActionCode.ADD_ITEM){
-            itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", imageFile, currentTime, null));
+            // itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", imageFile, currentTime, null));
         }else if(actionCode == ActionCode.UPDATE_ITEM){
             item.setName(itemName);
             item.setQuantity(quantity);

@@ -9,6 +9,7 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
@@ -86,6 +87,10 @@ public class ItemViewModel extends AndroidViewModel{
 
     public LiveData<List<Review>> getReviewsByItemId(int itemId){
         return dataRepository.getReviewsByItemId(itemId);
+    }
+
+    public Set<String> getAllTags(){
+        return dataRepository.getAllTags();
     }
 
     public int[] getBothNearestIds(int itemId){

@@ -1,25 +1,22 @@
-package tanawinwichitcom.android.inventoryapp.fragments;
+package tanawinwichitcom.android.inventoryapp.fragments.dialogfragment;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AlertDialog;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
 import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.SearchActivity;
+import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 

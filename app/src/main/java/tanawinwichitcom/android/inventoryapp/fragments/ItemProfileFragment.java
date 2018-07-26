@@ -2,6 +2,8 @@ package tanawinwichitcom.android.inventoryapp.fragments;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -35,7 +37,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -61,6 +62,8 @@ import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.SearchActivity;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.ItemEditingDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
@@ -167,11 +170,6 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                         if(item == null){
                             // itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
                             view.setVisibility(View.INVISIBLE);
-
-                            if(itemChangeListener != null){
-                                itemChangeListener.onItemNotFound(itemId);
-                            }
-
                             return;
                         }else{
                             itemProfFragMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
@@ -287,6 +285,9 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                                                 @Override
                                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
                                                     itemViewModel.delete(review);
+                                                    if(itemChangeListener != null){
+                                                        itemChangeListener.onItemNotFound(itemId);
+                                                    }
                                                 }
                                             }).show();
                                     break;
@@ -383,7 +384,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
      * @param frontColorInt Foreground color
      * @param rootView      fragment's root view
      */
-    private void setUpStatusAndToolbar(@ColorInt int backColorInt, @ColorInt int frontColorInt
+    private void setupStatusAndToolbar(@ColorInt int backColorInt, @ColorInt int frontColorInt
             , final View rootView){
         // Changes Toolbar's color according to the selected color
         //toolbar.setBackgroundColor(backgroundColor);
@@ -465,6 +466,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
     /**
      * Triggered activity closing sequence with Circular Reveal Activity
      */
+    @SuppressLint("RestrictedApi")
     private void closeActivityCircularly(){
         // Triggers Back button because the fragment is a subclass of CircularRevealFragment (Circular Reveal will trigger when Back Button is Pressed)
         getActivity().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
@@ -567,7 +569,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         //window.setStatusBarColor(darkenColor(item.getItemColorAccent()));
         int backgroundColor = item.getItemColorAccent();
         int frontColor = ColorUtility.getSuitableFrontColor(getContext(), backgroundColor, true);
-        setUpStatusAndToolbar(backgroundColor, frontColor, rootView);
+        setupStatusAndToolbar(backgroundColor, frontColor, rootView);
 
         if(item.getImageFile() != null){
             Glide.with(getContext())

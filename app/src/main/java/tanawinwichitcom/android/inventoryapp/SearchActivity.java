@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
-import tanawinwichitcom.android.inventoryapp.fragments.SearchOptionDialogFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.SearchOptionDialogFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
@@ -83,7 +83,7 @@ public class SearchActivity extends AppCompatActivity
             @Override
             public void onAnimationEnd(Animator animation){
                 searchActivityLayoutParent.setVisibility(View.GONE);
-                SearchActivity.super.onBackPressed();
+                finish();
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             }
 

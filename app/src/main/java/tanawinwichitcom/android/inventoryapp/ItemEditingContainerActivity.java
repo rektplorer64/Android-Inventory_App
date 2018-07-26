@@ -4,6 +4,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemEditingFragment;
+
 import android.widget.FrameLayout;
 
 public class ItemEditingContainerActivity extends AppCompatActivity{

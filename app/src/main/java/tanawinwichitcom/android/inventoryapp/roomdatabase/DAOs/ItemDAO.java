@@ -9,6 +9,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import java.util.List;
+import java.util.Set;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
@@ -38,6 +39,9 @@ public interface ItemDAO{
             " UNION ALL " +
             "SELECT * FROM (SELECT * FROM items WHERE id < :itemId ORDER BY id desc limit 1)")
     int[] getBothNearestIds(int itemId);
+
+    @Query("SELECT tags FROM items")
+    List<String> getAllTags();
 
     @Insert
     void insertAll(Item... items);

@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -95,7 +97,7 @@ public abstract class AppDatabase extends RoomDatabase{
      * This class will populate the database in an background thread when it is called.
      * It is required that database operations must be done asynchronously.
      */
-    private static class PopulateDatabaseAsync extends AsyncTask<Void, Void, Void>{
+    private static class PopulateDatabaseAsync extends AsyncTask<Void, Integer, Void>{
 
         private final ItemDAO itemDAO;
         private final ReviewDAO reviewDAO;
@@ -131,14 +133,20 @@ public abstract class AppDatabase extends RoomDatabase{
                     }
                     descriptionStringBuilder.append(".");
 
-                    StringBuilder tagStringBuilder = new StringBuilder();
                     for(int wordCount = 0; wordCount < 5; wordCount++){
                         descriptionStringBuilder.append(RandomWord.getNewWord(5) + " ");
                     }
 
                     String itemName = RandomWord.getNewWord(10);
-                    int quantity = (new Random()).nextInt(100);
-                    items[i] = new Item(itemName, quantity, descriptionStringBuilder.toString(), colorValue, tagStringBuilder.toString().trim(), null,
+                    int quantity = (new Random()).nextInt(1000000);
+
+                    HashSet<String> stringHashSet = new HashSet<>();
+                    for(int j = 0; j < 10; j++){
+                        String randomizedWord = RandomWord.getNewWord(10).toLowerCase();
+                        stringHashSet.add(StringUtils.capitalize(randomizedWord));
+                    }
+
+                    items[i] = new Item(itemName, quantity, descriptionStringBuilder.toString(), colorValue, stringHashSet, null,
                             new Date(timeStamp), null);
 
                     itemDAO.insertAll(items[i]);
@@ -181,6 +189,11 @@ public abstract class AppDatabase extends RoomDatabase{
             populateUsers();
             populateReviews();
             return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values){
+            super.onProgressUpdate(values);
         }
     }
 }

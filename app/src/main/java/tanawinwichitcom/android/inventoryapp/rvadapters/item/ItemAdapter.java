@@ -37,7 +37,7 @@ import tanawinwichitcom.android.inventoryapp.AsyncSorter;
 import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
-import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileDialogFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.ItemProfileDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.rvadapters.Detailable;

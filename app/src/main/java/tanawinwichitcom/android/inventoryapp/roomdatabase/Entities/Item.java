@@ -11,9 +11,11 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Set;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DateConverter;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.FileConverter;
+import tanawinwichitcom.android.inventoryapp.roomdatabase.TagsConverter;
 
 @Entity(tableName = "items")
 public class Item{
@@ -49,15 +51,16 @@ public class Item{
     @ColumnInfo(name = "color")
     private int itemColorAccent;
 
+    @TypeConverters(TagsConverter.class)
     @ColumnInfo(name = "tags")
-    private String tags;
+    private Set<String> tags;
 
     @Ignore
     public boolean showing;
     @Ignore
     public boolean selected;
 
-    public Item(String name, int quantity, String description, @ColorInt int itemColorAccent, String tags, File imageFile, Date dateCreated, Date dateModified){
+    public Item(String name, int quantity, String description, @ColorInt int itemColorAccent, Set<String> tags, File imageFile, Date dateCreated, Date dateModified){
         this.name = name;
         this.quantity = quantity;
         this.description = description;
@@ -140,23 +143,12 @@ public class Item{
         this.itemColorAccent = itemColorAccent;
     }
 
-    public String getTags(){
+    public Set<String> getTags(){
         return tags;
     }
 
-    public void setTags(String tags){
+    public void setTags(Set<String> tags){
         this.tags = tags;
-    }
-
-    public HashSet<String> getTagsSet(){
-        String[] spitted = this.tags.split(" ");
-        return new HashSet<>(Arrays.asList(spitted));
-    }
-
-    public void addTag(String tag){
-        StringBuilder stringBuilder = new StringBuilder(this.tags);
-        stringBuilder.append(" ").append(tags);
-        this.tags = stringBuilder.toString();
     }
 
     @Override

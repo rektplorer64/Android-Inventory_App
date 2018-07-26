@@ -1,4 +1,4 @@
-package tanawinwichitcom.android.inventoryapp.fragments;
+package tanawinwichitcom.android.inventoryapp.fragments.dialogfragment;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import tanawinwichitcom.android.inventoryapp.ItemEditingFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemEditingFragment;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 

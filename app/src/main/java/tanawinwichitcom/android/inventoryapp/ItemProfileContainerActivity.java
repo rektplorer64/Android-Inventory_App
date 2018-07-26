@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import tanawinwichitcom.android.inventoryapp.fragments.CircularRevealFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
 
 public class ItemProfileContainerActivity extends AppCompatActivity{

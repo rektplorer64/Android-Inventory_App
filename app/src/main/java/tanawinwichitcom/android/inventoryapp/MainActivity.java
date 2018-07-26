@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,8 +24,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import es.dmoral.toasty.Toasty;
-import tanawinwichitcom.android.inventoryapp.fragments.CircularRevealFragment;
+import androidx.lifecycle.ViewModelProviders;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
@@ -60,13 +61,14 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
         initializeViews();
-        setUpActionBar();
+        setupActionBar();
         HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
 
         // Toasty.info(this, "Your screen size is " + HelperUtility.getScreenSizeCategory(this)).show();
 
-        itemViewModel = new ItemViewModel(getApplication());
         itemListFragment = new ItemListFragment();
+
+        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
 
         if(itemProfileFragmentFrame != null){
             // itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0);
@@ -199,7 +201,7 @@ public class MainActivity extends AppCompatActivity{
         itemProfileFragmentFrame = findViewById(R.id.itemProfileFragmentFrame);
     }
 
-    private void setUpActionBar(){
+    private void setupActionBar(){
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);

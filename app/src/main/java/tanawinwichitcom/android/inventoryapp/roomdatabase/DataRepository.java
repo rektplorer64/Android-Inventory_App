@@ -6,7 +6,9 @@ import android.os.AsyncTask;
 import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DAOs.ItemDAO;
@@ -65,8 +67,6 @@ public class DataRepository{
         allUsers = userDAO.getAll();
     }
 
-
-
     public LiveData<Review> getReviewByItemAndUserId(int itemId, int userId){
         return reviewDAO.getReviewByItemAndUserId(itemId, userId);
     }
@@ -104,6 +104,17 @@ public class DataRepository{
 
     public LiveData<List<Review>> getReviewsByItemId(int itemId){
         return reviewDAO.findByItemId(itemId);
+    }
+
+    public Set<String> getAllTags(){
+        try{
+            return new BasicAsyncOperation(itemDAO).execute().get();
+        }catch(InterruptedException e){
+            e.printStackTrace();
+        }catch(ExecutionException e){
+            e.printStackTrace();
+        }
+        return new HashSet<>();
     }
 
     public int[] getBothNearestIds(int itemId){
@@ -247,6 +258,19 @@ public class DataRepository{
         @Override
         protected int[] doInBackground(Integer... integers){
             return itemDAO.getBothNearestIds(integers[0]);
+        }
+    }
+
+    private static class BasicAsyncOperation extends AsyncTask<Void, Void, Set<String>>{
+        private final ItemDAO itemDAO;
+
+        public BasicAsyncOperation(ItemDAO itemDAO){
+            this.itemDAO = itemDAO;
+        }
+
+        @Override
+        protected Set<String> doInBackground(Void... voids){
+            return new HashSet<>(itemDAO.getAllTags());
         }
     }
 }

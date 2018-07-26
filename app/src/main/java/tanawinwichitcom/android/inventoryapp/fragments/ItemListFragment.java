@@ -3,25 +3,20 @@ package tanawinwichitcom.android.inventoryapp.fragments;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.kennyc.view.MultiStateView;
 
-import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -40,16 +35,14 @@ import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.ItemEditingContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.ItemEditingDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
-import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemActionModeController;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityDetailsLookup;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityKeyProvider;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class ItemListFragment extends Fragment{
 
@@ -62,16 +55,11 @@ public class ItemListFragment extends Fragment{
 
     private ItemAdapter.ItemSelectListener itemSelectListener;
 
-    private ActionMode actionMode;
-
-    private MaterialCardView selectionCard;
-    private TextView totalSelectedTextView;
-
-    private ImageView action_select_all;
-    private ImageView action_select_delete;
-    private ImageView action_select_clear;
+    private ActionMode mActionMode;
+    private ActionMode.Callback actionModeCallback;
 
     public ItemListFragment(){
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -80,18 +68,8 @@ public class ItemListFragment extends Fragment{
         return inflater.inflate(R.layout.fragment_item_list, container, false);
     }
 
-    // TODO: Add Empty State for the list
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
-
-        selectionCard = view.findViewById(R.id.selectionCard);
-        selectionCard.setVisibility(View.GONE);
-        totalSelectedTextView = view.findViewById(R.id.totalSelectedTextView);
-        action_select_all = view.findViewById(R.id.action_select_all);
-        action_select_delete = view.findViewById(R.id.action_select_delete);
-        action_select_clear = view.findViewById(R.id.action_select_clear);
-
-
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -123,76 +101,7 @@ public class ItemListFragment extends Fragment{
             @Override
             public void onChanged(@Nullable final List<Item> items){
                 if(items != null && !items.isEmpty()){
-
-                    selectionTracker = new SelectionTracker.Builder<>("ITEM_SELECTION", recyclerView
-                            , new ItemEntityKeyProvider(1, items), new ItemEntityDetailsLookup(recyclerView)
-                            , StorageStrategy.createLongStorage()).withOnDragInitiatedListener(new OnDragInitiatedListener(){
-                        @Override
-                        public boolean onDragInitiated(MotionEvent e){
-                            Log.d("A", "onDrag");
-                            return true;
-                        }
-                    }).build();
-
-                    action_select_clear.setOnClickListener(new View.OnClickListener(){
-                        @Override
-                        public void onClick(View view){
-                            selectionTracker.clearSelection();
-                            selectionCard.setVisibility(View.GONE);
-                        }
-                    });
-
-                    action_select_all.setOnClickListener(new View.OnClickListener(){
-                        @Override
-                        public void onClick(View view){
-                            selectionTracker.setItemsSelected(items, true);
-                        }
-                    });
-
-
-                    selectionTracker.addObserver(new SelectionTracker.SelectionObserver(){
-                        @Override
-                        public void onSelectionChanged(){
-                            super.onSelectionChanged();
-                            if(selectionTracker.hasSelection() && actionMode == null){
-                                actionMode = getActivity().startActionMode(new ItemActionModeController(getActivity(), selectionTracker));
-                                setMenuItemTitle(selectionTracker.getSelection().size());
-                            }else if(!selectionTracker.hasSelection() && actionMode != null){
-                                actionMode.finish();
-                                actionMode = null;
-                            }else{
-                                setMenuItemTitle(selectionTracker.getSelection().size());
-                            }
-                        }
-                    });
-
-                    action_select_delete.setOnClickListener(new View.OnClickListener(){
-                        @Override
-                        public void onClick(View view){
-                            new MaterialDialog.Builder(getContext()).title("Delete " + selectionTracker.getSelection().size() + " items?")
-                                    .positiveText("yes").positiveColor(Color.RED)
-                                    .negativeText("no")
-                                    .onPositive(new MaterialDialog.SingleButtonCallback(){
-                                        @Override
-                                        public void onClick(MaterialDialog dialog, DialogAction which){
-                                            MaterialDialog intermidiate = new MaterialDialog.Builder(getContext()).progress(false, selectionTracker.getSelection().size(), true).show();
-                                            int i = 0;
-                                            // TODO: make this async
-                                            for(Item item : items){
-                                                if(selectionTracker.getSelection().contains(item)){
-                                                    intermidiate.setProgress(i++);
-                                                    itemViewModel.delete(item);
-                                                }
-                                            }
-                                            intermidiate.dismiss();
-                                            selectionCard.setVisibility(View.GONE);
-                                            // TODO: Fix the crash after selecting and delete, and reselect
-                                        }
-                                    }).show();
-                        }
-                    });
-                    itemAdapter.setSetSelectionTracker(selectionTracker);
-
+                    // setupSelectionContextMenu(itemViewModel, items);
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
                     itemAdapter.submitList(items);
                 }else{
@@ -226,9 +135,94 @@ public class ItemListFragment extends Fragment{
     }
 
 
-    private void setMenuItemTitle(int selectedItemSize){
-        totalSelectedTextView.setText(String.format("%d", selectedItemSize));
-        selectionCard.setVisibility(View.VISIBLE);
+    // TODO: fix this
+    private void setupSelectionContextMenu(final ItemViewModel itemViewModel, final List<Item> items){
+        if(selectionTracker == null){
+            selectionTracker = new SelectionTracker.Builder<>("ITEM_SELECTION", recyclerView
+                    , new ItemEntityKeyProvider(1, items), new ItemEntityDetailsLookup(recyclerView)
+                    , StorageStrategy.createLongStorage()).withOnDragInitiatedListener(new OnDragInitiatedListener(){
+                @Override
+                public boolean onDragInitiated(MotionEvent e){
+                    return true;
+                }
+            }).build();
+        }
+
+        selectionTracker.addObserver(new SelectionTracker.SelectionObserver(){
+            @Override
+            public void onSelectionChanged(){
+                super.onSelectionChanged();
+                if(selectionTracker.hasSelection()){
+                    if(mActionMode == null){
+                        mActionMode = getActivity().startActionMode(actionModeCallback);
+                    }else{
+                        mActionMode.setTitle("Selected " + selectionTracker.getSelection().size() + " items");
+                    }
+                }
+            }
+        });
+
+        actionModeCallback = new ActionMode.Callback(){
+            @Override
+            public boolean onCreateActionMode(ActionMode actionMode, Menu menu){
+                actionMode.getMenuInflater().inflate(R.menu.menu_item_selection, menu);
+                actionMode.setTitle("Selected " + selectionTracker.getSelection().size() + " items");
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu){
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(final ActionMode actionMode, MenuItem menuItem){
+                switch(menuItem.getItemId()){
+                    case R.id.action_select_clear:
+                        for(Item item : items){
+                            if(selectionTracker.getSelection().contains(item)){
+                                selectionTracker.deselect(item);
+                            }
+                        }
+                        // mActionMode.setTitle("No items selected");
+                        break;
+                    case R.id.action_select_delete:
+                        new MaterialDialog.Builder(getContext()).title("Delete " + selectionTracker.getSelection().size() + " items?")
+                                .positiveText("yes").positiveColor(Color.RED)
+                                .negativeText("no")
+                                .onPositive(new MaterialDialog.SingleButtonCallback(){
+                                    @Override
+                                    public void onClick(MaterialDialog dialog, DialogAction which){
+                                        MaterialDialog intermediate = new MaterialDialog.Builder(getContext())
+                                                .progress(false, selectionTracker.getSelection().size(), true)
+                                                .show();
+                                        int i = 0;
+                                        // TODO: make this async
+                                        for(Item item : items){
+                                            if(selectionTracker.getSelection().contains(item)){
+                                                intermediate.setProgress(i++);
+                                                itemViewModel.delete(item);
+                                            }
+                                        }
+                                        intermediate.dismiss();
+                                        // selectionCard.setVisibility(View.GONE);
+                                        onDestroyActionMode(actionMode);
+                                        // TODO: Fix the crash after selecting and delete, and reselect
+                                    }
+                                }).show();
+                }
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode actionMode){
+                selectionTracker.clearSelection();
+                selectionTracker = null;
+                actionMode.finish();
+            }
+        };
+
+        itemAdapter.setSetSelectionTracker(selectionTracker);
     }
 
     public void setItemSelectListener(ItemAdapter.ItemSelectListener itemSelectListener){

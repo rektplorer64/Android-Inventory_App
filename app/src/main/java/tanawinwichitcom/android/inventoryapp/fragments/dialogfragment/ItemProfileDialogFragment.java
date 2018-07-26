@@ -1,4 +1,4 @@
-package tanawinwichitcom.android.inventoryapp.fragments;
+package tanawinwichitcom.android.inventoryapp.fragments.dialogfragment;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.R;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class ItemProfileDialogFragment extends DialogFragment{
