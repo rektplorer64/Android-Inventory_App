@@ -62,7 +62,7 @@ public class SearchActivity extends AppCompatActivity
     private RecyclerView resultsRecyclerView;
     private CardView containerCardView;
 
-    private MultiStateView itemListMultistateView;
+    private MultiStateView itemListMultiStateView;
 
     private Filter.FilterListener filterListener;
 
@@ -186,15 +186,15 @@ public class SearchActivity extends AppCompatActivity
         resultsRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, this);
 
-        itemListMultistateView = findViewById(R.id.itemListMultistateView);
+        itemListMultiStateView = findViewById(R.id.itemListMultistateView);
         itemAdapter.setItemLoadFinishListener(new ItemAdapter.ItemLoadFinishListener(){
             @Override
             public void onItemFinishUpdate(int size){
                 // Toast.makeText(SearchActivity.this, "Finished update: " + size, Toast.LENGTH_SHORT).show();
                 if(size == 0){
-                    itemListMultistateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+                    itemListMultiStateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
                 }else{
-                    itemListMultistateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                    itemListMultiStateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
                 }
             }
         });

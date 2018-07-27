@@ -87,7 +87,7 @@ public class AsyncSorter extends AsyncTaskLoader<List<Item>>{
                     case COLOR_ACCENT:
                         return Integer.compare(o1.getItemColorAccent(), o2.getItemColorAccent());
                     case QUANTITY:
-                        return Integer.compare(o1.getQuantity(), o2.getQuantity());
+                        return Long.compare(o1.getQuantity(), o2.getQuantity());
                     case RATING:
                         try{
                             return Double.compare(o1.getRating(), o2.getRating());

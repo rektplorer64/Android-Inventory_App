@@ -42,7 +42,7 @@ public class ItemProfileContainerActivity extends AppCompatActivity{
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.action_edit:{
-                Intent intent = new Intent(this, AddItemActivity.class);
+                Intent intent = new Intent(this, ItemEditingContainerActivity.class);
                 intent.putExtra("itemId", itemId);
                 startActivity(intent);
             }

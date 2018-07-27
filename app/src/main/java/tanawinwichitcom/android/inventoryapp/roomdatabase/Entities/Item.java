@@ -8,9 +8,7 @@ import androidx.room.TypeConverters;
 import androidx.annotation.ColorInt;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DateConverter;
@@ -28,7 +26,7 @@ public class Item{
     private String name;
 
     @ColumnInfo(name = "quantity")
-    private int quantity;
+    private long quantity;
 
     @ColumnInfo(name = "description")
     private String description;
@@ -60,7 +58,7 @@ public class Item{
     @Ignore
     public boolean selected;
 
-    public Item(String name, int quantity, String description, @ColorInt int itemColorAccent, Set<String> tags, File imageFile, Date dateCreated, Date dateModified){
+    public Item(String name, long quantity, String description, @ColorInt int itemColorAccent, Set<String> tags, File imageFile, Date dateCreated, Date dateModified){
         this.name = name;
         this.quantity = quantity;
         this.description = description;
@@ -87,11 +85,11 @@ public class Item{
         this.name = name;
     }
 
-    public int getQuantity(){
+    public long getQuantity(){
         return quantity;
     }
 
-    public void setQuantity(int quantity){
+    public void setQuantity(long quantity){
         this.quantity = quantity;
     }
 

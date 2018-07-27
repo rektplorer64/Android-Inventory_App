@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -21,16 +22,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.Theme;
 import com.afollestad.materialdialogs.color.ColorChooserDialog;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -38,7 +40,10 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -67,20 +72,23 @@ import static tanawinwichitcom.android.inventoryapp.utility.ColorUtility.darkenC
 
 public class ItemEditingFragment extends Fragment implements ColorChooserDialog.ColorCallback{
 
-    private LinearLayout linearLayoutEdit;
     private int PICK_IMAGE_REQUEST = 1;
     private int REQUEST_PERMISSION = 1;
+
     private File originalImageFile;
+
     private boolean isInEditMode;
+
     private Window window;
+
+    private LinearLayout linearLayoutEdit;
     private CollapsingToolbarLayout collapsingToolbarLayout;
-    private RelativeLayout imageHeaderRelativeLayout;
-    private FloatingActionButton floatingActionButton;
+
     private TextInputLayout nameEditWrapper, quantityEditWrapper, descriptionEditWrapper;
     private TextInputEditText nameEditText;
     private EditText quantityEditText, descriptionEditText;
     private LinearLayout selectColorButton;
-    private ImageButton circleImageView;
+    private ImageButton circleImageView, deleteImageButton;
     private Toolbar toolbar;
     private ImageView itemImageView, nameIconImageView, descriptionIconImageView;
     private ItemViewModel itemViewModel;
@@ -94,6 +102,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
     @ColorInt
     private Integer selectedColorInt;
 
+    private ArrayAdapter<String> suggestionAdapter;
 
     public ItemEditingFragment(){
     }
@@ -117,7 +126,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
-        super.onCreate(savedInstanceState);
+        // super.onCreate(savedInstanceState);
 
         initializeViews(view);
 
@@ -136,10 +145,16 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             setupStatusAndToolbar(selectedColorInt);
             setupDialogButton();
             setEditTextOnFocus(selectedColorInt);
-            floatingActionButton.setOnClickListener(new View.OnClickListener(){
+
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener(){
                 @Override
-                public void onClick(View v){
-                    takeAction(ActionCode.ADD_ITEM, itemViewModel, null);
+                public boolean onMenuItemClick(MenuItem menuItem){
+                    switch(menuItem.getItemId()){
+                        case R.id.action_confirm_edit:
+                            takeAction(ActionMode.ADD_ITEM, itemViewModel, null);
+                            break;
+                    }
+                    return true;
                 }
             });
         }else{
@@ -147,17 +162,33 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
                 @Override
                 public void onChanged(@Nullable final Item item){
                     originalImageFile = item.getImageFile();
+
+                    if(originalImageFile != null){
+                        deleteImageButton.setVisibility(View.VISIBLE);
+                    }
+
                     selectedColorInt = item.getItemColorAccent();
                     circleImageView.setBackgroundColor(selectedColorInt);
 
                     setupStatusAndToolbar(selectedColorInt);
                     setupDialogButton();
                     setEditTextOnFocus(selectedColorInt);
-                    fillTextEditForm(item);
-                    floatingActionButton.setOnClickListener(new View.OnClickListener(){
+                    fillDataToForms(item);
+                    for(int i = 0; i < suggestionAdapter.getCount(); i++){
+                        if(item.getTags().contains(suggestionAdapter.getItem(i))){
+                            suggestionAdapter.remove(suggestionAdapter.getItem(i));
+                        }
+                    }
+
+                    toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener(){
                         @Override
-                        public void onClick(View v){
-                            takeAction(ActionCode.UPDATE_ITEM, itemViewModel, item);
+                        public boolean onMenuItemClick(MenuItem menuItem){
+                            switch(menuItem.getItemId()){
+                                case R.id.action_confirm_edit:
+                                    takeAction(ActionMode.UPDATE_ITEM, itemViewModel, item);
+                                    break;
+                            }
+                            return true;
                         }
                     });
                 }
@@ -165,7 +196,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         }
 
         final Activity activity = getActivity();
-        imageHeaderRelativeLayout.setOnClickListener(new View.OnClickListener(){
+        itemImageView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 validatePermissionRequests(activity);
@@ -184,8 +215,28 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         window = getActivity().getWindow();
         linearLayoutEdit = view.findViewById(R.id.linearLayoutEdit);
         collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
-        imageHeaderRelativeLayout = view.findViewById(R.id.imageHeaderRelativeLayout);
-        floatingActionButton = view.findViewById(R.id.fabConfirmAddItem);
+
+        deleteImageButton = view.findViewById(R.id.deleteImageButton);
+        deleteImageButton.setVisibility(View.GONE);
+        deleteImageButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(final View view){
+                new MaterialDialog.Builder(view.getContext()).title("Clear item image?")
+                        .positiveText("yes")
+                        .negativeText("no")
+                        .theme(Theme.LIGHT)
+                        .onPositive(new MaterialDialog.SingleButtonCallback(){
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
+                                deleteImageButton.setVisibility(View.GONE);
+                                originalImageFile = null;
+                                Glide.with(view.getContext())
+                                        .load(R.drawable.ic_launcher_background)
+                                        .into(itemImageView);
+                            }
+                        }).show();
+            }
+        });
 
         nameEditText = view.findViewById(R.id.nameEditText);
         nameEditWrapper = view.findViewById(R.id.nameEditWrapper);
@@ -214,7 +265,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
     }
 
     private void setupTagEditor(){
-        final ArrayAdapter<String> suggestionAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
+        suggestionAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         suggestionAdapter.addAll(itemViewModel.getAllTags());
         suggestionAdapter.setNotifyOnChange(true);
 
@@ -228,7 +279,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
                                 keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
                     Toasty.info(getContext(), "Enter pressed").show();
                     if(!textView.getText().toString().isEmpty()){
-                        createNewChip(false, textView.getText().toString(), null, -1);
+                        createNewChip(textView.getText().toString());
                         textView.setText("");
                         return true;
                     }
@@ -239,19 +290,24 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         tagEditText.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
-                createNewChip(true, null, adapterView, position);
+                createNewChip(adapterView.getAdapter().getItem(position).toString());
                 tagEditText.setText("");
             }
         });
     }
 
-    private void createNewChip(boolean selectFromSuggestions, String newTag, AdapterView<?> adapterView, int position){
-        final Chip newChip = new Chip(getContext());
-        if(!selectFromSuggestions){
-            newChip.setText(newTag);
-        }else{
-            newChip.setText((CharSequence) adapterView.getAdapter().getItem(position));
+    private void createNewChip(String newTag){
+        if(tagChipGroup != null){
+            for(int i = 0; i < tagChipGroup.getChildCount(); i++){
+                if(((Chip) tagChipGroup.getChildAt(i)).getText().toString().equalsIgnoreCase(newTag)){
+                    Toasty.warning(getContext(), "This tag is already added!").show();
+                    return;
+                }
+            }
         }
+
+        final Chip newChip = new Chip(getContext());
+        newChip.setText(newTag);
         newChip.setCloseIconEnabled(true);
         newChip.setOnCloseIconClickListener(new View.OnClickListener(){
             @Override
@@ -287,10 +343,16 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         toolbar.setBackgroundColor(selectedColorInt);
         toolbar.setTitleTextColor(frontColorInt);
         toolbar.getNavigationIcon().setTint(frontColorInt);
+
         collapsingToolbarLayout.setContentScrimColor(selectedColorInt);
 
         // Changes Navigation Icon (Back Arrow Icon)'s color
-        toolbar.getNavigationIcon().setTint(frontColorInt);
+        toolbar.getMenu().clear();
+        if(frontColorInt != Color.rgb(0, 0, 0)){
+            toolbar.inflateMenu(R.menu.menu_item_editor);
+        }else{
+            toolbar.inflateMenu(R.menu.menu_item_editor_dark);
+        }
 
         // Changes Square Color Icon's color according to the selected color
         circleImageView.setBackgroundColor(selectedColorInt);
@@ -345,29 +407,34 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         }else{
             // TODO: Define toolbar behavior outside container activity
-            if(!isInEditMode){
-                toolbar.setTitle("Add an item");
-            }else{
-                toolbar.setTitle("Edit an item");
-            }
-
+            toolbar.setTitle((!isInEditMode) ? "Add an item" : "Edit an item");
             toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         }
         setSystemBarsColor(backColorInt);
         toolbar.setNavigationOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                if(getActivity() instanceof ItemEditingContainerActivity){
-                    getActivity().finish();
-                }else{
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(getParentFragment()).commit();
-                }
+                new MaterialDialog.Builder(v.getContext()).title("Cancel editing?")
+                        .positiveText("Yes")
+                        .negativeText("no")
+                        .theme(Theme.LIGHT)
+                        .onPositive(new MaterialDialog.SingleButtonCallback(){
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
+                                if(getActivity() instanceof ItemEditingContainerActivity){
+                                    getActivity().finish();
+                                }else{
+                                    getActivity().getSupportFragmentManager().beginTransaction()
+                                            .remove(getParentFragment()).commit();
+                                }
+                            }
+                        }).show();
             }
         });
 
     }
 
-    private void fillTextEditForm(Item item){
+    private void fillDataToForms(Item item){
         nameEditText.setText(item.getName());
         quantityEditText.setText(String.valueOf(item.getQuantity()));
         descriptionEditText.setText(item.getDescription());
@@ -375,12 +442,26 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             Glide.with(this).load(item.getImageFile()).into(itemImageView);
         }
 
-        for(String tag : item.getTags()){
-            createNewChip(false, tag, null, -1);
+        ArrayList<String> sortedTagList = new ArrayList<>(item.getTags());
+        Collections.sort(sortedTagList, new Comparator<String>(){
+            @Override
+            public int compare(String s1, String s2){
+                return s1.compareToIgnoreCase(s2);
+            }
+        });
+        for(String tag : sortedTagList){
+            createNewChip(tag);
         }
     }
 
-    public void takeAction(ActionCode actionCode, ItemViewModel itemViewModel, Item item){
+    /**
+     * Handles item interaction (Insertion or Updating)
+     *
+     * @param actionMode    a mode, either Insert or Update
+     * @param itemViewModel to providing data
+     * @param item          is null, if adding a new item. Otherwise, update it.
+     */
+    public void takeAction(ActionMode actionMode, ItemViewModel itemViewModel, Item item){
         Date currentTime = Calendar.getInstance().getTime();
 
         if(quantityEditText.getText().toString().isEmpty() || nameEditText.getText().toString().isEmpty()
@@ -398,7 +479,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         }
 
         String itemName = nameEditText.getText().toString().trim();
-        int quantity = 0;
+        long quantity;
         try{
             quantity = Integer.valueOf(quantityEditText.getText().toString());
         }catch(NumberFormatException e){
@@ -422,21 +503,22 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             imageFile = new File(s);
         }
 
-        if(actionCode == ActionCode.ADD_ITEM){
-            Set<String> tagSet = new HashSet<>();
-            for(int i = 0; i < tagChipGroup.getChildCount(); i++){
-                tagSet.add(((Chip) tagChipGroup.getChildAt(i)).getText().toString());
-            }
+        Set<String> tagSet = new HashSet<>();
+        for(int i = 0; i < tagChipGroup.getChildCount(); i++){
+            tagSet.add(((Chip) tagChipGroup.getChildAt(i)).getText().toString());
+        }
 
+        if(actionMode == ActionMode.ADD_ITEM){
             itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, tagSet, imageFile, currentTime, null));
-        }else if(actionCode == ActionCode.UPDATE_ITEM){
+        }else if(actionMode == ActionMode.UPDATE_ITEM){
             item.setName(itemName);
             item.setQuantity(quantity);
             item.setDescription(description);
             item.setItemColorAccent(selectedColorInt);
+
             item.setImageFile(imageFile);
             item.setDateModified(currentTime);
-
+            item.setTags(tagSet);
             itemViewModel.update(item);
         }
         // if(originalImageFile != null){
@@ -447,10 +529,10 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         //         e.printStackTrace();
         //     }
         //     File imageFile = new File(s);
-        //     if(actionCode == ActionCode.ADD_ITEM){
+        //     if(actionMode == ActionMode.ADD_ITEM){
         //         // Stores all fields into a row in the database (Color is stored as a hex value)
         //         itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", imageFile, currentTime, null));
-        //     }else if(actionCode == ActionCode.UPDATE_ITEM){
+        //     }else if(actionMode == ActionMode.UPDATE_ITEM){
         //         item.setName(itemName);
         //         item.setQuantity(quantity);
         //         item.setDescription(description);
@@ -461,10 +543,10 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         //         itemViewModel.update(item);
         //     }
         // }else{
-        //     if(actionCode == ActionCode.ADD_ITEM){
+        //     if(actionMode == ActionMode.ADD_ITEM){
         //         // Stores all fields into a row in the database (Color is stored as a hex value)
         //         itemViewModel.insert(new Item(itemName, quantity, description, selectedColorInt, "asdasd asdasd", null, currentTime, null));
-        //     }else if(actionCode == ActionCode.UPDATE_ITEM){
+        //     }else if(actionMode == ActionMode.UPDATE_ITEM){
         //
         //     }
         // }
@@ -504,6 +586,13 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
 
     }
 
+    /**
+     * Receives selected file from image intent
+     *
+     * @param requestCode intent request code
+     * @param resultCode  intent result code
+     * @param data        the image that user has selected
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -511,16 +600,26 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                     && data != null && data.getData() != null){
 
+                // If received image is not null
+
+                // If currently editing, and there is image.
                 if(isInEditMode && originalImageFile != null){
                     try{
+                        // Delete current image
                         FileUtils.forceDelete(originalImageFile);
                     }catch(IOException e){
                         e.printStackTrace();
                     }
                 }
 
+                // Gets select image
                 originalImageFile = new File(ImageUtility.getPathFromUri(getContext(), data.getData()));
-                System.out.println("getPathFromUri() : " + ImageUtility.getPathFromUri(getContext(), data.getData()));
+                // System.out.println("getPathFromUri() : " + ImageUtility.getPathFromUri(getContext(), data.getData()));
+
+                // If new image has been selected, show delete image button
+                deleteImageButton.setVisibility(View.VISIBLE);
+
+                // Shows image to item image
                 Glide.with(getContext()).load(originalImageFile).into(itemImageView);
 
                 // String fileName =
@@ -560,16 +659,32 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         }
     }
 
+    /**
+     * Copies Selected Image into Internal storage (The new image from copying will be named by unix time)
+     *
+     * @param originalImageFile selected image
+     * @param timestamp         for file naming
+     *
+     * @return path of the new file
+     *
+     * @throws IOException in case of file error
+     */
     private String getSelectedImageUrl(File originalImageFile, long timestamp) throws IOException{
+        // Internal storage path
         String internalStoragePath = getActivity().getFilesDir().toURI().getPath();
+
+        // New file's name using unix time stamp with .jpg extension
         String fileName = String.valueOf(timestamp) + ".jpg";
 
-        File newFile = new File(internalStoragePath + fileName);
+        // Creates new instance of file with TIMESTAMP.jpg located in internal storage
+        String newFileDirectory = internalStoragePath + fileName;
+        File newFile = new File(newFileDirectory);
+        // Copies file
         FileUtils.copyFile(originalImageFile, newFile);
-        return internalStoragePath + fileName;
+        return newFileDirectory;
     }
 
-    private enum ActionCode{ADD_ITEM, UPDATE_ITEM;}
+    private enum ActionMode{ADD_ITEM, UPDATE_ITEM}
 
     public void setOnConfirmListener(OnConfirmListener onConfirmListener){
         this.onConfirmListener = onConfirmListener;

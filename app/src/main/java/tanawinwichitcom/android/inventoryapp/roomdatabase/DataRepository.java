@@ -3,9 +3,14 @@ package tanawinwichitcom.android.inventoryapp.roomdatabase;
 import android.app.Application;
 import androidx.lifecycle.LiveData;
 import android.os.AsyncTask;
+
+import org.apache.commons.io.FileUtils;
+
 import androidx.annotation.IntDef;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -129,89 +134,80 @@ public class DataRepository{
     }
 
     public void insert(Object o){
-        new InsertAsyncTask(itemDAO, reviewDAO, userDAO).execute(o);
+        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, GeneralDbOperatorAsync.INSERT).execute(o);
     }
 
     public void delete(Object o){
-        new DeleteAsyncTask(itemDAO, reviewDAO, userDAO).execute(o);
+        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, GeneralDbOperatorAsync.DELETE).execute(o);
     }
 
     public void update(Object o){
-        new UpdateAsyncTask(itemDAO, reviewDAO, userDAO).execute(o);
+        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, GeneralDbOperatorAsync.UPDATE).execute(o);
     }
 
-    private static class InsertAsyncTask extends AsyncTask<Object, Void, Void>{
+    private static class GeneralDbOperatorAsync extends AsyncTask<Object, Void, Void>{
 
         private ItemDAO itemDAO;
         private ReviewDAO reviewDAO;
         private UserDAO userDAO;
+        private final int type;
 
-        public InsertAsyncTask(ItemDAO itemDAO, ReviewDAO reviewDAO, UserDAO userDAO){
+        @Retention(CLASS)
+        @IntDef({INSERT, DELETE, UPDATE})
+        public @interface DbOperationType{
+        }
+
+        public static final int INSERT = 0;
+        public static final int DELETE = 1;
+        public static final int UPDATE = 2;
+
+        public GeneralDbOperatorAsync(ItemDAO itemDAO, ReviewDAO reviewDAO, UserDAO userDAO, @DbOperationType int type){
             this.itemDAO = itemDAO;
             this.reviewDAO = reviewDAO;
             this.userDAO = userDAO;
-        }
-
-        @Override
-        protected Void doInBackground(Object... objects){
-            if(objects[0] instanceof Item){
-                itemDAO.insertAll((Item) objects[0]);
-            }else if(objects[0] instanceof Review){
-                reviewDAO.insertAll((Review) objects[0]);
-            }else if(objects[0] instanceof User){
-                userDAO.insertAll((User) objects[0]);
-            }
-            return null;
-        }
-    }
-
-    private static class DeleteAsyncTask extends AsyncTask<Object, Void, Void>{
-
-        private ItemDAO itemDAO;
-        private ReviewDAO reviewDAO;
-        private UserDAO userDAO;
-
-        public DeleteAsyncTask(ItemDAO itemDAO, ReviewDAO reviewDAO, UserDAO userDAO){
-            this.itemDAO = itemDAO;
-            this.reviewDAO = reviewDAO;
-            this.userDAO = userDAO;
+            this.type = type;
         }
 
         @Override
         protected Void doInBackground(Object... objects){
             for(int i = 0; i < objects.length; i++){
-                if(objects[i] instanceof Item){
-                    itemDAO.delete((Item) objects[i]);
-                }else if(objects[i] instanceof Review){
-                    reviewDAO.delete((Review) objects[i]);
-                }else if(objects[i] instanceof User){
-                    userDAO.delete((User) objects[i]);
+                switch(type){
+                    case INSERT:
+                        if(objects[i] instanceof Item){
+                            itemDAO.insertAll((Item) objects[i]);
+                        }else if(objects[i] instanceof Review){
+                            reviewDAO.insertAll((Review) objects[i]);
+                        }else if(objects[i] instanceof User){
+                            userDAO.insertAll((User) objects[i]);
+                        }
+                        break;
+                    case DELETE:
+                        if(objects[i] instanceof Item){
+                            if(((Item) objects[i]).getImageFile() != null){
+                                try{
+                                    // If there is an image, delete it
+                                    FileUtils.forceDelete(((Item) objects[i]).getImageFile());
+                                }catch(IOException e){
+                                    e.printStackTrace();
+                                }
+                            }
+                            itemDAO.delete((Item) objects[i]);
+                        }else if(objects[i] instanceof Review){
+                            reviewDAO.delete((Review) objects[i]);
+                        }else if(objects[i] instanceof User){
+                            userDAO.delete((User) objects[i]);
+                        }
+                        break;
+                    case UPDATE:
+                        if(objects[i] instanceof Item){
+                            itemDAO.update((Item) objects[i]);
+                        }else if(objects[i] instanceof Review){
+                            reviewDAO.update((Review) objects[i]);
+                        }else if(objects[i] instanceof User){
+                            userDAO.update((User) objects[i]);
+                        }
+                        break;
                 }
-            }
-            return null;
-        }
-    }
-
-    private static class UpdateAsyncTask extends AsyncTask<Object, Void, Void>{
-
-        private ItemDAO itemDAO;
-        private ReviewDAO reviewDAO;
-        private UserDAO userDAO;
-
-        public UpdateAsyncTask(ItemDAO itemDAO, ReviewDAO reviewDAO, UserDAO userDAO){
-            this.itemDAO = itemDAO;
-            this.reviewDAO = reviewDAO;
-            this.userDAO = userDAO;
-        }
-
-        @Override
-        protected Void doInBackground(Object... objects){
-            if(objects[0] instanceof Item){
-                itemDAO.update((Item) objects[0]);
-            }else if(objects[0] instanceof Review){
-                reviewDAO.update((Review) objects[0]);
-            }else if(objects[0] instanceof User){
-                userDAO.update((User) objects[0]);
             }
             return null;
         }
@@ -270,7 +266,13 @@ public class DataRepository{
 
         @Override
         protected Set<String> doInBackground(Void... voids){
-            return new HashSet<>(itemDAO.getAllTags());
+            Set<String> rawTagSet = new HashSet<>(itemDAO.getAllTags());
+            Set<String> individualTagSet = new HashSet<>();
+            for(String s : rawTagSet){
+                String tagsString[] = s.split(" ");
+                individualTagSet.addAll(Arrays.asList(tagsString));
+            }
+            return individualTagSet;
         }
     }
 }

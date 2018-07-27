@@ -1,13 +1,8 @@
 package tanawinwichitcom.android.inventoryapp.roomdatabase;
 
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,9 +15,13 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import androidx.annotation.NonNull;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import main.java.com.maximeroussy.invitrode.RandomWord;
 import main.java.com.maximeroussy.invitrode.WordLengthException;
-import tanawinwichitcom.android.inventoryapp.AddItemActivity;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DAOs.ItemDAO;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DAOs.ReviewDAO;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DAOs.UserDAO;
@@ -45,7 +44,7 @@ public abstract class AppDatabase extends RoomDatabase{
             @Override
             public void onCreate(@NonNull SupportSQLiteDatabase db){
                 super.onCreate(db);
-                new PopulateDatabaseAsync(INSTANCE_ITEMS, context).execute();
+                new PopulateDatabaseAsync(INSTANCE_ITEMS).execute();
             }
         };
 
@@ -103,38 +102,42 @@ public abstract class AppDatabase extends RoomDatabase{
         private final ReviewDAO reviewDAO;
         private final UserDAO userDAO;
 
-        private final Context context;
+        public static final int MAXIMUM_ITEMS = 100;
+        public static final int MAXIMUM_REVIEWS = 10;
 
         /**
          * Default Constructor for PopulateDataAsync class
          *
          * @param appDatabase the custom RoomDatabase class
-         * @param context     the context of an activity which is required in order to assign randomized color
          */
-        public PopulateDatabaseAsync(AppDatabase appDatabase, Context context){
+        public PopulateDatabaseAsync(AppDatabase appDatabase){
             itemDAO = appDatabase.itemDao();
             reviewDAO = appDatabase.reviewDao();
             userDAO = appDatabase.userDao();
-
-            this.context = context;
         }
 
         private void populateItems(){
-            Item[] items = new Item[1000];
-            for(int i = 0; i < 1000; i++){
-                int timeStamp = (new Random()).nextInt(1000000) + 100000;
-                int colorArrPosition = (new Random()).nextInt(AddItemActivity.predefinedColorsResourceIDs.length);
-                int colorValue = Color.parseColor(context.getResources().getString(AddItemActivity.predefinedColorsResourceIDs[colorArrPosition]));
+            Item[] items = new Item[MAXIMUM_ITEMS];
+            for(int i = 0; i < MAXIMUM_ITEMS; i++){
+                publishProgress(i);
+                long timeStamp = (Calendar.getInstance().getTimeInMillis() + (new Random()).nextInt(1000000));
+
+                // Random Color
+                Random rand = new Random();
+                int r = rand.nextInt(255);
+                int g = rand.nextInt(255);
+                int b = rand.nextInt(255);
+                int colorValue = Color.rgb(r, g, b);
 
                 try{
                     StringBuilder descriptionStringBuilder = new StringBuilder();
                     for(int wordCount = 0; wordCount < 100; wordCount++){
-                        descriptionStringBuilder.append(RandomWord.getNewWord(4) + " ");
+                        descriptionStringBuilder.append(RandomWord.getNewWord(4)).append(" ");
                     }
                     descriptionStringBuilder.append(".");
 
                     for(int wordCount = 0; wordCount < 5; wordCount++){
-                        descriptionStringBuilder.append(RandomWord.getNewWord(5) + " ");
+                        descriptionStringBuilder.append(RandomWord.getNewWord(5)).append(" ");
                     }
 
                     String itemName = RandomWord.getNewWord(10);
@@ -165,13 +168,15 @@ public abstract class AppDatabase extends RoomDatabase{
         }
 
         private void populateReviews(){
-            Review[] reviews = new Review[100];
-            for(int i = 0; i < 100; i++){
-                //int randomizedTime = (new Random()).nextInt(1000000) + 100000;
-                reviews[i] = new Review(Calendar.getInstance().getTime(), 1, 1
-                        , RandomStringUtils.random(200)
-                        , ThreadLocalRandom.current().nextDouble(0.5, 5));
-                reviewDAO.insertAll(reviews[i]);
+            Review[] reviews = new Review[MAXIMUM_REVIEWS];
+            for(int itemIndex = 0; itemIndex < MAXIMUM_ITEMS; itemIndex++){
+                for(int reviewIndex = 0; reviewIndex < MAXIMUM_REVIEWS; reviewIndex++){
+                    //int randomizedTime = (new Random()).nextInt(1000000) + 100000;
+                    reviews[reviewIndex] = new Review(Calendar.getInstance().getTime(), 1, itemIndex
+                            , RandomStringUtils.random(200)
+                            , ThreadLocalRandom.current().nextDouble(0.5, 5));
+                    reviewDAO.insertAll(reviews[reviewIndex]);
+                }
             }
         }
 

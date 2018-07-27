@@ -167,7 +167,6 @@ public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoVi
     }
 
     public void applyInfoDataChanges(Item item){
-        infoHashMap.clear();
         infoHashMap.put("Item Name", item.getName());
         infoHashMap.put("Item ID", String.valueOf(item.getId()));
         infoHashMap.put("Quantity", String.valueOf(item.getQuantity()));
@@ -181,7 +180,7 @@ public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoVi
     }
 
     public void applyReviewsChanges(String totalReview, double averageRating){
-        System.out.println("Applying Reviews Changes " + averageRating + " (" + totalReview + ")");
+        // System.out.println("Applying Reviews Changes " + averageRating + " (" + totalReview + ")");
         infoHashMap.put("Total Number of Ratings", totalReview);
         infoHashMap.put("Average Rating", String.format(HelperUtility.getCurrentLocale(context), "%.2f", averageRating));
         notifyDataSetChanged();

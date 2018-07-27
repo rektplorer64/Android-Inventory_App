@@ -1,5 +1,6 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -10,6 +11,8 @@ import android.os.Bundle;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.afollestad.materialdialogs.Theme;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.textfield.TextInputLayout;
@@ -152,7 +155,6 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         setupUiScales(view);
 
         itemInfoAdapter = new ItemInfoAdapter(getContext());
-        itemInfoAdapter.setHasStableIds(true);
 
         userReviewAdapter = new UserReviewAdapter(finalItemId, getContext());
         userReviewAdapter.setHasStableIds(true);
@@ -187,7 +189,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             public void onChanged(@Nullable List<Review> reviewList){
                 // replaceReviewSectionView();
                 onReviewsDataChanged(reviewList, itemId);
-                setUpScoreInfoDialog(reviewList);
+                setupScoreInfoDialog(reviewList);
             }
         });
 
@@ -212,7 +214,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         });
     }
 
-    private void setUpScoreInfoDialog(List<Review> reviewList){
+    private void setupScoreInfoDialog(List<Review> reviewList){
         final DetailedScoreAdapter detailedScoreAdapter = new DetailedScoreAdapter();
         detailedScoreAdapter.applyReviewsDataChanges(reviewList);
         scoreRatioCardView.setOnClickListener(new View.OnClickListener(){
@@ -571,22 +573,14 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         int frontColor = ColorUtility.getSuitableFrontColor(getContext(), backgroundColor, true);
         setupStatusAndToolbar(backgroundColor, frontColor, rootView);
 
-        if(item.getImageFile() != null){
-            Glide.with(getContext())
-                    .load(item.getImageFile())
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .thumbnail(0.025f)
-                    .into(itemImageView);
-        }else{
-            Glide.with(getContext())
-                    .load(R.drawable.md_wallpaper_placeholder)
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .thumbnail(0.001f)
-                    .into(itemImageView);
-        }
+        Glide.with(getContext())
+                .load((item.getImageFile() != null) ? item.getImageFile() : R.drawable.md_wallpaper_placeholder)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .thumbnail(0.025f)
+                .into(itemImageView);
 
         itemNameTextView.setText(item.getName());
-        quantityTextView.setText(new StringBuilder().append("QTY ")
+        quantityTextView.setText(new StringBuilder().append("QUANTITY ")
                 .append(NumberFormat.getNumberInstance(HelperUtility.getCurrentLocale(getContext())).format(item.getQuantity()))
                 .toString());
 
@@ -707,6 +701,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             case R.id.action_delete:{
                 new MaterialDialog.Builder(getContext()).title("Delete " + item.getName() + "?")
                         .negativeText("No").positiveText("Yes")
+                        .theme(Theme.LIGHT)
                         .onPositive(new MaterialDialog.SingleButtonCallback(){
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
@@ -717,7 +712,11 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                                 }else if(getActivity() instanceof MainActivity){
 
                                 }else if(getActivity() instanceof SearchActivity){
-
+                                    // If item profile is contained in a dialog fragment
+                                    if(getParentFragment() != null){
+                                        // Close dialog
+                                        ((DialogFragment) getParentFragment()).dismiss();
+                                    }
                                 }
                             }
                         }).show();
