@@ -6,18 +6,17 @@
 	android:id="@+id/nestedScrollView"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
+	android:elevation="10dp"
+	android:fillViewport="true"
 	app:behavior_overlapTop="100dp"
 	app:layout_behavior="@string/appbar_scrolling_view_behavior"
-	android:elevation="10dp"
-	tools:context=".ItemProfileContainerActivity"
-	tools:showIn="@layout/fragment_profile_item"
-	android:fillViewport="true">
+	tools:context=".ItemProfileContainerActivity">
 
 	<LinearLayout
+		android:id="@+id/itemProfileLinearLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:id="@+id/itemProfileLinearLayout">
+		android:orientation="vertical">
 
 		<androidx.cardview.widget.CardView
 			android:layout_width="match_parent"
@@ -35,12 +34,15 @@
 				<TextView
 					android:id="@+id/itemTextView"
 					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
 					android:layout_marginEnd="62dp"
 					android:ellipsize="end"
+					android:fontFamily="@font/univers_next_pro_bold_condensed"
 					android:maxLines="2"
-					android:layout_height="wrap_content"
+					android:textAppearance="@style/TextAppearance.AppCompat"
 					android:textColor="@android:color/black"
-					android:textSize="24sp"
+					android:textSize="26sp"
+					android:typeface="monospace"
 					tools:text="Item Name"/>
 
 				<TextView
@@ -56,10 +58,10 @@
 
 				<LinearLayout
 					android:id="@+id/ratingViewGroup"
-					android:layout_height="wrap_content"
 					android:layout_width="match_parent"
-					android:orientation="horizontal"
-					android:layout_below="@id/itemTextView">
+					android:layout_height="wrap_content"
+					android:layout_below="@id/itemTextView"
+					android:orientation="horizontal">
 				</LinearLayout>
 
 				<TextView
@@ -108,8 +110,8 @@
 					android:layout_width="match_parent"
 					android:layout_height="32dp"
 					android:layout_below="@id/tagsTextView"
-					android:paddingBottom="28dp"
-					android:paddingTop="14dp">
+					android:paddingTop="14dp"
+					android:paddingBottom="28dp">
 				</androidx.recyclerview.widget.RecyclerView>
 			</RelativeLayout>
 		</androidx.cardview.widget.CardView>
@@ -118,8 +120,8 @@
 			layout="@layout/rating_card"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="8dp"
+			android:layout_marginStart="8dp"
 			android:layout_marginEnd="8dp"
-			android:layout_marginStart="8dp"/>
+			android:layout_marginBottom="8dp"/>
 	</LinearLayout>
 </androidx.core.widget.NestedScrollView>
