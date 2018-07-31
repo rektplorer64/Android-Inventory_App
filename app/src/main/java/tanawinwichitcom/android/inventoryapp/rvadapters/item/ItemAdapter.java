@@ -25,13 +25,17 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import tanawinwichitcom.android.inventoryapp.AsyncSorter;
 import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
@@ -42,26 +46,23 @@ import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.rvadapters.Detailable;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.DatePreference;
-import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.SEARCH_ALL_ITEMS;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.SEARCH_ALL_ITEMS;
 
 public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> implements Filterable{
 
-    public static final int FULL_CARD_LAYOUT = 0;
-    public static final int NORMAL_CARD_LAYOUT = 1;
-    public static final int SMALL_CARD_LAYOUT = 2;
-    public static final int COMPACT_CARD_LAYOUT = 3;
-
     private List<Item> itemList;
-    private int layoutMode;
 
     private Context context;
 
-    private SearchPreference searchPref;
+    private FilterPreference searchPref;
     private SortPreference sortPref;
+
+    private ListLayoutPreference listViewModePref;
 
     private ItemLoadFinishListener itemLoadFinishListener;
     private ItemSelectListener itemSelectListener;
@@ -76,7 +77,6 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         public boolean areContentsTheSame(Item oldItem, Item newItem){
             return oldItem.equals(newItem);
         }
-
     };
 
     /*
@@ -87,14 +87,13 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
     private ItemFilter itemFilter;
     private SelectionTracker selectionTracker;
 
-    public ItemAdapter(int layoutMode, Context context){
+    public ItemAdapter(Context context, ListLayoutPreference listViewModePref){
         super(DIFF_CALLBACK);
         this.context = context;
+        this.listViewModePref = listViewModePref;
 
         this.reviewHashMap = new SparseArray<>();
-        this.layoutMode = layoutMode;
-
-        this.searchPref = new SearchPreference();
+        this.searchPref = new FilterPreference();
         this.sortPref = new SortPreference();
     }
 
@@ -102,21 +101,21 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
         View itemView = null;
-        switch(layoutMode){
-            case FULL_CARD_LAYOUT:
+        switch(listViewModePref.getListLayoutMode()){
+            case ListLayoutPreference.FULL_CARD_LAYOUT:
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_full, parent, false);
                 break;
-            case NORMAL_CARD_LAYOUT:
+            case ListLayoutPreference.NORMAL_LIST_LAYOUT:
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_normal, parent, false);
                 break;
-            case SMALL_CARD_LAYOUT:
-                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_small, parent, false);
+            case ListLayoutPreference.SMALL_CARD_LAYOUT:
+                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_small_card, parent, false);
                 break;
-            case COMPACT_CARD_LAYOUT:
+            case ListLayoutPreference.COMPACT_LIST_LAYOUT:
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_compact, parent, false);
                 break;
         }
-        return new ItemViewHolder(itemView, layoutMode);
+        return new ItemViewHolder(itemView, listViewModePref.getListLayoutMode());
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -125,13 +124,10 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         final Item item = getItem(position);
         if(item != null){
             final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
-
-            holder.bindDataToView(reviewArrayList, layoutMode, item, position);
-
-            boolean isSelected = (selectionTracker != null)? selectionTracker.isSelected(item) : false;
+            holder.bindDataToView(reviewArrayList, listViewModePref.getListLayoutMode(), item, position);
+            boolean isSelected = (selectionTracker != null) && selectionTracker.isSelected(item);
             holder.setElementClickListener(itemSelectListener, this, item, isSelected);
         }
-
     }
 
     @Override
@@ -149,27 +145,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         return super.getItemCount();
     }
 
-    public void applyItemDataChanges(List<Item> itemArrayList, boolean isFiltering){
-        // this.listElementWrappers.clear();
-        // notifyDataSetChanged();     // Notifies data changes after clearance to prevent java.lang.IndexOutOfBoundsException: Inconsistency detected.
-        if(itemLoadFinishListener != null){
-            int size = (itemArrayList != null) ? itemArrayList.size() : 0;
-            itemLoadFinishListener.onItemFinishUpdate(size);
-        }
-
-        if(itemArrayList == null || itemArrayList.size() == 0){
-            return;
-        }
-
-        if(!isFiltering){
-            itemList = itemArrayList;
-        }
-        notifyDataSetChanged();
-        submitList(itemArrayList);
-        // if(this.listElementWrappers.size() != 0 && this.listElementWrappers.get(0) != null){
-        //     this.listElementWrappers.get(0).setShowing(true);
-        // }
-        // notifyDataSetChanged();
+    public ListLayoutPreference getListViewModePreference(){
+        return listViewModePref;
     }
 
     public void applySorting(){
@@ -195,13 +172,34 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         //
         //     }
         // }).forceLoad();
-
         if(itemList == null){
             return;
         }
-
         itemList = AsyncSorter.sort(itemList, sortPref);
         applyItemDataChanges(itemList, true);
+    }
+
+    public void applyItemDataChanges(List<Item> itemArrayList, boolean isFiltering){
+        // notifyDataSetChanged();     // Notifies data changes after clearance to prevent java.lang.IndexOutOfBoundsException: Inconsistency detected.
+        if(itemLoadFinishListener != null){
+            int size = (itemArrayList != null) ? itemArrayList.size() : 0;
+            itemLoadFinishListener.onItemFinishUpdate(size);
+        }
+
+        if(itemArrayList == null || itemArrayList.size() == 0){
+            return;
+        }
+
+        if(!isFiltering){
+            itemList = itemArrayList;
+        }
+
+        submitList(new ArrayList<Item>());
+        submitList(itemArrayList);
+        // if(this.listElementWrappers.size() != 0 && this.listElementWrappers.get(0) != null){
+        //     this.listElementWrappers.get(0).setShowing(true);
+        // }
+        // notifyDataSetChanged();
     }
 
     public void applyReviewDataChanges(SparseArray<ArrayList<Review>> reviewHashMap){
@@ -209,16 +207,23 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         notifyDataSetChanged();
     }
 
-    public SearchPreference getSearchPreference(){
+    public FilterPreference getSearchPreference(){
         return searchPref;
     }
 
-    public void setSearchPreference(SearchPreference searchPref){
+    public void setSearchPreference(FilterPreference searchPref){
         this.searchPref = searchPref;
     }
 
-    public void setSortPreference(SortPreference sortPref){
-        this.sortPref = sortPref;
+    public void setLayoutMode(int layoutMode, RecyclerView recyclerView){
+        this.listViewModePref.setListLayoutMode(layoutMode);
+
+        // Save the selected mode to SharedPreference
+        // FilterPreference preference =
+
+        // As far as I tested, I don't know how does this works, but do not change (order).
+        recyclerView.swapAdapter(this, true);
+        recyclerView.getRecycledViewPool().clear();
     }
 
     @Override
@@ -233,6 +238,10 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         return sortPref;
     }
 
+    public void setSortPreference(SortPreference sortPref){
+        this.sortPref = sortPref;
+    }
+
     public void setItemLoadFinishListener(ItemLoadFinishListener itemLoadFinishListener){
         this.itemLoadFinishListener = itemLoadFinishListener;
     }
@@ -245,6 +254,14 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         this.selectionTracker = selectionTracker;
     }
 
+    public interface ItemLoadFinishListener{
+        void onItemFinishUpdate(int size);
+    }
+
+    public interface ItemSelectListener{
+        void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter);
+    }
+
     private class ItemFilter extends Filter{
 
         public ItemFilter(){
@@ -253,8 +270,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         @Override
         protected FilterResults performFiltering(CharSequence constraint){
             FilterResults filterResults = new FilterResults();
-
             List<Item> resultList = new ArrayList<>();
+            Set<String> tagPreferences = new HashSet<>(searchPref.getTagList());
 
             String query = null;
             if(constraint != null && !constraint.toString().equals(SEARCH_ALL_ITEMS)){
@@ -267,28 +284,27 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             // System.out.println(searchPref.toString());
             for(Item item : itemList){
                 // System.out.println("ID: " + item.getId() + ", "+ item.getName());
-
                 String fieldValue = item.getName();
-                if(searchPref.getSearchBy() == SearchPreference.SearchBy.ItemName){
+                if(searchPref.getSearchBy() == FilterPreference.SearchBy.ItemName){
                     fieldValue = item.getName();
-                }else if(searchPref.getSearchBy() == SearchPreference.SearchBy.ItemId){
+                }else if(searchPref.getSearchBy() == FilterPreference.SearchBy.ItemId){
                     fieldValue = String.valueOf(item.getId());
-                }else if(searchPref.getSearchBy() == SearchPreference.SearchBy.ItemDescription){
+                }else if(searchPref.getSearchBy() == FilterPreference.SearchBy.ItemDescription){
                     fieldValue = item.getDescription();
                 }
 
                 if(query != null){
                     if(!constraint.toString().isEmpty()){
                         if(fieldValue.toLowerCase().contains(query.toLowerCase()) || fieldValue.equalsIgnoreCase(query)){
-                            filterList(searchPref, item, resultList);
+                            filterList(searchPref, item, resultList, tagPreferences);
                         }
                     }else{
                         // resultList.add(item);
-                        filterList(searchPref, item, resultList);
+                        filterList(searchPref, item, resultList, tagPreferences);
                     }
                 }else{
                     // resultList.add(item);
-                    filterList(searchPref, item, resultList);
+                    filterList(searchPref, item, resultList, tagPreferences);
                 }
             }
             filterResults.values = resultList;
@@ -298,17 +314,15 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             return filterResults;
         }
 
-        private void filterList(SearchPreference preference, Item item, List<Item> resultList){
-            // TODO: Fix this shit
-            DatePreference dateCreatedFromPref = preference.getDatePreference(SearchPreference.DateType.DateCreated_From);
-            DatePreference dateCreatedToPref = preference.getDatePreference(SearchPreference.DateType.DateCreated_To);
-            DatePreference dateModifiedFromPref = preference.getDatePreference(SearchPreference.DateType.DateModified_From);
-            DatePreference dateModifiedToPref = preference.getDatePreference(SearchPreference.DateType.DateModified_To);
+        private void filterList(FilterPreference preference, Item item, List<Item> resultList, Set<String> tagPreferences){
+            DatePreference dateCreatedFromPref = preference.getDatePreference(FilterPreference.DateType.DateCreated_From);
+            DatePreference dateCreatedToPref = preference.getDatePreference(FilterPreference.DateType.DateCreated_To);
+            DatePreference dateModifiedFromPref = preference.getDatePreference(FilterPreference.DateType.DateModified_From);
+            DatePreference dateModifiedToPref = preference.getDatePreference(FilterPreference.DateType.DateModified_To);
 
-            // System.out.println("dateCreatedFromPref: \n" + dateCreatedFromPref.toString());
-            // System.out.println("dateCreatedToPref: \n" + dateCreatedToPref.toString());
-            // System.out.println("dateModifiedFromPref: \n" + dateModifiedFromPref.toString());
-            // System.out.println("dateModifiedToPref: \n" + dateModifiedToPref.toString());
+            if(!tagPreferences.isEmpty() && !item.getTags().containsAll(tagPreferences)){
+                return;
+            }
 
             if(dateCreatedFromPref.isPreferenceEnabled()
                     && !(dateCreatedFromPref.getDate().getTime() <= item.getDateCreated().getTime())){
@@ -340,8 +354,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             }
 
             // System.out.println("itemImageFile: " + item.getImageFile());
-            if(searchPref.getImageMode() != SearchPreference.ANY_IMAGE){
-                if(!((searchPref.getImageMode() == SearchPreference.CONTAINS_IMAGE) ? item.getImageFile() != null
+            if(searchPref.getImageMode() != FilterPreference.ANY_IMAGE){
+                if(!((searchPref.getImageMode() == FilterPreference.CONTAINS_IMAGE) ? item.getImageFile() != null
                         : item.getImageFile() == null)){
                     return;
                 }
@@ -368,19 +382,13 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         }
     }
 
-    public interface ItemLoadFinishListener{
-        void onItemFinishUpdate(int size);
-    }
-
-    public interface ItemSelectListener{
-        void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter);
-    }
-
     public class ItemViewHolder extends RecyclerView.ViewHolder implements Detailable{
         CardView cardView;
+
         private TextView nameTextView, ratingTextView, quantityTextView, descriptionTextView;
         private RatingBar ratingBar;
         private ImageView imageView;
+        private ChipGroup tagChipGroup;
 
         ItemViewHolder(View itemView, int layoutMode){
             super(itemView);
@@ -390,11 +398,9 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             imageView = itemView.findViewById(R.id.imageView);
             quantityTextView = itemView.findViewById(R.id.quantityTextView);
 
-            if(layoutMode == FULL_CARD_LAYOUT){
-                descriptionTextView = itemView.findViewById(R.id.shortDescriptionTextView);
-            }
-
             ratingBar = itemView.findViewById(R.id.ratingBarView);
+            descriptionTextView = itemView.findViewById(R.id.descriptionTextView);
+            tagChipGroup = itemView.findViewById(R.id.tagChipGroup);
         }
 
         public void bindDataToView(List<Review> reviewArrayList, int layoutMode, Item item, int position){
@@ -415,7 +421,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                     .load((item.getImageFile() != null) ? item.getImageFile() : R.drawable.md_wallpaper_placeholder)
                     .apply(RequestOptions.centerCropTransform())
                     .thumbnail(0.01f)
-                    .transition(DrawableTransitionOptions.withCrossFade())
+                    // .transition(DrawableTransitionOptions.withCrossFade())
                     .into(imageView);
 
             nameTextView.setText(item.getName());
@@ -426,8 +432,20 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
             ratingTextView.setText(new StringBuilder().append(rating).append(" (").append(numbersOfReviews).append(")").toString());
             quantityTextView.setText(new StringBuilder().append(shortenQuantityNumber).toString());
-            if(layoutMode == FULL_CARD_LAYOUT){
+
+            if(descriptionTextView != null){
                 descriptionTextView.setText(item.getDescription());
+            }
+
+            if(tagChipGroup != null){
+                tagChipGroup.removeAllViews();
+                List<String> sortedTags = new ArrayList<>(item.getTags());
+                Collections.sort(sortedTags);
+                for(String tag : sortedTags){
+                    Chip tagChip = new Chip(context);
+                    tagChip.setText(tag);
+                    tagChipGroup.addView(tagChip);
+                }
             }
             ratingBar.setRating((item.getRating() != null) ? Float.valueOf(String.valueOf(item.getRating())) : 0f);
 

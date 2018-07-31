@@ -17,7 +17,7 @@ import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.SearchActivity;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
-import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 import static tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment.SEARCH_PREF;
@@ -35,10 +35,10 @@ public class SearchOptionDialogFragment extends DialogFragment{
 
     public SearchOptionDialogFragment(){}
 
-    public static SearchOptionDialogFragment newInstance(SearchPreference searchPreference){
+    public static SearchOptionDialogFragment newInstance(FilterPreference filterPreference){
         Bundle args = new Bundle();
         SearchOptionDialogFragment fragment = new SearchOptionDialogFragment();
-        args.putParcelable(SEARCH_PREF, searchPreference);
+        args.putParcelable(SEARCH_PREF, filterPreference);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,7 +79,7 @@ public class SearchOptionDialogFragment extends DialogFragment{
         view.findViewById(R.id.dialogCloseButton).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                SearchPreference.saveToSharedPreference(getActivity(), searchPrefFragment.getSearchPreference());
+                FilterPreference.saveToSharedPreference(getActivity(), searchPrefFragment.getSearchPreference());
                 Toasty.success(getActivity(), "Search preferences saved!").show();
                 getDialog().dismiss();
             }

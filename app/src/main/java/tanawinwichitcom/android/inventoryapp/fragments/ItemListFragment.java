@@ -1,11 +1,13 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.kennyc.view.MultiStateView;
 
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -28,7 +31,6 @@ import androidx.recyclerview.selection.OnDragInitiatedListener;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import es.dmoral.toasty.Toasty;
@@ -43,6 +45,14 @@ import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityDetailsLookup;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityKeyProvider;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
+
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.COMPACT_LIST_LAYOUT;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.FULL_CARD_LAYOUT;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.NORMAL_LIST_LAYOUT;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.SMALL_CARD_LAYOUT;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.loadFromSharedPreference;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.saveToSharedPreference;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.setupRecyclerView;
 
 public class ItemListFragment extends Fragment{
 
@@ -71,6 +81,8 @@ public class ItemListFragment extends Fragment{
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         fab = view.findViewById(R.id.fab);
+        recyclerView = view.findViewById(R.id.itemsList);
+
         fab.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
@@ -85,15 +97,13 @@ public class ItemListFragment extends Fragment{
             }
         });
 
-        recyclerView = view.findViewById(R.id.itemsList);
-        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(false);
 
         rvMultiViewState = view.findViewById(R.id.rvMultiViewState);
-        itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, getContext());
+        itemAdapter = new ItemAdapter(getContext(), loadFromSharedPreference(getContext()));
 
+        setupRecyclerView(itemAdapter.getListViewModePreference(), recyclerView, itemAdapter);
         recyclerView.setAdapter(itemAdapter);
 
         final ItemViewModel itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
@@ -115,11 +125,13 @@ public class ItemListFragment extends Fragment{
             ((MainActivity) getActivity()).setToolbarClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView
-                            .getLayoutManager();
-                    layoutManager.setSmoothScrollbarEnabled(true);
-                    layoutManager.smoothScrollToPosition(recyclerView, new RecyclerView.State(), 0);
-                    Toasty.normal(v.getContext(), "Scrolled to top!").show();
+                    if(recyclerView.getLayoutManager() instanceof LinearLayoutManager){
+                        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView
+                                .getLayoutManager();
+                        layoutManager.setSmoothScrollbarEnabled(true);
+                        layoutManager.smoothScrollToPosition(recyclerView, new RecyclerView.State(), 0);
+                        Toasty.normal(v.getContext(), "Scrolled to top!").show();
+                    }
                 }
             });
         }
@@ -134,6 +146,119 @@ public class ItemListFragment extends Fragment{
         });
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.list_options, menu);
+
+        // Set initial checked list layout option
+        int targetLayoutMenuItem = 0;
+        switch(itemAdapter.getListViewModePreference().getListLayoutMode()){
+            case FULL_CARD_LAYOUT:
+                targetLayoutMenuItem = R.id.view_option_full;
+                break;
+            case NORMAL_LIST_LAYOUT:
+                targetLayoutMenuItem = R.id.view_option_normal;
+                break;
+            case SMALL_CARD_LAYOUT:
+                targetLayoutMenuItem = R.id.view_option_small_card;
+                break;
+            case COMPACT_LIST_LAYOUT:
+                targetLayoutMenuItem = R.id.view_option_compact;
+                break;
+        }
+        if(targetLayoutMenuItem != 0){
+            menu.findItem(targetLayoutMenuItem).setChecked(true);
+        }
+
+        // Set initial checked grid option
+        int gridLayoutMenuItem = 0;
+        switch(itemAdapter.getListViewModePreference().getTotalColumn()){
+            case 1:
+                gridLayoutMenuItem = R.id.view_grid_col_1;
+                break;
+            case 2:
+                gridLayoutMenuItem = R.id.view_grid_col_2;
+                break;
+            case 3:
+                gridLayoutMenuItem = R.id.view_grid_col_3;
+                break;
+            case 4:
+                gridLayoutMenuItem = R.id.view_grid_col_4;
+                break;
+        }
+        if(gridLayoutMenuItem != 0 && menu.findItem(gridLayoutMenuItem) != null){
+            menu.findItem(gridLayoutMenuItem).setChecked(true);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private Integer[] listLayoutMenuItemIds = new Integer[]{R.id.view_option_normal,
+                                                            R.id.view_option_small_card,
+                                                            R.id.view_option_compact,
+                                                            R.id.view_option_full};
+    private Integer[] gridLayoutSettingMenuItemIds = new Integer[]{R.id.view_grid_col_1,
+                                                                   R.id.view_grid_col_2,
+                                                                   R.id.view_grid_col_3,
+                                                                   R.id.view_grid_col_4};
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(Arrays.asList(listLayoutMenuItemIds).contains(item.getItemId())){
+            if(!item.isChecked()){
+                item.setChecked(!item.isChecked());
+                int layoutMode = 0;
+                switch(item.getItemId()){
+                    case R.id.view_option_full:
+                        layoutMode = FULL_CARD_LAYOUT;
+                        break;
+                    case R.id.view_option_normal:
+                        layoutMode = NORMAL_LIST_LAYOUT;
+                        break;
+                    case R.id.view_option_small_card:
+                        layoutMode = SMALL_CARD_LAYOUT;
+                        break;
+                    case R.id.view_option_compact:
+                        layoutMode = COMPACT_LIST_LAYOUT;
+                        break;
+                }
+                itemAdapter.getListViewModePreference().setListLayoutMode(layoutMode);
+                setupRecyclerView(itemAdapter.getListViewModePreference(), recyclerView, itemAdapter);
+                saveToSharedPreference(getContext(), itemAdapter.getListViewModePreference());
+                return true;
+            }
+        }
+        if(Arrays.asList(gridLayoutSettingMenuItemIds).contains(item.getItemId())){
+            if(!item.isChecked()){
+                item.setChecked(!item.isChecked());
+                int gridColumn = 1;
+                boolean gridMode = false;
+                switch(item.getItemId()){
+                    case R.id.group_view_grid_col:
+                        gridColumn = 1;
+                        gridMode = false;
+                        break;
+                    case R.id.view_grid_col_2:
+                        gridColumn = 2;
+                        gridMode = true;
+                        break;
+                    case R.id.view_grid_col_3:
+                        gridColumn = 3;
+                        gridMode = true;
+                        break;
+                    case R.id.view_grid_col_4:
+                        gridColumn = 4;
+                        gridMode = true;
+                        break;
+                }
+                itemAdapter.getListViewModePreference().setGridMode(gridMode);
+                itemAdapter.getListViewModePreference().setTotalColumn(gridColumn);
+                setupRecyclerView(itemAdapter.getListViewModePreference(), recyclerView, itemAdapter);
+                saveToSharedPreference(getContext(), itemAdapter.getListViewModePreference());
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     // TODO: fix this
     private void setupSelectionContextMenu(final ItemViewModel itemViewModel, final List<Item> items){

@@ -4,6 +4,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,7 +139,9 @@ public class SortPreferenceFragment extends Fragment{
         Pref_sortingOrder.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                sortingSwitch.setChecked(!sortingSwitch.isChecked());
+                if(sortingSwitch.isEnabled()){
+                    sortingSwitch.setChecked(!sortingSwitch.isChecked());
+                }
             }
         });
 
@@ -145,12 +149,19 @@ public class SortPreferenceFragment extends Fragment{
         sortingOrder_subtitle.setText((sortPreference.isInAscendingOrder()) ? "Ascending order" : "Descending order");
         sortingSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked){
+            public void onCheckedChanged(final CompoundButton buttonView, boolean isChecked){
                 sortPreference.setInAscendingOrder(isChecked);
                 sortingOrder_subtitle.setText((isChecked) ? "Ascending order" : "Descending order");
+                buttonView.setEnabled(false);
                 if(sortPreferenceUpdateListener != null){
                     sortPreferenceUpdateListener.onSortOrderSwitchChange(isChecked);
                 }
+                new Handler().postDelayed(new Runnable(){
+                    @Override
+                    public void run(){
+                        buttonView.setEnabled(true);
+                    }
+                }, 1500);
             }
         });
     }

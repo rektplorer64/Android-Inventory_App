@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+	<item
+		android:id="@+id/action_view_option"
+		android:icon="@drawable/ic_list_white_24dp"
+		android:orderInCategory="1"
+		android:title="List Layout Option"
+		app:showAsAction="ifRoom">
+		<menu>
+			<item
+				android:id="@+id/action_layout_mode"
+				android:icon="@drawable/ic_view_quilt_black_24dp"
+				android:orderInCategory="2"
+				android:title="View Mode"
+				app:showAsAction="ifRoom">
+				<menu
+					android:title="sadsad">
+					<group
+						android:id="@+id/group_view_option"
+						android:checkableBehavior="single"
+						android:menuCategory="container">
+						<item
+							android:id="@+id/view_option_normal"
+							android:title="Normal"/>
+						<item
+							android:id="@+id/view_option_small_card"
+							android:title="Small Card"/>
+						<item
+							android:id="@+id/view_option_compact"
+							android:title="Compact"/>
+						<item
+							android:id="@+id/view_option_full"
+							android:title="Full Card"/>
+					</group>
+				</menu>
+
+			</item>
+
+
+			<item
+				android:id="@+id/action_view_grid"
+				android:icon="@drawable/ic_view_column_black_24dp"
+				android:orderInCategory="2"
+				android:title="View Column"
+				app:showAsAction="ifRoom">
+				<menu>
+					<group
+						android:id="@+id/group_view_grid_col"
+						android:checkableBehavior="single">
+						<item
+							android:id="@+id/view_grid_col_1"
+							android:title="1 Column"/>
+						<item
+							android:id="@+id/view_grid_col_2"
+							android:title="2 Columns"/>
+						<item
+							android:id="@+id/view_grid_col_3"
+							android:title="3 Columns"/>
+						<item
+							android:id="@+id/view_grid_col_4"
+							android:title="4 Columns"/>
+					</group>
+				</menu>
+			</item>
+
+		</menu>
+	</item>
+</menu>

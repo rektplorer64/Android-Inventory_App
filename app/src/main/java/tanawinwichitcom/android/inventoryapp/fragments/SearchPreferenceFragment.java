@@ -4,17 +4,10 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import androidx.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.cardview.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,19 +27,29 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
-import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.*;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.DateType;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.SearchBy;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.loadFromSharedPreference;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.saveToSharedPreference;
 
 public class SearchPreferenceFragment extends Fragment{
 
-    private SearchPreference searchPref;
+    private FilterPreference searchPref;
 
     private LinearLayout Pref_searchItemBy;
     private TextView searchBy_subtitle;
@@ -73,12 +76,18 @@ public class SearchPreferenceFragment extends Fragment{
     private Switch quantitySwitch;
     private RangeBar quantityRangeBar;
 
+    private LinearLayout Pref_tags;
+    private TextView tag_subtitle;
+
     private SearchPreferenceUpdateListener searchPreferenceUpdateListener;
 
     public static final String SEARCH_PREF = "SEARCH_PREF";
 
-    private final String[] searchByStrings = new String[]{"Item Name", "Item ID", "Item Description"};
-    private final String subtitleImageModeStr[] = new String[]{"Fetch any items", "Fetch every items with image only", "Fetch every item without image only"};
+    private final String[] searchByStrings = new String[]{"Item Name", "Item ID",
+                                                          "Item Description"};
+    private final String subtitleImageModeStr[] = new String[]{"Fetch any items",
+                                                               "Fetch every items with image only",
+                                                               "Fetch every item without image only"};
 
     public SearchPreferenceFragment(){
     }
@@ -139,6 +148,34 @@ public class SearchPreferenceFragment extends Fragment{
 
         quantitySwitch = view.findViewById(R.id.quantitySwitch);
         quantityRangeBar = view.findViewById(R.id.quantityRangeBar);
+
+        Pref_tags = view.findViewById(R.id.Pref_tags);
+        tag_subtitle = view.findViewById(R.id.tag_subtitle);
+        Pref_tags.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+                final TagSelectorDialogFragment tagSelectorDialogFragment = TagSelectorDialogFragment.newInstance();
+                tagSelectorDialogFragment.show(fragmentTransaction, "TAG_SELECTOR");
+
+                tagSelectorDialogFragment.setDismissListener(new TagSelectorDialogFragment.DismissListener(){
+                    @Override
+                    public void onDismiss(){
+                        // Assert not null because onPositive will be called after the views are inflated
+                        List<String> selectedTags = tagSelectorDialogFragment.getSelectedTag();
+                        tagSelectorDialogFragment.resetTempTagSet();
+                        searchPref.setTagList(selectedTags);
+                        tag_subtitle.setText((searchPref.getTagList().size() != 0) ?
+                                "Currently selected " + searchPref.getTagList().size() + " tags" : "No tag selected");
+                        FilterPreference.saveToSharedPreference(getContext(), searchPref);
+                        if(searchPreferenceUpdateListener != null){
+                            searchPreferenceUpdateListener.onTagSelectionConfirm(selectedTags);
+                        }
+                    }
+                });
+            }
+        });
+        // tagGroup.setSingleSelection(false);
     }
 
     private void setOnClick(){
@@ -317,6 +354,9 @@ public class SearchPreferenceFragment extends Fragment{
         quantitySwitch.setChecked(searchPref.getQuantityPreference().isPreferenceEnabled());
         searchBy_subtitle.setText((searchPref.getSearchBy() == SearchBy.ItemName) ?
                 searchByStrings[0] : (searchPref.getSearchBy() == SearchBy.ItemId) ? searchByStrings[1] : searchByStrings[2]);
+
+        tag_subtitle.setText((searchPref.getTagList().size() != 0) ?
+                "Currently selected " + searchPref.getTagList().size() + " tags" : "No tag selected");
     }
 
     private void animateDateDisplayText(boolean isChecked
@@ -360,12 +400,12 @@ public class SearchPreferenceFragment extends Fragment{
         // if(savedInstanceState != null){
         //     searchPref = savedInstanceState.getParcelable("preferences");
         // }else{
-        //     searchPref = new SearchPreference();
-        //     searchPref.setSearchBy(SearchPreference.SearchBy.ItemName);
-        //     searchPref.setImageMode(SearchPreference.ANY_IMAGE);
+        //     searchPref = new FilterPreference();
+        //     searchPref.setSearchBy(FilterPreference.SearchBy.ItemName);
+        //     searchPref.setImageMode(FilterPreference.ANY_IMAGE);
         //     Date date = Calendar.getInstance().getTime();
         //
-        //     for(SearchPreference.DateType dateType : SearchPreference.DateType.values()){
+        //     for(FilterPreference.DateType dateType : FilterPreference.DateType.values()){
         //         searchPref.setDatePreference(dateType, date);
         //         searchPref.getDatePreference(dateType).setPreferenceEnabled(false);
         //     }
@@ -489,7 +529,7 @@ public class SearchPreferenceFragment extends Fragment{
         saveToSharedPreference(getContext(), searchPref);
     }
 
-    public SearchPreference getSearchPreference(){
+    public FilterPreference getSearchPreference(){
         return searchPref;
     }
 
@@ -512,6 +552,8 @@ public class SearchPreferenceFragment extends Fragment{
 
         void onQuantityRangeChange(int min, int max);
 
-        void onFragmentResume(SearchPreference searchPreference);
+        void onFragmentResume(FilterPreference filterPreference);
+
+        void onTagSelectionConfirm(List<String> tagSelections);
     }
 }

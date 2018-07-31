@@ -45,16 +45,36 @@
 					android:typeface="monospace"
 					tools:text="Item Name"/>
 
-				<TextView
-					android:id="@+id/quantityTextView"
+				<LinearLayout
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentEnd="true"
-					android:background="@drawable/border_simpleline"
-					android:paddingHorizontal="8dp"
-					android:paddingVertical="4dp"
-					android:textColor="@android:color/black"
-					tools:text="QTY 5"/>
+					android:orientation="vertical">
+
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textColor="#B1B1B1"
+						android:textAllCaps="true"
+						android:textSize="10sp"
+						android:textStyle="bold"
+						android:layout_gravity="end"
+						android:text="quantity"/>
+
+					<TextView
+						android:id="@+id/quantityTextView"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:textColor="#B1B1B1"
+						android:textAllCaps="true"
+						android:letterSpacing="0.2"
+						android:textSize="14sp"
+						android:layout_marginTop="-5dp"
+						android:layout_gravity="end"
+						android:textStyle="bold"
+						tools:text="567 K"/>
+				</LinearLayout>
+
 
 				<LinearLayout
 					android:id="@+id/ratingViewGroup"
@@ -105,14 +125,14 @@
 					android:textColor="@android:color/black"
 					android:textSize="14sp"/>
 
-				<androidx.recyclerview.widget.RecyclerView
-					android:id="@+id/tagsRecycleView"
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/tagChipGroup"
 					android:layout_width="match_parent"
-					android:layout_height="32dp"
+					android:layout_height="wrap_content"
 					android:layout_below="@id/tagsTextView"
 					android:paddingTop="14dp"
 					android:paddingBottom="28dp">
-				</androidx.recyclerview.widget.RecyclerView>
+				</com.google.android.material.chip.ChipGroup>
 			</RelativeLayout>
 		</androidx.cardview.widget.CardView>
 

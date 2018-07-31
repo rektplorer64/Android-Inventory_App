@@ -120,13 +120,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setupActionBar();
+        setupToolBar();
     }
 
     /**
      * Set up the {@link android.app.ActionBar}, if the API is available.
      */
-    private void setupActionBar(){
+    private void setupToolBar(){
         ActionBar actionBar = getSupportActionBar();
         if(actionBar != null){
             // Show the Up button in the action bar.

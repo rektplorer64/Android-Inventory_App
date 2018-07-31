@@ -15,6 +15,8 @@ import androidx.annotation.Nullable;
 import com.afollestad.materialdialogs.Theme;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.Fragment;
 import androidx.core.widget.NestedScrollView;
@@ -54,6 +56,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -104,6 +107,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
     private Button showAllReviewsButton;
     private CardView scoreRatioCardView;
     private ArrayList<View> scoreBarRatioViewList;
+
+    private ChipGroup tagChipGroup;
 
     private ItemInfoAdapter itemInfoAdapter;
     private UserReviewAdapter userReviewAdapter;
@@ -526,6 +531,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         descriptionTextView = view.findViewById(R.id.descriptionTextView);
         //fab = view.findViewById(R.id.profileFab);
 
+        tagChipGroup = view.findViewById(R.id.tagChipGroup);
+
         /* Setup Views of the lower card */
         reviewOptionImageButton = view.findViewById(R.id.reviewOptionImageButton);
         reviewOptionImageButton.setVisibility(View.GONE);
@@ -580,11 +587,22 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                 .into(itemImageView);
 
         itemNameTextView.setText(item.getName());
-        quantityTextView.setText(new StringBuilder().append("QUANTITY ")
+        quantityTextView.setText(new StringBuilder()
                 .append(NumberFormat.getNumberInstance(HelperUtility.getCurrentLocale(getContext())).format(item.getQuantity()))
                 .toString());
 
         itemInfoAdapter.applyInfoDataChanges(item);
+
+        if(item.getTags() != null){
+            tagChipGroup.removeAllViews();
+            List<String> tagList = new ArrayList<>(item.getTags());
+            Collections.sort(tagList);
+            for(String tag : tagList){
+                Chip chip = new Chip(getContext());
+                chip.setText(tag);
+                tagChipGroup.addView(chip);
+            }
+        }
 
         // if(item.getComment() != null){
         //     ratingBar.setRating(Float.valueOf(String.valueOf(item.getComment())));

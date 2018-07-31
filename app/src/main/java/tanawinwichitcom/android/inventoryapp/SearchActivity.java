@@ -41,11 +41,12 @@ import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
-import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference;
+import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
-import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SearchPreference.SEARCH_ALL_ITEMS;
+import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.SEARCH_ALL_ITEMS;
 
 public class SearchActivity extends AppCompatActivity
         implements SearchPreferenceFragment.SearchPreferenceUpdateListener, SortPreferenceFragment.SortPreferenceUpdateListener{
@@ -184,7 +185,7 @@ public class SearchActivity extends AppCompatActivity
 
         resultsRecyclerView = findViewById(R.id.resultsRecyclerView);
         resultsRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        itemAdapter = new ItemAdapter(ItemAdapter.COMPACT_CARD_LAYOUT, this);
+        itemAdapter = new ItemAdapter(this, ListLayoutPreference.loadFromSharedPreference(this));
 
         itemListMultiStateView = findViewById(R.id.itemListMultistateView);
         itemAdapter.setItemLoadFinishListener(new ItemAdapter.ItemLoadFinishListener(){
@@ -246,7 +247,7 @@ public class SearchActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view){
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    SearchOptionDialogFragment optionDialog = SearchOptionDialogFragment.newInstance(SearchPreference.loadFromSharedPreference(getApplicationContext()));
+                    SearchOptionDialogFragment optionDialog = SearchOptionDialogFragment.newInstance(FilterPreference.loadFromSharedPreference(getApplicationContext()));
                     optionDialog.setSearchPreferenceUpdateListener(s1);
                     optionDialog.setSortPreferenceUpdateListener(s2);
                     optionDialog.show(ft, "searchOptionDialogFragment");
@@ -283,7 +284,7 @@ public class SearchActivity extends AppCompatActivity
         initiateFragments();
 
         if(savedInstanceState != null){
-            itemAdapter.setSearchPreference((SearchPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_FILTER));
+            itemAdapter.setSearchPreference((FilterPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_FILTER));
             itemAdapter.setSortPreference((SortPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_SORTING));
 
             if(itemAdapter.getSearchPreference() != null){
@@ -364,21 +365,21 @@ public class SearchActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDateChange(SearchPreference.DateType dateType, Date date){
+    public void onDateChange(FilterPreference.DateType dateType, Date date){
         // Toast.makeText(SearchActivity.this, "Date Pref Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().setDatePreference(dateType, date);
         refreshSearchResult();
     }
 
     @Override
-    public void onDateSwitchChange(SearchPreference.DateType dateType, boolean isCheck){
+    public void onDateSwitchChange(FilterPreference.DateType dateType, boolean isCheck){
         // Toast.makeText(SearchActivity.this, "Date Pref Switch Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().getDatePreference(dateType).setPreferenceEnabled(isCheck);
         refreshSearchResult();
     }
 
     @Override
-    public void onSearchByDialogChange(SearchPreference.SearchBy searchBy){
+    public void onSearchByDialogChange(FilterPreference.SearchBy searchBy){
         // Toast.makeText(SearchActivity.this, "Search by Pref Changed!", Toast.LENGTH_SHORT).show();
         itemAdapter.getSearchPreference().setSearchBy(searchBy);
         refreshSearchResult();
@@ -408,10 +409,15 @@ public class SearchActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentResume(SearchPreference searchPreference){
+    public void onFragmentResume(FilterPreference filterPreference){
         // Toasty.info(getApplicationContext(), "onResuming...").show();
-        itemAdapter.setSearchPreference(searchPreference);
-        itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS);
+        itemAdapter.setSearchPreference(filterPreference);
+        refreshSearchResult();
+    }
+
+    @Override
+    public void onTagSelectionConfirm(List<String> tagSelections){
+        itemAdapter.getSearchPreference().setTagList(tagSelections);
         refreshSearchResult();
     }
 
@@ -436,6 +442,7 @@ public class SearchActivity extends AppCompatActivity
     private void refreshSearchResult(){
         itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
         itemAdapter.applySorting();
+
         resultsRecyclerView.scrollToPosition(0);
     }
 }

@@ -10,9 +10,9 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="14dp"
-		android:paddingEnd="14dp"
 		android:paddingStart="14dp"
 		android:paddingTop="14dp"
+		android:paddingEnd="14dp"
 		android:text="Filters"
 		android:textColor="@color/colorPrimary"
 		android:textSize="12.25sp"
@@ -39,8 +39,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
+			android:paddingTop="14dp"
+			android:paddingBottom="14dp">
 
 			<TextView
 				android:id="@+id/searchBy_title"
@@ -102,8 +102,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
+			android:paddingTop="14dp"
+			android:paddingBottom="14dp">
 
 			<TextView
 				android:id="@+id/imageFiltering_title"
@@ -142,16 +142,16 @@
 		<ImageView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginEnd="14dp"
 			android:layout_marginTop="14dp"
+			android:layout_marginEnd="14dp"
 			android:src="@drawable/ic_format_list_numbered_black_24dp"/>
 
 		<RelativeLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
+			android:paddingTop="14dp"
+			android:paddingBottom="14dp">
 
 			<TextView
 				android:id="@+id/quantity_title"
@@ -188,6 +188,53 @@
 				app:mrb_selectorColor="@color/colorPrimaryWarm"
 				app:mrb_selectorSize="4dp"
 				app:mrb_tickColor="@android:color/white"/>
+
+		</RelativeLayout>
+	</LinearLayout>
+
+	<View
+		android:layout_width="match_parent"
+		android:layout_height="1dp"
+		android:background="?android:attr/listDivider"/>
+
+	<LinearLayout
+		android:id="@+id/Pref_tags"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:foreground="?selectableItemBackgroundBorderless"
+		android:orientation="horizontal"
+		android:paddingLeft="14dp"
+		android:paddingRight="14dp">
+
+		<ImageView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="14dp"
+			android:layout_gravity="center_vertical"
+			android:src="@drawable/ic_local_offer_black_24dp"/>
+
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			android:paddingTop="14dp"
+			android:paddingBottom="14dp">
+
+			<TextView
+				android:id="@+id/tag_title"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="Tags"
+				android:textColor="@android:color/black"
+				android:textSize="14sp"/>
+
+			<TextView
+				android:id="@+id/tag_subtitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_below="@id/tag_title"
+				android:text="Item Name"
+				android:textSize="12.25sp"/>
 
 		</RelativeLayout>
 	</LinearLayout>

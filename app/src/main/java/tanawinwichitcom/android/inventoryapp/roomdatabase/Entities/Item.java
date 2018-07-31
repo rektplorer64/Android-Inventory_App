@@ -1,5 +1,8 @@
 package tanawinwichitcom.android.inventoryapp.roomdatabase.Entities;
 
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -154,37 +157,25 @@ public class Item{
         if(this == o){
             return true;
         }
+
         if(o == null || getClass() != o.getClass()){
             return false;
         }
 
         Item item = (Item) o;
 
-        if(id != item.id){
-            return false;
-        }
-        if(quantity != item.quantity){
-            return false;
-        }
-        if(itemColorAccent != item.itemColorAccent){
-            return false;
-        }
-        if(!name.equals(item.name)){
-            return false;
-        }
-        if(!description.equals(item.description)){
-            return false;
-        }
-
-        if(imageFile == null || item.imageFile == null){
-            return false;
-        }
-
-        if(!imageFile.equals(item.imageFile)){
-            return false;
-        }
-
-        return dateCreated.equals(item.dateCreated);
+        return new EqualsBuilder()
+                .append(id, item.id)
+                .append(quantity, item.quantity)
+                .append(itemColorAccent, item.itemColorAccent)
+                .append(name, item.name)
+                .append(description, item.description)
+                .append(rating, item.rating)
+                .append(imageFile, item.imageFile)
+                .append(dateCreated, item.dateCreated)
+                .append(dateModified, item.dateModified)
+                .append(tags, item.tags)
+                .isEquals();
     }
 
     @Override

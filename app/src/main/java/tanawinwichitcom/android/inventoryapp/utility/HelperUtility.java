@@ -133,14 +133,14 @@ public class HelperUtility{
 
         // Gets action bar's height (ActionBar.getHeight() is useless)
         TypedValue tv = new TypedValue();
-        int actionBarHeight = 0;
+        int toolBarHeight = 0;
         if(context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
+            toolBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
         }
 
         // Sets action bar a new height (Height of Status bar + origin Height of Action bar)
         ViewGroup.LayoutParams layoutParams = toolbar.getLayoutParams();
-        layoutParams.height = HelperUtility.getStatusBarHeight(context) + actionBarHeight;
+        layoutParams.height = HelperUtility.getStatusBarHeight(context) + toolBarHeight;
         toolbar.setLayoutParams(layoutParams);
     }
 }

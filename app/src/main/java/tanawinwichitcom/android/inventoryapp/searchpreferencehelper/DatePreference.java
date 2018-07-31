@@ -7,7 +7,7 @@ import java.util.Date;
 
 public class DatePreference extends SwitchablePreference implements Parcelable{
     private Date date;
-    private SearchPreference.DateType dateType;
+    private FilterPreference.DateType dateType;
 
     public DatePreference(Date date){
         this.date = date;
@@ -30,11 +30,11 @@ public class DatePreference extends SwitchablePreference implements Parcelable{
         return sb.toString();
     }
 
-    public SearchPreference.DateType getDateType(){
+    public FilterPreference.DateType getDateType(){
         return dateType;
     }
 
-    public void setDateType(SearchPreference.DateType dateType){
+    public void setDateType(FilterPreference.DateType dateType){
         this.dateType = dateType;
     }
 
@@ -53,7 +53,7 @@ public class DatePreference extends SwitchablePreference implements Parcelable{
         long tmpDate = in.readLong();
         this.date = tmpDate == -1 ? null : new Date(tmpDate);
         int tmpDateType = in.readInt();
-        this.dateType = tmpDateType == -1 ? null : SearchPreference.DateType.values()[tmpDateType];
+        this.dateType = tmpDateType == -1 ? null : FilterPreference.DateType.values()[tmpDateType];
     }
 
     public static final Parcelable.Creator<DatePreference> CREATOR = new Parcelable.Creator<DatePreference>(){

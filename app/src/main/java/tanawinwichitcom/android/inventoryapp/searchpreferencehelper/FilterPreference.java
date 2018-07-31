@@ -1,6 +1,5 @@
 package tanawinwichitcom.android.inventoryapp.searchpreferencehelper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
@@ -13,12 +12,15 @@ import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import tanawinwichitcom.android.inventoryapp.R;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-public class SearchPreference implements Parcelable{
+public class FilterPreference implements Parcelable{
 
     public enum DateType{DateCreated_From, DateCreated_To, DateModified_From, DateModified_To}
     public enum SearchBy{ItemName, ItemId, ItemDescription}
@@ -40,7 +42,9 @@ public class SearchPreference implements Parcelable{
 
     private String keyword;
 
-    public SearchPreference(){
+    private List<String> tagSet = new ArrayList<>();
+
+    public FilterPreference(){
         // Set Default Preferences
         Date currentTime = Calendar.getInstance().getTime();
         for(int i = 0; i < DateType.values().length; i++){
@@ -105,7 +109,7 @@ public class SearchPreference implements Parcelable{
         return quantityPreference;
     }
 
-    public static void saveToSharedPreference(Context c, SearchPreference searchPref){
+    public static void saveToSharedPreference(Context c, FilterPreference searchPref){
         SharedPreferences sharedPreferences = c.getSharedPreferences(c.getString(R.string.pref_search_filter), Context.MODE_PRIVATE);
         SharedPreferences.Editor e = sharedPreferences.edit();
         e.clear();
@@ -127,13 +131,19 @@ public class SearchPreference implements Parcelable{
         e.putInt(c.getString(R.string.pref_value_search_quantity_from), searchPref.getQuantityPreference().getMinRange());
         e.putInt(c.getString(R.string.pref_value_search_quantity_to), searchPref.getQuantityPreference().getMaxRange());
 
+        HashSet<String> stringHashSet = new HashSet<>();
+        if(searchPref.tagSet != null){
+            stringHashSet = new HashSet<>(searchPref.tagSet);
+        }
+        e.putStringSet(c.getString(R.string.pref_value_search_tag), stringHashSet);
+
         e.commit();
     }
 
-    public static SearchPreference loadFromSharedPreference(Context c){
+    public static FilterPreference loadFromSharedPreference(Context c){
         SharedPreferences sharedPref = c.getSharedPreferences(c.getString(R.string.pref_search_filter), Context.MODE_PRIVATE);
 
-        SearchPreference searchPref = new SearchPreference();
+        FilterPreference searchPref = new FilterPreference();
         searchPref.setSearchBy(SearchBy.values()[sharedPref.getInt(c.getString(R.string.pref_title_search_search_by), 0)]);
 
         int dateValueStringRes[] = new int[]{R.string.pref_value_date_created_from, R.string.pref_value_date_created_to, R.string.pref_value_date_modified_from, R.string.pref_value_date_modified_to};
@@ -152,7 +162,18 @@ public class SearchPreference implements Parcelable{
         searchPref.getQuantityPreference().setMinRange(sharedPref.getInt(c.getString(R.string.pref_value_search_quantity_from), 1));
         searchPref.getQuantityPreference().setMaxRange(sharedPref.getInt(c.getString(R.string.pref_value_search_quantity_to), 1000));
 
+        Set<String> emptySet = new HashSet<>();
+        searchPref.setTagList(new ArrayList<>(sharedPref.getStringSet(c.getString(R.string.pref_value_search_tag), emptySet)));
+
         return searchPref;
+    }
+
+    public List<String> getTagList(){
+        return tagSet;
+    }
+
+    public void setTagList(List<String> tagSet){
+        this.tagSet = tagSet;
     }
 
     @Override
@@ -178,26 +199,28 @@ public class SearchPreference implements Parcelable{
         dest.writeTypedList(this.datePreferenceLists);
         dest.writeParcelable(this.quantityPreference, flags);
         dest.writeString(this.keyword);
+        dest.writeStringList(this.tagSet);
     }
 
-    protected SearchPreference(Parcel in){
+    protected FilterPreference(Parcel in){
         int tmpSearchByPref = in.readInt();
         this.searchByPref = tmpSearchByPref == -1 ? null : SearchBy.values()[tmpSearchByPref];
         this.imageMode = in.readInt();
         this.datePreferenceLists = in.createTypedArrayList(DatePreference.CREATOR);
         this.quantityPreference = in.readParcelable(QuantityPreference.class.getClassLoader());
         this.keyword = in.readString();
+        this.tagSet = in.createStringArrayList();
     }
 
-    public static final Creator<SearchPreference> CREATOR = new Creator<SearchPreference>(){
+    public static final Parcelable.Creator<FilterPreference> CREATOR = new Parcelable.Creator<FilterPreference>(){
         @Override
-        public SearchPreference createFromParcel(Parcel source){
-            return new SearchPreference(source);
+        public FilterPreference createFromParcel(Parcel source){
+            return new FilterPreference(source);
         }
 
         @Override
-        public SearchPreference[] newArray(int size){
-            return new SearchPreference[size];
+        public FilterPreference[] newArray(int size){
+            return new FilterPreference[size];
         }
     };
 }
