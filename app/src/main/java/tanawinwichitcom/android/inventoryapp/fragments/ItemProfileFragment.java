@@ -1,32 +1,10 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
-import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.afollestad.materialdialogs.Theme;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.Fragment;
-import androidx.core.widget.NestedScrollView;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -47,8 +25,14 @@ import android.widget.ViewSwitcher;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.afollestad.materialdialogs.Theme;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputLayout;
 import com.kennyc.view.MultiStateView;
 
 import java.text.DateFormat;
@@ -56,11 +40,25 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import es.dmoral.toasty.Toasty;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 import tanawinwichitcom.android.inventoryapp.ItemEditingContainerActivity;
@@ -122,6 +120,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
     public ItemProfileFragment(){
     }
+
     public static ItemProfileFragment newInstance(int fragmentLayoutRes, int itemId, int centerX, int centerY){
         Bundle args = new Bundle();
         args.putInt("resLayout", fragmentLayoutRes);
@@ -292,9 +291,6 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                                                 @Override
                                                 public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
                                                     itemViewModel.delete(review);
-                                                    if(itemChangeListener != null){
-                                                        itemChangeListener.onItemNotFound(itemId);
-                                                    }
                                                 }
                                             }).show();
                                     break;
@@ -595,9 +591,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
         if(item.getTags() != null){
             tagChipGroup.removeAllViews();
-            List<String> tagList = new ArrayList<>(item.getTags());
-            Collections.sort(tagList);
-            for(String tag : tagList){
+            for(String tag : item.getTags()){
                 Chip chip = new Chip(getContext());
                 chip.setText(tag);
                 tagChipGroup.addView(chip);
@@ -727,14 +721,15 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                                 // Toasty.success(getContext(), "Item Deleted successfully").show();
                                 if(getActivity() instanceof ItemProfileContainerActivity){
                                     closeActivityCircularly();
-                                }else if(getActivity() instanceof MainActivity){
-
                                 }else if(getActivity() instanceof SearchActivity){
                                     // If item profile is contained in a dialog fragment
                                     if(getParentFragment() != null){
                                         // Close dialog
                                         ((DialogFragment) getParentFragment()).dismiss();
                                     }
+                                }
+                                if(itemChangeListener != null){
+                                    itemChangeListener.onItemNotFound(itemId);
                                 }
                             }
                         }).show();

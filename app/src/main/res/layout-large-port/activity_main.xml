@@ -9,12 +9,13 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<LinearLayout
+		<RelativeLayout
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent"
 			android:orientation="vertical">
 
 			<com.google.android.material.appbar.AppBarLayout
+				android:id="@+id/appBarLayout"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:theme="@style/AppTheme.AppBarOverlay">
@@ -29,17 +30,40 @@
 			</com.google.android.material.appbar.AppBarLayout>
 
 			<FrameLayout
-				android:id="@+id/itemListFragmentFrame"
+				android:id="@+id/v_toolbar_extension"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"/>
+				android:layout_height="120dp"
+				android:layout_below="@id/appBarLayout"
+				android:background="@color/colorPrimary"
+				android:elevation="4dp"/>
 
-		</LinearLayout>
+			<com.google.android.material.card.MaterialCardView
+				android:id="@+id/itemListFragmentCard"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginLeft="64dp"
+				android:layout_below="@id/appBarLayout"
+				android:layout_marginRight="64dp"
+				android:elevation="5dp"
+				app:cardElevation="5dp"
+				app:cardCornerRadius="2dp"
+				android:layout_marginTop="24dp">
+
+				<FrameLayout
+					android:id="@+id/itemListFragmentFrame"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"/>
+			</com.google.android.material.card.MaterialCardView>
+
+
+		</RelativeLayout>
 
 		<com.google.android.material.floatingactionbutton.FloatingActionButton
 			android:id="@+id/fab"
 			android:layout_width="56dp"
 			android:layout_height="56dp"
-			android:layout_gravity="end|bottom"
+			app:layout_anchorGravity="bottom|right"
+			app:layout_anchor="@id/itemListFragmentCard"
 			android:layout_margin="@dimen/fab_margin"
 			android:scaleType="center"
 			app:srcCompat="@drawable/ic_add_white_24dp"/>
@@ -52,6 +76,6 @@
 		android:layout_height="match_parent"
 		android:layout_gravity="start"
 		android:fitsSystemWindows="true"
-		app:menu="@menu/nav_drawer_menu"
-		app:headerLayout="@layout/nav_drawer_header"/>
+		app:headerLayout="@layout/nav_drawer_header"
+		app:menu="@menu/nav_drawer_menu"/>
 </androidx.drawerlayout.widget.DrawerLayout>

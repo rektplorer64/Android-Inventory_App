@@ -64,7 +64,6 @@ public class ListLayoutPreference{
     public static void setupRecyclerView(ListLayoutPreference preference, RecyclerView recycler, ItemAdapter adapter){
         Context context = recycler.getContext();
         clearAllItemDecoration(recycler);
-
         switch(preference.getListLayoutMode()){
             case NORMAL_LIST_LAYOUT:
                 if(!preference.isGridMode()){
@@ -93,7 +92,7 @@ public class ListLayoutPreference{
         }else{
             recycler.setLayoutManager(new LinearLayoutManager(context));
         }
-        recycler.swapAdapter(adapter, true);
+        // recycler.swapAdapter(adapter, true);
     }
 
     public static void saveToSharedPreference(Context c, ListLayoutPreference viewModePreference){

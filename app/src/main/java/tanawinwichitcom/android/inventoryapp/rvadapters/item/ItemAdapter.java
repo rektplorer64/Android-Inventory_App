@@ -125,6 +125,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         if(item != null){
             final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
             holder.bindDataToView(reviewArrayList, listViewModePref.getListLayoutMode(), item, position);
+
             boolean isSelected = (selectionTracker != null) && selectionTracker.isSelected(item);
             holder.setElementClickListener(itemSelectListener, this, item, isSelected);
         }
@@ -218,12 +219,14 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
     public void setLayoutMode(int layoutMode, RecyclerView recyclerView){
         this.listViewModePref.setListLayoutMode(layoutMode);
 
+        recyclerView.setVisibility(View.INVISIBLE);
         // Save the selected mode to SharedPreference
         // FilterPreference preference =
 
         // As far as I tested, I don't know how does this works, but do not change (order).
         recyclerView.swapAdapter(this, true);
         recyclerView.getRecycledViewPool().clear();
+        recyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -434,14 +437,14 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             quantityTextView.setText(new StringBuilder().append(shortenQuantityNumber).toString());
 
             if(descriptionTextView != null){
-                descriptionTextView.setText(item.getDescription());
+                int shortDecTextLength = Math.min(item.getDescription().length(), 50);
+                String shortenDesc = item.getDescription().substring(0, shortDecTextLength) + ((shortDecTextLength <= item.getDescription().length()) ? "" : "...");
+                descriptionTextView.setText(shortenDesc);
             }
 
             if(tagChipGroup != null){
                 tagChipGroup.removeAllViews();
-                List<String> sortedTags = new ArrayList<>(item.getTags());
-                Collections.sort(sortedTags);
-                for(String tag : sortedTags){
+                for(String tag : item.getTags()){
                     Chip tagChip = new Chip(context);
                     tagChip.setText(tag);
                     tagChipGroup.addView(tagChip);

@@ -2,10 +2,13 @@ package tanawinwichitcom.android.inventoryapp.utility;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.os.Build;
 import androidx.appcompat.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import java.util.Locale;
 import java.util.Map;

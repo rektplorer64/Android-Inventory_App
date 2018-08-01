@@ -6,74 +6,88 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<LinearLayout
+	<androidx.coordinatorlayout.widget.CoordinatorLayout
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:orientation="vertical">
+		android:layout_height="match_parent">
 
 		<LinearLayout
-			android:id="@+id/navigationSlidingPane"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			tools:showIn="@layout/activity_main">
-
+			android:orientation="vertical">
 
 			<LinearLayout
+				android:id="@+id/navigationSlidingPane"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:orientation="horizontal"
-				android:weightSum="10">
+				tools:showIn="@layout/activity_main">
 
-				<androidx.cardview.widget.CardView
-					android:id="@+id/itemListFragmentCard"
-					android:layout_width="0dp"
+
+				<LinearLayout
+					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:layout_weight="3"
-					android:elevation="20dp"
-					app:cardCornerRadius="0dp"
-					app:cardElevation="20dp">
+					android:orientation="horizontal"
+					android:weightSum="10">
 
-					<LinearLayout
-						android:layout_width="match_parent"
+					<androidx.cardview.widget.CardView
+						android:id="@+id/itemListFragmentCard"
+						android:layout_width="0dp"
 						android:layout_height="match_parent"
-						android:orientation="vertical">
+						android:layout_weight="3"
+						android:elevation="20dp"
+						app:cardCornerRadius="0dp"
+						app:cardElevation="20dp">
 
-						<com.google.android.material.appbar.AppBarLayout
+						<LinearLayout
 							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:theme="@style/AppTheme.AppBarOverlay">
+							android:layout_height="match_parent"
+							android:orientation="vertical">
 
-							<androidx.appcompat.widget.Toolbar
-								android:id="@+id/toolbar"
+							<com.google.android.material.appbar.AppBarLayout
 								android:layout_width="match_parent"
-								android:layout_height="?attr/actionBarSize"
-								android:background="?attr/colorPrimary"
-								app:popupTheme="@style/AppTheme.PopupOverlay"/>
-						</com.google.android.material.appbar.AppBarLayout>
+								android:layout_height="wrap_content"
+								android:theme="@style/AppTheme.AppBarOverlay">
 
-						<fragment
-							android:id="@+id/itemListFragment"
-							android:name="tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"/>
-					</LinearLayout>
+								<androidx.appcompat.widget.Toolbar
+									android:id="@+id/toolbar"
+									android:layout_width="match_parent"
+									android:layout_height="?attr/actionBarSize"
+									android:background="?attr/colorPrimary"
+									app:popupTheme="@style/AppTheme.PopupOverlay"/>
+							</com.google.android.material.appbar.AppBarLayout>
 
-				</androidx.cardview.widget.CardView>
+							<FrameLayout
+								android:id="@+id/itemListFragmentFrame"
+								android:layout_width="match_parent"
+								android:layout_height="match_parent"/>
+						</LinearLayout>
+
+					</androidx.cardview.widget.CardView>
+
+					<FrameLayout
+						android:id="@+id/itemProfileFragmentFrame"
+						android:layout_width="0dp"
+						android:layout_height="match_parent"
+						android:layout_weight="7">
+					</FrameLayout>
 
 
-				<FrameLayout
-					android:id="@+id/itemProfileFragmentFrame"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="7">
-				</FrameLayout>
-
+				</LinearLayout>
 
 			</LinearLayout>
 
 		</LinearLayout>
 
-	</LinearLayout>
+		<com.google.android.material.floatingactionbutton.FloatingActionButton
+			android:id="@+id/fab"
+			android:layout_width="56dp"
+			android:layout_height="56dp"
+			android:layout_margin="@dimen/fab_margin"
+			android:scaleType="center"
+			app:layout_anchorGravity="bottom|right"
+			app:layout_anchor="@id/itemListFragmentCard"
+			app:srcCompat="@drawable/ic_add_white_24dp"/>
+	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 	<com.google.android.material.navigation.NavigationView
 		android:id="@+id/navView"
 		android:layout_width="wrap_content"

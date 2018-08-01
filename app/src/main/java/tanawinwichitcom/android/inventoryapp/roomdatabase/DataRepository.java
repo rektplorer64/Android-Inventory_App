@@ -170,43 +170,39 @@ public class DataRepository{
 
         @Override
         protected Void doInBackground(Object... objects){
-            for(int i = 0; i < objects.length; i++){
-                switch(type){
-                    case INSERT:
-                        if(objects[i] instanceof Item){
-                            itemDAO.insertAll((Item) objects[i]);
-                        }else if(objects[i] instanceof Review){
-                            reviewDAO.insertAll((Review) objects[i]);
-                        }else if(objects[i] instanceof User){
-                            userDAO.insertAll((User) objects[i]);
-                        }
-                        break;
-                    case DELETE:
-                        if(objects[i] instanceof Item){
-                            if(((Item) objects[i]).getImageFile() != null){
-                                try{
-                                    // If there is an image, delete it
-                                    FileUtils.forceDelete(((Item) objects[i]).getImageFile());
-                                }catch(IOException e){
-                                    e.printStackTrace();
-                                }
+            for(Object object : objects){
+                if(type == INSERT){
+                    if(object instanceof Item){
+                        itemDAO.insertAll((Item) object);
+                    }else if(object instanceof Review){
+                        reviewDAO.insertAll((Review) object);
+                    }else if(object instanceof User){
+                        userDAO.insertAll((User) object);
+                    }
+                }else if(type == DELETE){
+                    if(object instanceof Item){
+                        if(((Item) object).getImageFile() != null){
+                            try{
+                                // If there is an image, delete it
+                                FileUtils.forceDelete(((Item) object).getImageFile());
+                            }catch(IOException e){
+                                e.printStackTrace();
                             }
-                            itemDAO.delete((Item) objects[i]);
-                        }else if(objects[i] instanceof Review){
-                            reviewDAO.delete((Review) objects[i]);
-                        }else if(objects[i] instanceof User){
-                            userDAO.delete((User) objects[i]);
                         }
-                        break;
-                    case UPDATE:
-                        if(objects[i] instanceof Item){
-                            itemDAO.update((Item) objects[i]);
-                        }else if(objects[i] instanceof Review){
-                            reviewDAO.update((Review) objects[i]);
-                        }else if(objects[i] instanceof User){
-                            userDAO.update((User) objects[i]);
-                        }
-                        break;
+                        itemDAO.delete((Item) object);
+                    }else if(object instanceof Review){
+                        reviewDAO.delete((Review) object);
+                    }else if(object instanceof User){
+                        userDAO.delete((User) object);
+                    }
+                }else if(type == UPDATE){
+                    if(object instanceof Item){
+                        itemDAO.update((Item) object);
+                    }else if(object instanceof Review){
+                        reviewDAO.update((Review) object);
+                    }else if(object instanceof User){
+                        userDAO.update((User) object);
+                    }
                 }
             }
             return null;

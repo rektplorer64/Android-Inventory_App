@@ -1,7 +1,6 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.ActionMode;
@@ -12,11 +11,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.kennyc.view.MultiStateView;
 
 import java.util.Arrays;
@@ -34,17 +32,14 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import es.dmoral.toasty.Toasty;
-import tanawinwichitcom.android.inventoryapp.ItemEditingContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
 import tanawinwichitcom.android.inventoryapp.R;
-import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.ItemEditingDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityDetailsLookup;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityKeyProvider;
-import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.COMPACT_LIST_LAYOUT;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.FULL_CARD_LAYOUT;
@@ -56,13 +51,11 @@ import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListL
 
 public class ItemListFragment extends Fragment{
 
+    private TextView totalItemTextView;
     private RecyclerView recyclerView;
     private ItemAdapter itemAdapter;
     private MultiStateView rvMultiViewState;
     private SelectionTracker selectionTracker;
-
-    private FloatingActionButton fab;
-
     private ItemAdapter.ItemSelectListener itemSelectListener;
 
     private ActionMode mActionMode;
@@ -70,6 +63,11 @@ public class ItemListFragment extends Fragment{
 
     public ItemListFragment(){
         setHasOptionsMenu(true);
+        setRetainInstance(true);
+    }
+
+    public static ItemListFragment newInstance(){
+        return new ItemListFragment();
     }
 
     @Nullable
@@ -80,31 +78,18 @@ public class ItemListFragment extends Fragment{
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
-        fab = view.findViewById(R.id.fab);
+        totalItemTextView = view.findViewById(R.id.totalItemTextView);
         recyclerView = view.findViewById(R.id.itemsList);
-
-        fab.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
-                    ItemEditingDialogFragment dialogFragment = ItemEditingDialogFragment.newInstance(0, false);
-                    dialogFragment.show(getFragmentManager(), "itemEditingDialogFragment");
-                }else{
-                    startActivity(new Intent(getActivity(), ItemEditingContainerActivity.class));
-                }
-            }
-        });
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(false);
 
         rvMultiViewState = view.findViewById(R.id.rvMultiViewState);
-        itemAdapter = new ItemAdapter(getContext(), loadFromSharedPreference(getContext()));
+        itemAdapter = new ItemAdapter(getContext(), loadFromSharedPreference(view.getContext()));
+        itemAdapter.setItemSelectListener(itemSelectListener);
 
         setupRecyclerView(itemAdapter.getListViewModePreference(), recyclerView, itemAdapter);
-        recyclerView.setAdapter(itemAdapter);
+        // recyclerView.setAdapter(itemAdapter);
 
         final ItemViewModel itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
         itemViewModel.getAllItems().observe(getActivity(), new Observer<List<Item>>(){
@@ -113,10 +98,11 @@ public class ItemListFragment extends Fragment{
                 if(items != null && !items.isEmpty()){
                     // setupSelectionContextMenu(itemViewModel, items);
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                    itemAdapter.submitList(items);
+                    totalItemTextView.setText(new StringBuilder().append("TOTAL ").append(items.size()).append(" ITEMS").toString());
                 }else{
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
                 }
+                itemAdapter.applyItemDataChanges(items, false);
             }
         });
 
@@ -352,6 +338,5 @@ public class ItemListFragment extends Fragment{
 
     public void setItemSelectListener(ItemAdapter.ItemSelectListener itemSelectListener){
         this.itemSelectListener = itemSelectListener;
-        itemAdapter.setItemSelectListener(itemSelectListener);
     }
 }

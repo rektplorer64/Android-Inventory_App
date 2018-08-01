@@ -1,20 +1,12 @@
 package tanawinwichitcom.android.inventoryapp;
 
+
 import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,12 +14,24 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.List;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.ItemEditingDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.User;
@@ -41,18 +45,24 @@ public class MainActivity extends AppCompatActivity{
     public static final String SharedPref_LOGIN_SESSION_DATA = "SharedPref_LOGIN_SESSION_DATA";
     public static final String SharedPrefKey_LOGIN_SESSION_USER_ID = "SharedPrefKey_LOGIN_SESSION_USER_ID";
 
+    private static final String FRAGMENT_ITEM_LIST = "ItemListFragment";
+
     private ItemViewModel itemViewModel;
     private Toolbar toolbar;
 
     private DrawerLayout navDrawerLayout;
 
+    private FloatingActionButton fab;
+
     private boolean screenIsLargeOrPortrait;
 
     private CardView itemListFragmentCard;
     private FrameLayout itemProfileFragmentFrame;
-    private ItemListFragment itemListFragment;
+    private FrameLayout itemListFragmentFrame;
 
     private CircularRevealFragment itemProfileFragment;
+    private ItemListFragment itemListFragment;
+
     private View.OnClickListener toolbarClickListener;
 
     @Override
@@ -60,64 +70,56 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
+
         initializeViews();
         setupActionBar();
         HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
 
-        // Toasty.info(this, "Your screen size is " + HelperUtility.getScreenSizeCategory(this)).show();
-
-        itemListFragment = new ItemListFragment();
-
-        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        itemListFragment = (ItemListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ITEM_LIST);
+        if(itemListFragment == null){
+            itemListFragment = ItemListFragment.newInstance();
+        }
+        ft.replace(itemListFragmentFrame.getId(), itemListFragment, FRAGMENT_ITEM_LIST);
 
         if(itemProfileFragmentFrame != null){
-            // itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID), 0, 0);
-            // TODO: Re-route the interactions between ItemListFragment and ItemProfileFragment to make them independent from MainActivity
-            // ((ItemProfileFragment) itemProfileFragment).setItemChangeListener(changeListener);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item
                     , itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID)
                     , 0, 0);
-            // itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
-            //     @Override
-            //     public void onChanged(@Nullable List<Item> itemList){
-            //         initialize(itemList, itemProfileFragment);
-            //     }
-            // });
+
             ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
             ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment);
-            ft.commit();
 
-            ItemListFragment itemListFragment = (ItemListFragment) getSupportFragmentManager().findFragmentById(R.id.itemListFragment);
             itemListFragment.setItemSelectListener(new ItemAdapter.ItemSelectListener(){
                 @Override
                 public void onSelect(int itemId, int touchCoordinateY, ItemAdapter itemAdapter){
                     selectItemInLargeScreenLayout(itemId, touchCoordinateY, itemAdapter);
                 }
             });
-
         }
+        ft.commit();
 
         toolbar.setOnClickListener(toolbarClickListener);
 
         // if(!screenIsLargeOrPortrait){
-            toolbar.post(new Runnable(){
-                @Override
-                public void run(){
-                    // System.out.println("toolbar's width " + toolbar.getWidth());
-                    if(toolbar.getWidth() <= 502){
-                        int matchParent = LinearLayout.LayoutParams.MATCH_PARENT;
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent, matchParent);
+        toolbar.post(new Runnable(){
+            @Override
+            public void run(){
+                // System.out.println("toolbar's width " + toolbar.getWidth());
+                if(toolbar.getWidth() <= 502){
+                    int matchParent = LinearLayout.LayoutParams.MATCH_PARENT;
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent, matchParent);
 
-                        params.weight = 5;
-                        itemListFragmentCard.setLayoutParams(params);
+                    params.weight = 5;
+                    itemListFragmentCard.setLayoutParams(params);
 
-                        LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
-                        params1.weight = 10 - params.weight;
-                        itemProfileFragmentFrame.setLayoutParams(params1);
-                    }
+                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
+                    params1.weight = 10 - params.weight;
+                    itemProfileFragmentFrame.setLayoutParams(params1);
                 }
-            });
+            }
+        });
         // }
     }
 
@@ -141,7 +143,6 @@ public class MainActivity extends AppCompatActivity{
                     newId = Integer.min(nearestIds[0], nearestIds[1]);
                     selectItemInLargeScreenLayout(newId, touchCoordinateY, itemAdapter);
                 }
-
             }
         });
 
@@ -151,53 +152,27 @@ public class MainActivity extends AppCompatActivity{
         ft.commit();
     }
 
-    private void initialize(final List<Item> itemList, CircularRevealFragment itemProfileFragment){
-
-        itemProfileFragment.setOnFragmentTouchedListener(new CircularRevealFragment.OnFragmentTouched(){
-            @Override
-            public void onFragmentTouched(Fragment fragment, float x, float y){
-                if(fragment instanceof ItemProfileFragment){
-                    final ItemProfileFragment theFragment = (ItemProfileFragment) fragment;
-                    Animator unreveal = theFragment.prepareUnrevealAnimator(x, y);
-                    unreveal.addListener(new Animator.AnimatorListener(){
-                        @Override
-                        public void onAnimationStart(Animator animation){
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation){
-                            // remove the fragment only when the animation finishes
-                            getSupportFragmentManager().beginTransaction().remove((Fragment) theFragment).commit();
-                            //to prevent flashing the fragment before removing it, execute pending transactions immediately
-                            getSupportFragmentManager().executePendingTransactions();
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation){
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation){
-                        }
-                    });
-                    unreveal.start();
-                }
-            }
-        });
-
-        // Note: To fix "commit() already called exception", FragmentTransaction must be instantiate every time it needed to be used in an interface
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit);
-
-        ft.replace(R.id.itemProfileFragmentFrame, itemProfileFragment).commit();
-
-    }
-
     private void initializeViews(){
         screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(this);
         toolbar = findViewById(R.id.toolbar);
         navDrawerLayout = findViewById(R.id.navDrawerLayout);
+
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                if(HelperUtility.getScreenSizeCategory(view.getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                    ItemEditingDialogFragment dialogFragment = ItemEditingDialogFragment.newInstance(0, false);
+                    dialogFragment.show(getSupportFragmentManager(), "itemEditingDialogFragment");
+                }else{
+                    startActivity(new Intent(view.getContext(), ItemEditingContainerActivity.class));
+                }
+            }
+        });
+
         itemListFragmentCard = findViewById(R.id.itemListFragmentCard);
+
+        itemListFragmentFrame = findViewById(R.id.itemListFragmentFrame);
         itemProfileFragmentFrame = findViewById(R.id.itemProfileFragmentFrame);
     }
 

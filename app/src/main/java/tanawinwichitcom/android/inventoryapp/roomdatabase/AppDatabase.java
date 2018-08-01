@@ -169,7 +169,7 @@ public abstract class AppDatabase extends RoomDatabase{
 
         private void populateReviews(){
             Review[] reviews = new Review[MAXIMUM_REVIEWS];
-            for(int itemIndex = 0; itemIndex < MAXIMUM_ITEMS; itemIndex++){
+            for(int itemIndex = 1; itemIndex <= MAXIMUM_ITEMS; itemIndex++){
                 for(int reviewIndex = 0; reviewIndex < MAXIMUM_REVIEWS; reviewIndex++){
                     //int randomizedTime = (new Random()).nextInt(1000000) + 100000;
                     reviews[reviewIndex] = new Review(Calendar.getInstance().getTime(), 1, itemIndex

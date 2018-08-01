@@ -9,6 +9,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,6 +107,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
     private ArrayAdapter<String> suggestionAdapter;
 
     public ItemEditingFragment(){
+        setHasOptionsMenu(true);
     }
 
     public static ItemEditingFragment newInstance(int itemId, boolean isInEditMode){
@@ -162,11 +165,9 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
                 @Override
                 public void onChanged(@Nullable final Item item){
                     originalImageFile = item.getImageFile();
-
                     if(originalImageFile != null){
                         deleteImageButton.setVisibility(View.VISIBLE);
                     }
-
                     selectedColorInt = item.getItemColorAccent();
                     circleImageView.setBackgroundColor(selectedColorInt);
 
@@ -279,7 +280,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
                                 keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
                     Toasty.info(getContext(), "Enter pressed").show();
                     if(!textView.getText().toString().isEmpty()){
-                        createNewChip(textView.getText().toString());
+                        createNewChip(textView.getText().toString(), false);
                         textView.setText("");
                         return true;
                     }
@@ -290,14 +291,14 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         tagEditText.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l){
-                createNewChip(adapterView.getAdapter().getItem(position).toString());
+                createNewChip(adapterView.getAdapter().getItem(position).toString(), false);
                 tagEditText.setText("");
             }
         });
     }
 
-    private void createNewChip(String newTag){
-        if(tagChipGroup != null){
+    private void createNewChip(String newTag, boolean fillingData){
+        if(tagChipGroup != null && !fillingData){
             for(int i = 0; i < tagChipGroup.getChildCount(); i++){
                 if(((Chip) tagChipGroup.getChildAt(i)).getText().toString().equalsIgnoreCase(newTag)){
                     Toasty.warning(getContext(), "This tag is already added!").show();
@@ -387,15 +388,19 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         linearLayoutEdit.requestFocus();
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        if(getActivity() instanceof ItemEditingContainerActivity){
+            inflater.inflate(R.menu.menu_item_editor, menu);
+        }
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     private void setupStatusAndToolbar(@ColorInt int backColorInt){
         if(getActivity() instanceof ItemEditingContainerActivity){
             AppCompatActivity activity = (AppCompatActivity) getActivity();
             activity.setSupportActionBar(toolbar);
-            if(!isInEditMode){
-                activity.setTitle("Add an item");
-            }else{
-                activity.setTitle("Edit an item");
-            }
+            activity.setTitle((!isInEditMode) ? "Add an item" : "Edit an item");
 
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             activity.getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -450,7 +455,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             }
         });
         for(String tag : sortedTagList){
-            createNewChip(tag);
+            createNewChip(tag, true);
         }
     }
 
@@ -563,9 +568,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
 
         if(getActivity() instanceof ItemEditingContainerActivity){
             getActivity().finish();
-        }else{
         }
-
     }
 
     /**
