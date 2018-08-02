@@ -1,7 +1,6 @@
 package tanawinwichitcom.android.inventoryapp;
 
 
-import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,9 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.List;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,15 +21,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.ItemEditingDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
-import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.User;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
@@ -77,11 +72,12 @@ public class MainActivity extends AppCompatActivity{
         HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        itemListFragment = (ItemListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_ITEM_LIST);
-        if(itemListFragment == null){
+        if(savedInstanceState != null){
+            itemListFragment = (ItemListFragment) getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_ITEM_LIST);
+        }else{
             itemListFragment = ItemListFragment.newInstance();
         }
-        ft.replace(itemListFragmentFrame.getId(), itemListFragment, FRAGMENT_ITEM_LIST);
+        ft.replace(itemListFragmentFrame.getId(), itemListFragment);
 
         if(itemProfileFragmentFrame != null){
             itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item
@@ -99,8 +95,6 @@ public class MainActivity extends AppCompatActivity{
             });
         }
         ft.commit();
-
-        toolbar.setOnClickListener(toolbarClickListener);
 
         // if(!screenIsLargeOrPortrait){
         toolbar.post(new Runnable(){
@@ -222,6 +216,12 @@ public class MainActivity extends AppCompatActivity{
                 .getInt(SharedPrefKey_LOGIN_SESSION_USER_ID, -1);
         String toastMsg = "Logged in as: ID#" + loggedID;
         Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        getSupportFragmentManager().putFragment(outState, FRAGMENT_ITEM_LIST, itemListFragment);
     }
 
     public void setToolbarClickListener(View.OnClickListener toolbarClickListener){

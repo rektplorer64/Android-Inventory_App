@@ -201,9 +201,8 @@ public class SearchActivity extends AppCompatActivity
         });
 
         resultsRecyclerView.setHasFixedSize(true);
-        resultsRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        resultsRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
         resultsRecyclerView.setAdapter(itemAdapter);
-
         containerCardView = findViewById(R.id.containerCardView);
         /* Adjusts Layout According to the screen size */
         searchActivityLayoutParent.post(new Runnable(){
@@ -235,6 +234,8 @@ public class SearchActivity extends AppCompatActivity
         super.onSaveInstanceState(outState);
         outState.putParcelable(BUNDLE_PREFERENCE_FILTER, itemAdapter.getSearchPreference());
         outState.putParcelable(BUNDLE_PREFERENCE_SORTING, itemAdapter.getSortPreference());
+
+        outState.putParcelable("RECYCLER_SCROLL_POSITION", resultsRecyclerView.getLayoutManager().onSaveInstanceState());
         // getSupportFragmentManager().putFragment(outState, "searchPreferenceFragment", searchPreferenceFragment);
         // getSupportFragmentManager().putFragment(outState, "sortPreferenceFragment", sortPreferenceFragment);
     }
@@ -277,7 +278,7 @@ public class SearchActivity extends AppCompatActivity
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(final Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         initiateViews();
@@ -286,11 +287,9 @@ public class SearchActivity extends AppCompatActivity
         if(savedInstanceState != null){
             itemAdapter.setSearchPreference((FilterPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_FILTER));
             itemAdapter.setSortPreference((SortPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_SORTING));
-
             if(itemAdapter.getSearchPreference() != null){
                 itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
             }
-
             if(itemAdapter.getSortPreference() != null){
                 itemAdapter.applySorting();
             }
@@ -324,6 +323,10 @@ public class SearchActivity extends AppCompatActivity
                     itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
                 }
                 itemAdapter.applySorting();
+
+                if(savedInstanceState != null){
+                    resultsRecyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("RECYCLER_SCROLL_POSITION"));
+                }
             }
         });
 

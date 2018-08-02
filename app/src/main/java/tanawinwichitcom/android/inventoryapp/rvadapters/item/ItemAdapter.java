@@ -452,7 +452,6 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             }
             ratingBar.setRating((item.getRating() != null) ? Float.valueOf(String.valueOf(item.getRating())) : 0f);
 
-
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -479,6 +478,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             }else{
                 cardView.setCardBackgroundColor(Color.WHITE);
             }
+
             cardView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(final View v){
