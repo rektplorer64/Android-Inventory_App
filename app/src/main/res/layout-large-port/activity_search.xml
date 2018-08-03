@@ -126,21 +126,11 @@
 							android:textColor="@android:color/black"
 							android:textStyle="bold"/>
 
-						<com.kennyc.view.MultiStateView
-							android:id="@+id/itemListMultistateView"
+						<FrameLayout
+							android:id="@+id/itemListFragmentFrame"
 							android:layout_width="match_parent"
-							android:layout_height="match_parent"
-							app:msv_emptyView="@layout/item_list_empty"
-							app:msv_errorView="@layout/item_list_error"
-							app:msv_loadingView="@layout/item_list_loading"
-							app:msv_viewState="loading">
-
-							<androidx.recyclerview.widget.RecyclerView
-								android:id="@+id/resultsRecyclerView"
-								android:layout_width="match_parent"
-								android:layout_height="match_parent"/>
-						</com.kennyc.view.MultiStateView>
-
+							android:layout_height="match_parent">
+						</FrameLayout>
 
 					</LinearLayout>
 				</androidx.cardview.widget.CardView>

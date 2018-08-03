@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.selection.ItemDetailsLookup;
@@ -13,6 +14,10 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Build;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -36,7 +41,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.AsyncSorter;
 import tanawinwichitcom.android.inventoryapp.ItemProfileContainerActivity;
 import tanawinwichitcom.android.inventoryapp.MainActivity;
@@ -66,6 +74,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
     private ItemLoadFinishListener itemLoadFinishListener;
     private ItemSelectListener itemSelectListener;
+
+    private boolean isFiltering;
 
     private static final DiffUtil.ItemCallback<Item> DIFF_CALLBACK = new DiffUtil.ItemCallback<Item>(){
         @Override
@@ -194,6 +204,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         if(!isFiltering){
             itemList = itemArrayList;
         }
+        this.isFiltering = isFiltering;
 
         submitList(new ArrayList<Item>());
         submitList(itemArrayList);
@@ -279,26 +290,25 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             String query = null;
             if(constraint != null && !constraint.toString().equals(SEARCH_ALL_ITEMS)){
                 query = constraint.toString();
-            }else if(constraint == null){
-                query = null;
-            }else if(constraint.toString().equals(SEARCH_ALL_ITEMS)){
+            }else if(constraint == null || constraint.toString().equals(SEARCH_ALL_ITEMS)){
                 query = null;
             }
+
             // System.out.println(searchPref.toString());
             for(Item item : itemList){
                 // System.out.println("ID: " + item.getId() + ", "+ item.getName());
-                String fieldValue = item.getName();
+                String fieldValue = item.getName().toLowerCase();
                 if(searchPref.getSearchBy() == FilterPreference.SearchBy.ItemName){
-                    fieldValue = item.getName();
+                    fieldValue = item.getName().toLowerCase();
                 }else if(searchPref.getSearchBy() == FilterPreference.SearchBy.ItemId){
                     fieldValue = String.valueOf(item.getId());
                 }else if(searchPref.getSearchBy() == FilterPreference.SearchBy.ItemDescription){
-                    fieldValue = item.getDescription();
+                    fieldValue = item.getDescription().toLowerCase();
                 }
 
                 if(query != null){
                     if(!constraint.toString().isEmpty()){
-                        if(fieldValue.toLowerCase().contains(query.toLowerCase()) || fieldValue.equalsIgnoreCase(query)){
+                        if(fieldValue.contains(query.toLowerCase()) || fieldValue.equalsIgnoreCase(query)){
                             filterList(searchPref, item, resultList, tagPreferences);
                         }
                     }else{
@@ -427,7 +437,28 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                     // .transition(DrawableTransitionOptions.withCrossFade())
                     .into(imageView);
 
-            nameTextView.setText(item.getName());
+            if(!isFiltering){
+                nameTextView.setText(item.getName());
+            }else{
+                if(searchPref.getKeyword() != null && !searchPref.getKeyword().isEmpty()){
+                    String keyword = searchPref.getKeyword().toLowerCase();
+                    if(item.getName().toLowerCase().contains(keyword)){
+                        // Replacing all query occurrences without ruining original Capitalization
+                        String formattedString = item.getName().replaceAll("(?i)(" + keyword + ")", "<b>$0</b>");
+                        Spanned finalTagString;
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                            finalTagString = Html.fromHtml(formattedString, Html.FROM_HTML_MODE_COMPACT);
+                        }else{
+                            finalTagString = Html.fromHtml(formattedString);
+                        }
+                        nameTextView.setText(finalTagString);
+                    }else{
+                        nameTextView.setText(item.getName());
+                    }
+                }else{
+                    nameTextView.setText(item.getName());
+                }
+            }
 
             String rating = String.format(HelperUtility.getCurrentLocale(context), "%.1f", item.getRating());
             String numbersOfReviews = NumberFormat.getNumberInstance(Locale.US).format(numberOfReviews);

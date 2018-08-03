@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DAOs.ItemDAO;
@@ -262,9 +263,9 @@ public class DataRepository{
 
         @Override
         protected Set<String> doInBackground(Void... voids){
-            Set<String> rawTagSet = new HashSet<>(itemDAO.getAllTags());
-            Set<String> individualTagSet = new HashSet<>();
-            for(String s : rawTagSet){
+            Set<String> allTags = new TreeSet<>(itemDAO.getAllTags());
+            Set<String> individualTagSet = new TreeSet<>();
+            for(String s: allTags){
                 String tagsString[] = s.split(" ");
                 individualTagSet.addAll(Arrays.asList(tagsString));
             }

@@ -23,7 +23,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
-import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.ItemProfileFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
@@ -35,12 +34,6 @@ import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
 public class MainActivity extends AppCompatActivity{
-
-    // KEY for SHARED_PREFERENCE (ID of the User who currently login)
-    public static final String SharedPref_LOGIN_SESSION_DATA = "SharedPref_LOGIN_SESSION_DATA";
-    public static final String SharedPrefKey_LOGIN_SESSION_USER_ID = "SharedPrefKey_LOGIN_SESSION_USER_ID";
-
-    private static final String FRAGMENT_ITEM_LIST = "ItemListFragment";
 
     private ItemViewModel itemViewModel;
     private Toolbar toolbar;
@@ -73,7 +66,7 @@ public class MainActivity extends AppCompatActivity{
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if(savedInstanceState != null){
-            itemListFragment = (ItemListFragment) getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_ITEM_LIST);
+            itemListFragment = (ItemListFragment) getSupportFragmentManager().getFragment(savedInstanceState, ConstantsHolder.FRAGMENT_ITEM_LIST);
         }else{
             itemListFragment = ItemListFragment.newInstance();
         }
@@ -207,13 +200,13 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void simulateLoginSession(User user){
-        SharedPreferences loginData = getSharedPreferences(SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE);
+        SharedPreferences loginData = getSharedPreferences(ConstantsHolder.SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = loginData.edit();
-        prefEditor.putInt(SharedPrefKey_LOGIN_SESSION_USER_ID, user.getId());
+        prefEditor.putInt(ConstantsHolder.SharedPrefKey_LOGIN_SESSION_USER_ID, user.getId());
         prefEditor.apply();
 
-        int loggedID = getSharedPreferences(MainActivity.SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE)
-                .getInt(SharedPrefKey_LOGIN_SESSION_USER_ID, -1);
+        int loggedID = getSharedPreferences(ConstantsHolder.SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE)
+                .getInt(ConstantsHolder.SharedPrefKey_LOGIN_SESSION_USER_ID, -1);
         String toastMsg = "Logged in as: ID#" + loggedID;
         Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
     }
@@ -221,7 +214,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        getSupportFragmentManager().putFragment(outState, FRAGMENT_ITEM_LIST, itemListFragment);
+        getSupportFragmentManager().putFragment(outState, ConstantsHolder.FRAGMENT_ITEM_LIST, itemListFragment);
     }
 
     public void setToolbarClickListener(View.OnClickListener toolbarClickListener){

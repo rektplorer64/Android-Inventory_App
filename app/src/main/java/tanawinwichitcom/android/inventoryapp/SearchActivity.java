@@ -1,21 +1,10 @@
 package tanawinwichitcom.android.inventoryapp;
 
+
 import android.animation.Animator;
 import android.annotation.TargetApi;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -25,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Filter;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.kennyc.view.MultiStateView;
 import com.lapism.searchview.Search;
 import com.lapism.searchview.widget.SearchView;
@@ -33,26 +23,32 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import es.dmoral.toasty.Toasty;
-import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.SearchOptionDialogFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
+import tanawinwichitcom.android.inventoryapp.fragments.dialogfragment.SearchOptionDialogFragment;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Item;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.Entities.Review;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference;
-import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.SortPreference;
 import tanawinwichitcom.android.inventoryapp.utility.HelperUtility;
 
+import static tanawinwichitcom.android.inventoryapp.ConstantsHolder.FRAGMENT_ITEM_LIST;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference.SEARCH_ALL_ITEMS;
 
 public class SearchActivity extends AppCompatActivity
         implements SearchPreferenceFragment.SearchPreferenceUpdateListener, SortPreferenceFragment.SortPreferenceUpdateListener{
-
-    public static final String TAG_FILTER_PREF_FRAGMENT = "filterPrefFragment";
-    public static final String TAG_SORT_PREF_FRAGMENT = "sortPrefFragment";
 
     private View searchActivityLayoutParent;
 
@@ -60,17 +56,14 @@ public class SearchActivity extends AppCompatActivity
 
     private SearchView searchView;
     private TextView totalSearchTextView;
-    private RecyclerView resultsRecyclerView;
+
     private CardView containerCardView;
 
-    private MultiStateView itemListMultiStateView;
 
     private Filter.FilterListener filterListener;
 
+    private ItemListFragment itemListFragment;
     private ItemAdapter itemAdapter;
-
-    public static final String BUNDLE_PREFERENCE_FILTER = "preference_filter";
-    public static final String BUNDLE_PREFERENCE_SORTING = "preference_sorting";
 
     @Override
     public void onBackPressed(){
@@ -128,19 +121,6 @@ public class SearchActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    protected void onResume(){
-        super.onResume();
-        itemAdapter.setSortPreference(SortPreference.loadFromSharedPreference(getApplication()));
-        itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
-        itemAdapter.applySorting();
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-    }
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void initiateViews(){
         Window window = getWindow();
@@ -180,29 +160,29 @@ public class SearchActivity extends AppCompatActivity
             @Override
             public void onFilterComplete(int count){
                 totalSearchTextView.setText(new StringBuilder().append("Total Search Result: ").append(count).toString());
+                if(count == 0){
+                    itemListFragment.getRvMultiViewState().setViewState(MultiStateView.VIEW_STATE_EMPTY);
+                }else{
+                    itemListFragment.getRvMultiViewState().setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                }
             }
         };
 
-        resultsRecyclerView = findViewById(R.id.resultsRecyclerView);
-        resultsRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        itemAdapter = new ItemAdapter(this, ListLayoutPreference.loadFromSharedPreference(this));
 
-        itemListMultiStateView = findViewById(R.id.itemListMultistateView);
-        itemAdapter.setItemLoadFinishListener(new ItemAdapter.ItemLoadFinishListener(){
-            @Override
-            public void onItemFinishUpdate(int size){
-                // Toast.makeText(SearchActivity.this, "Finished update: " + size, Toast.LENGTH_SHORT).show();
-                if(size == 0){
-                    itemListMultiStateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
-                }else{
-                    itemListMultiStateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                }
-            }
-        });
+        // itemAdapter = new ItemAdapter(this, ListLayoutPreference.loadFromSharedPreference(this));
 
-        resultsRecyclerView.setHasFixedSize(true);
-        resultsRecyclerView.setLayoutManager(new GridLayoutManager(this, 1));
-        resultsRecyclerView.setAdapter(itemAdapter);
+        // itemAdapter.setItemLoadFinishListener(new ItemAdapter.ItemLoadFinishListener(){
+        //     @Override
+        //     public void onItemFinishUpdate(int size){
+        //         // Toast.makeText(SearchActivity.this, "Finished update: " + size, Toast.LENGTH_SHORT).show();
+        //         if(size == 0){
+        //             itemListMultiStateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+        //         }else{
+        //             itemListMultiStateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+        //         }
+        //     }
+        // });
+
         containerCardView = findViewById(R.id.containerCardView);
         /* Adjusts Layout According to the screen size */
         searchActivityLayoutParent.post(new Runnable(){
@@ -232,16 +212,16 @@ public class SearchActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putParcelable(BUNDLE_PREFERENCE_FILTER, itemAdapter.getSearchPreference());
-        outState.putParcelable(BUNDLE_PREFERENCE_SORTING, itemAdapter.getSortPreference());
+        outState.putParcelable(ConstantsHolder.BUNDLE_PREFERENCE_FILTER, itemAdapter.getSearchPreference());
+        outState.putParcelable(ConstantsHolder.BUNDLE_PREFERENCE_SORTING, itemAdapter.getSortPreference());
 
-        outState.putParcelable("RECYCLER_SCROLL_POSITION", resultsRecyclerView.getLayoutManager().onSaveInstanceState());
+        getSupportFragmentManager().putFragment(outState, ConstantsHolder.FRAGMENT_ITEM_LIST, itemListFragment);
         // getSupportFragmentManager().putFragment(outState, "searchPreferenceFragment", searchPreferenceFragment);
         // getSupportFragmentManager().putFragment(outState, "sortPreferenceFragment", sortPreferenceFragment);
     }
 
-    private void initiateFragments(){
-        if(findViewById(R.id.searchActivityLayoutParent_small) != null){
+    private void initiateFragments(Bundle savedInstanceState){
+        if(findViewById(R.id.searchActivityLayoutParent_small) != null && searchDialogButton != null){
             final SearchPreferenceFragment.SearchPreferenceUpdateListener s1 = this;
             final SortPreferenceFragment.SortPreferenceUpdateListener s2 = this;
             searchDialogButton.setOnClickListener(new View.OnClickListener(){
@@ -265,8 +245,25 @@ public class SearchActivity extends AppCompatActivity
 
             searchPrefFragment.setSearchPreferenceUpdateListener(this);
             sortPrefFragment.setSortPreferenceUpdateListener(this);
-
         }
+
+        if(savedInstanceState != null){
+            itemListFragment = (ItemListFragment) getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_ITEM_LIST);
+        }else{
+            itemListFragment = ItemListFragment.newInstance();
+        }
+
+        itemListFragment.setAdapterInitiationListener(new ItemListFragment.ItemAdapterInitiationListener(){
+            @Override
+            public void onInitialized(ItemAdapter itemAdapter){
+                SearchActivity.this.itemAdapter = itemAdapter;
+                itemAdapter.setSearchPreference(FilterPreference.loadFromSharedPreference(SearchActivity.this));
+                itemAdapter.setSortPreference(SortPreference.loadFromSharedPreference(SearchActivity.this));
+            }
+        });
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.itemListFragmentFrame, itemListFragment).commit();
         // try{
         //     ((SearchPreferenceFragment) searchPreferenceFragment).setSearchPreferenceUpdateListener(this);
         //     ((SortPreferenceFragment) sortPreferenceFragment).setSortPreferenceUpdateListener(this);
@@ -281,12 +278,14 @@ public class SearchActivity extends AppCompatActivity
     protected void onCreate(final Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        initiateFragments(savedInstanceState);
         initiateViews();
-        initiateFragments();
 
         if(savedInstanceState != null){
-            itemAdapter.setSearchPreference((FilterPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_FILTER));
-            itemAdapter.setSortPreference((SortPreference) savedInstanceState.getParcelable(BUNDLE_PREFERENCE_SORTING));
+            itemAdapter = itemListFragment.getItemAdapter();
+            itemAdapter.setSearchPreference((FilterPreference) savedInstanceState.getParcelable(ConstantsHolder.BUNDLE_PREFERENCE_FILTER));
+            itemAdapter.setSortPreference((SortPreference) savedInstanceState.getParcelable(ConstantsHolder.BUNDLE_PREFERENCE_SORTING));
             if(itemAdapter.getSearchPreference() != null){
                 itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
             }
@@ -295,25 +294,20 @@ public class SearchActivity extends AppCompatActivity
             }
         }
 
-        totalSearchTextView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                resultsRecyclerView.scrollToPosition(0);
-                Toasty.info(v.getContext(), "Scrolled to top!").show();
-            }
-        });
-
-        ItemViewModel itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
+        final ItemViewModel itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
         itemViewModel.getAllItems().observe(this, new Observer<List<Item>>(){
             @Override
             public void onChanged(@Nullable List<Item> items){
-                // Toast.makeText(SearchActivity.this, "Database reinitialized", Toast.LENGTH_SHORT).show();
+                if(itemAdapter == null){
+                    return;
+                }
                 totalSearchTextView.setText(new StringBuilder().append("Total Search Result: ")
                         .append(items.size()).toString());
                 itemAdapter.applyItemDataChanges(items, false);
                 itemAdapter.submitList(items);
 
-                /* These lines of code below are required in order to preserve searching-state when there are changes in database (Insertion, Editing And Deletion) */
+                /* These lines of code below are required in order to preserve searching-state
+                 when there are changes in database (Insertion, Editing And Deletion) */
                 if(itemAdapter.getSearchPreference().getKeyword() != null
                         || (itemAdapter.getSearchPreference().getKeyword() != null
                         && !itemAdapter.getSearchPreference().getKeyword().isEmpty())){
@@ -323,49 +317,50 @@ public class SearchActivity extends AppCompatActivity
                     itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
                 }
                 itemAdapter.applySorting();
-
-                if(savedInstanceState != null){
-                    resultsRecyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable("RECYCLER_SCROLL_POSITION"));
-                }
             }
         });
 
         itemViewModel.getAllReviews().observe(this, new Observer<List<Review>>(){
             @Override
             public void onChanged(@Nullable List<Review> reviewList){
-                SparseArray<ArrayList<Review>> reviewSparseArray = ItemViewModel
-                        .convertReviewListToSparseArray(reviewList);
-                itemAdapter.applyReviewDataChanges(reviewSparseArray);
+                itemAdapter.applyReviewDataChanges(ItemViewModel.convertReviewListToSparseArray(reviewList));
             }
         });
 
         searchView.setOnQueryTextListener(new Search.OnQueryTextListener(){
             @Override
             public boolean onQueryTextSubmit(CharSequence query){
-                searchView.close();
-                if(query == null || query.toString().isEmpty()){
-                    itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
-                }else{
-                    itemAdapter.getFilter().filter(query, filterListener);
-                    itemAdapter.getSearchPreference().setKeyword(query.toString());
-                }
-                itemAdapter.applySorting();
+                // searchView.close();
+                // if(query == null || query.toString().isEmpty()){
+                //     itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
+                // }else{
+                //     itemAdapter.getFilter().filter(query, filterListener);
+                //     itemAdapter.getSearchPreference().setKeyword(query.toString());
+                // }
+                // itemAdapter.applySorting();
                 return false;
             }
 
             @Override
             public void onQueryTextChange(CharSequence newText){
+                if(itemListFragment.getRecyclerView().getLayoutManager() != null
+                        && itemListFragment.getRecyclerView().getChildCount() > 0){
+                    // This if statement is needed to prevent from getting a random NullPointerException
+                    // when user type query fast.
+                    itemListFragment.getRecyclerView().getLayoutManager().removeAllViews();
+                }
                 if(newText == null || newText.toString().isEmpty()){
                     itemAdapter.getFilter().filter(SEARCH_ALL_ITEMS, filterListener);
                 }else{
-                    itemAdapter.getFilter().filter(newText, filterListener);
                     itemAdapter.getSearchPreference().setKeyword(newText.toString());
+                    itemAdapter.getFilter().filter(newText, filterListener);
                 }
                 itemAdapter.applySorting();
             }
         });
 
     }
+
 
     @Override
     public void onDateChange(FilterPreference.DateType dateType, Date date){
@@ -412,9 +407,15 @@ public class SearchActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentResume(FilterPreference filterPreference){
-        // Toasty.info(getApplicationContext(), "onResuming...").show();
-        itemAdapter.setSearchPreference(filterPreference);
+    protected void onResume(){
+        super.onResume();
+        itemAdapter = itemListFragment.getItemAdapter();
+        refreshSearchResult();
+    }
+
+    @Override
+    public void onFragmentResumed(FilterPreference filterPreference){
+        itemAdapter = itemListFragment.getItemAdapter();
         refreshSearchResult();
     }
 
@@ -445,7 +446,5 @@ public class SearchActivity extends AppCompatActivity
     private void refreshSearchResult(){
         itemAdapter.getFilter().filter(itemAdapter.getSearchPreference().getKeyword(), filterListener);
         itemAdapter.applySorting();
-
-        resultsRecyclerView.scrollToPosition(0);
     }
 }

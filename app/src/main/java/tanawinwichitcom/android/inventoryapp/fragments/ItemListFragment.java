@@ -1,9 +1,9 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,7 +13,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -44,7 +43,6 @@ import tanawinwichitcom.android.inventoryapp.rvadapters.item.ItemAdapter;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityDetailsLookup;
 import tanawinwichitcom.android.inventoryapp.rvadapters.item.multiselectutil.ItemEntityKeyProvider;
 
-import static android.widget.Toast.LENGTH_LONG;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.COMPACT_LIST_LAYOUT;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.FULL_CARD_LAYOUT;
 import static tanawinwichitcom.android.inventoryapp.searchpreferencehelper.ListLayoutPreference.NORMAL_LIST_LAYOUT;
@@ -57,19 +55,16 @@ public class ItemListFragment extends Fragment{
 
     private static final String RECYCLER_LAYOUT_MANAGER_INSTANCE = "RECYCLER_LAYOUT_MANAGER_INSTANCE";
 
-    private TextView totalItemTextView;
     private RecyclerView recyclerView;
     private ItemAdapter itemAdapter;
     private MultiStateView rvMultiViewState;
     private SelectionTracker selectionTracker;
     private ItemAdapter.ItemSelectListener itemSelectListener;
 
-
     private ActionMode mActionMode;
     private ActionMode.Callback actionModeCallback;
 
-    private Parcelable savedRecyclerLayoutState;
-    private Bundle mSavedInstanceState;
+    private ItemAdapterInitiationListener adapterInitiationListener;
 
     public ItemListFragment(){
     }
@@ -86,13 +81,16 @@ public class ItemListFragment extends Fragment{
 
 
     @Override
+    public void onAttach(Context context){
+        super.onAttach(context);
+
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable final Bundle savedInstanceState){
         setHasOptionsMenu(true);
         setRetainInstance(true);
 
-        mSavedInstanceState = savedInstanceState;
-
-        totalItemTextView = view.findViewById(R.id.totalItemTextView);
         recyclerView = view.findViewById(R.id.itemsList);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -101,6 +99,10 @@ public class ItemListFragment extends Fragment{
         rvMultiViewState = view.findViewById(R.id.rvMultiViewState);
         itemAdapter = new ItemAdapter(getContext(), loadFromSharedPreference(view.getContext()));
         itemAdapter.setItemSelectListener(itemSelectListener);
+
+        if(adapterInitiationListener != null){
+            adapterInitiationListener.onInitialized(itemAdapter);
+        }
 
         setupRecyclerView(itemAdapter.getListViewModePreference(), recyclerView, itemAdapter);
 
@@ -111,7 +113,10 @@ public class ItemListFragment extends Fragment{
                 if(items != null && !items.isEmpty()){
                     // setupSelectionContextMenu(itemViewModel, items);
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-                    totalItemTextView.setText(new StringBuilder().append("TOTAL ").append(items.size()).append(" ITEMS").toString());
+                    if(getActivity() instanceof MainActivity){
+                        ((MainActivity) getActivity()).getSupportActionBar()
+                                .setSubtitle(new StringBuilder().append(items.size()).append(" Items").toString());
+                    }
                 }else{
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
                 }
@@ -380,5 +385,25 @@ public class ItemListFragment extends Fragment{
 
     public void setItemSelectListener(ItemAdapter.ItemSelectListener itemSelectListener){
         this.itemSelectListener = itemSelectListener;
+    }
+
+    public void setAdapterInitiationListener(ItemAdapterInitiationListener adapterInitiationListener){
+        this.adapterInitiationListener = adapterInitiationListener;
+    }
+
+    public ItemAdapter getItemAdapter(){
+        return itemAdapter;
+    }
+
+    public MultiStateView getRvMultiViewState(){
+        return rvMultiViewState;
+    }
+
+    public RecyclerView getRecyclerView(){
+        return recyclerView;
+    }
+
+    public interface ItemAdapterInitiationListener{
+        void onInitialized(ItemAdapter itemAdapter);
     }
 }

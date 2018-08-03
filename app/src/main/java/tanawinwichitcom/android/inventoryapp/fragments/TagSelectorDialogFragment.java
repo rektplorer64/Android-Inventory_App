@@ -2,11 +2,12 @@ package tanawinwichitcom.android.inventoryapp.fragments;
 
 
 import android.content.DialogInterface;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,9 +23,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.kennyc.view.MultiStateView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,13 +44,13 @@ public class TagSelectorDialogFragment extends DialogFragment{
     private TextInputEditText tagSearch;
 
     private ItemViewModel itemViewModel;
-    private List<String> sortedTagList;
+    private Set<String> sortedTagList;
 
-    private HashSet<String> tempTagsSet;
-
-    private Button dialogCloseButton;
+    private TreeSet<String> tempTagsSet;
 
     private TextView totalTagSelectedView;
+
+    private Button dialogClearTagsButton;
 
     private DismissListener dismissListener;
 
@@ -77,40 +79,46 @@ public class TagSelectorDialogFragment extends DialogFragment{
         lWindowParams.height = WindowManager.LayoutParams.MATCH_PARENT;
         getDialog().getWindow().setAttributes(lWindowParams);
 
-        tempTagsSet = new HashSet<>();
-
         tagSelectorMultiStateView = view.findViewById(R.id.tagSelectorMultiStateView);
         tagChipGroup = view.findViewById(R.id.tagChipGroup);
         tagSearch = view.findViewById(R.id.tagSearch);
         totalTagSelectedView = view.findViewById(R.id.totalTagSelectedView);
 
-        view.findViewById(R.id.dialogCloseButton).setOnClickListener(new View.OnClickListener(){
+        dialogClearTagsButton = view.findViewById(R.id.dialogClearTagsButton);
+
+        view.findViewById(R.id.dialogDoneButton).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 dismiss();
             }
         });
 
+        dialogClearTagsButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                for(int i = 0; i < tagChipGroup.getChildCount(); i++){
+                    if(((Chip) tagChipGroup.getChildAt(i)).isChecked()){
+                        ((Chip) tagChipGroup.getChildAt(i)).setChecked(false);
+                        tagChipGroup.getChildAt(i).setSelected(false);
+                    }
+                }
+            }
+        });
+
         filterPreference = FilterPreference.loadFromSharedPreference(getContext());
 
-        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
-        sortedTagList = new ArrayList<>(itemViewModel.getAllTags());
+        tempTagsSet = new TreeSet<>(filterPreference.getTagList());
+        dialogClearTagsButton.setEnabled(tempTagsSet.size() != 0);
 
+        itemViewModel = ViewModelProviders.of(this).get(ItemViewModel.class);
+        sortedTagList = itemViewModel.getAllTags();
 
         if(sortedTagList.size() != 0){
             tagSelectorMultiStateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
 
-            new Thread(new Runnable(){
-                @Override
-                public void run(){
-                    Collections.sort(sortedTagList);
-                }
-            }).start();
+            populateTagChipGroup(null, false, true);
+            totalTagSelectedView.setText(new StringBuilder().append("TOTAL SELECTED: ").append(tempTagsSet.size()).toString());
 
-            populateTagChipGroup(null, filterPreference.getTagList(), false, true);
-            totalTagSelectedView.setText("TOTAL SELECTED: " + getCheckedCount(tagChipGroup));
-
-            final FilterPreference finalFilterPreference = filterPreference;
             tagSearch.addTextChangedListener(new TextWatcher(){
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2){
@@ -120,11 +128,10 @@ public class TagSelectorDialogFragment extends DialogFragment{
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2){
                     if(!charSequence.toString().isEmpty()){
-                        populateTagChipGroup(charSequence.toString(), finalFilterPreference.getTagList(), false, false);
+                        populateTagChipGroup(charSequence.toString(), false, false);
                     }else{
-                        populateTagChipGroup(null, finalFilterPreference.getTagList(), false, true);
+                        populateTagChipGroup(null, false, true);
                     }
-                    totalTagSelectedView.setText("TOTAL SELECTED: " + getCheckedCount(tagChipGroup));
                 }
 
                 @Override
@@ -137,12 +144,14 @@ public class TagSelectorDialogFragment extends DialogFragment{
         }
     }
 
-    public void resetTempTagSet(){
-        tempTagsSet = new HashSet<>();
+    public void reInstantiateTagSet(){
+        tempTagsSet = new TreeSet<>();
     }
 
-    private void populateTagChipGroup(CharSequence query, final List<String> tagsPrefList, boolean limitSize, boolean showOnlyCheckedChips){
-        tagChipGroup.removeAllViews();
+    private void populateTagChipGroup(CharSequence query, boolean limitSize, boolean showOnlyCheckedChips){
+        if(tagChipGroup.getChildCount() > 0){
+            tagChipGroup.removeAllViews();
+        }
 
         int iterationLimit = 0;
         if(limitSize){
@@ -153,24 +162,44 @@ public class TagSelectorDialogFragment extends DialogFragment{
             iterationLimit = sortedTagList.size();
         }
 
-        for(int i = 0; i < iterationLimit; i++){
-            String tag = sortedTagList.get(i);
+        int count = 0;
+        for(Iterator<String> iterator = sortedTagList.iterator(); iterator.hasNext(); ){
+            String tag = iterator.next();
             if(query != null){
                 if(tag.toLowerCase().contains(query.toString().toLowerCase())
                         || tag.equalsIgnoreCase(query.toString())){
-
+                    // Empty
                 }else{
                     continue;
                 }
             }
 
+            if(count == iterationLimit){
+                break;
+            }
+
+            if(showOnlyCheckedChips && !tempTagsSet.contains(tag)){
+                continue;
+            }
+
             final Chip tagChip = new Chip(getContext());
-            tagChip.setText(tag);
+
+            if(!showOnlyCheckedChips){
+                String formattedString = tag.replaceAll(query.toString().toLowerCase(), "<b>" + query + "</b>");
+                Spanned finalTagString;
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+                    finalTagString = Html.fromHtml(formattedString, Html.FROM_HTML_MODE_COMPACT);
+                }else{
+                    finalTagString = Html.fromHtml(formattedString);
+                }
+                tagChip.setText(finalTagString);
+            }else{
+                tagChip.setText(tag);
+            }
             tagChip.setCheckable(true);
             tagChip.setCheckedIconEnabled(true);
 
-            ColorStateList colorStateList = getContext().getResources().getColorStateList(R.color.chip_tag_color);
-            tagChip.setChipBackgroundColor(colorStateList);
+            tagChip.setChipBackgroundColor(getContext().getResources().getColorStateList(R.color.chip_tag_color));
             // tagChip.setCheckedIcon(view.getContext().getDrawable(R.drawable.ic_check_black_24dp));
             tagChip.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -186,28 +215,27 @@ public class TagSelectorDialogFragment extends DialogFragment{
                     tagChip.setTextColor((selected) ? Color.WHITE : Color.BLACK);
                     if(selected){
                         tempTagsSet.add(tagChip.getText().toString());
+                        // Toasty.info(getContext(), "Selected " + tagChip.getText()).show();
                     }else{
                         tempTagsSet.remove(tagChip.getText().toString());
+                        // Toasty.info(getContext(), "Deselected " + tagChip.getText()).show();
                     }
-                    totalTagSelectedView.setText("TOTAL SELECTED: " + getCheckedCount(tagChipGroup));
+                    dialogClearTagsButton.setEnabled(tempTagsSet.size() != 0);
+                    totalTagSelectedView.setText(new StringBuilder().append("TOTAL SELECTED: ").append(tempTagsSet.size()).toString());
                 }
             });
 
-            if(showOnlyCheckedChips && !(tagsPrefList.contains(tag)
-                    || tempTagsSet.contains(tagChip.getText().toString()))){
-                continue;
-            }
-
-            if(tagsPrefList.contains(tag) || tempTagsSet.contains(tagChip.getText().toString())){
+            if(tempTagsSet.contains(tagChip.getText().toString())){
                 tagChip.setChecked(true);
                 tagChip.setSelected(true);
             }
 
+            count++;
             tagChipGroup.addView(tagChip);
         }
     }
 
-    public List<String> getSelectedTag(){
+    public List<String> getSelectedTags(){
         List<String> stringList = new ArrayList<>();
         for(int i = 0; i < tagChipGroup.getChildCount(); i++){
             if(((Chip) tagChipGroup.getChildAt(i)).isChecked()){
@@ -216,16 +244,6 @@ public class TagSelectorDialogFragment extends DialogFragment{
             }
         }
         return stringList;
-    }
-
-    private int getCheckedCount(ChipGroup chipGroup){
-        // int checkedCount = 0;
-        // for(int i = 0; i < chipGroup.getChildCount(); i++){
-        //     if(((Chip) chipGroup.getChildAt(i)).isChecked()){
-        //         checkedCount++;
-        //     }
-        // }
-        return tempTagsSet.size();
     }
 
     @Override

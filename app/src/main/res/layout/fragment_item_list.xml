@@ -22,28 +22,6 @@
 			android:layout_height="match_parent"
 			android:orientation="vertical">
 
-			<com.google.android.material.card.MaterialCardView
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:elevation="5dp"
-				app:cardElevation="5dp"
-				app:contentPadding="8dp"
-				app:strokeWidth="1dp"
-				app:strokeColor="@color/md_amber_400"
-				app:cardCornerRadius="0dp">
-
-				<TextView
-					android:id="@+id/totalItemTextView"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_horizontal"
-					android:gravity="center_horizontal"
-					android:letterSpacing="0.1"
-					android:text="TOTAL: "
-					android:textAllCaps="true"
-					android:textStyle="bold"/>
-			</com.google.android.material.card.MaterialCardView>
-
 			<androidx.recyclerview.widget.RecyclerView
 				android:id="@+id/itemsList"
 				android:layout_width="match_parent"

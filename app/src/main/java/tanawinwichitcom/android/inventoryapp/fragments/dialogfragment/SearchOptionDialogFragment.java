@@ -13,8 +13,8 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import es.dmoral.toasty.Toasty;
+import tanawinwichitcom.android.inventoryapp.ConstantsHolder;
 import tanawinwichitcom.android.inventoryapp.R;
-import tanawinwichitcom.android.inventoryapp.SearchActivity;
 import tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment;
 import tanawinwichitcom.android.inventoryapp.searchpreferencehelper.FilterPreference;
@@ -59,12 +59,12 @@ public class SearchOptionDialogFragment extends DialogFragment{
 
         frameLayoutsScroller = view.findViewById(R.id.frameLayoutsScroller);
 
-        searchPrefFragment = (SearchPreferenceFragment) getChildFragmentManager().findFragmentByTag(SearchActivity.TAG_FILTER_PREF_FRAGMENT);
+        searchPrefFragment = (SearchPreferenceFragment) getChildFragmentManager().findFragmentByTag(ConstantsHolder.FRAGMENT_ITEM_FILTER);
         if(searchPrefFragment == null){
             searchPrefFragment = SearchPreferenceFragment.newInstance();
         }
 
-        sortPrefFragment = (SortPreferenceFragment) getChildFragmentManager().findFragmentByTag(SearchActivity.TAG_SORT_PREF_FRAGMENT);
+        sortPrefFragment = (SortPreferenceFragment) getChildFragmentManager().findFragmentByTag(ConstantsHolder.FRAGMENT_ITEM_SORT);
         if(sortPrefFragment == null){
             sortPrefFragment = SortPreferenceFragment.newInstance();
         }
@@ -72,11 +72,11 @@ public class SearchOptionDialogFragment extends DialogFragment{
         searchPrefFragment.setSearchPreferenceUpdateListener(searchPreferenceUpdateListener);
         sortPrefFragment.setSortPreferenceUpdateListener(sortPreferenceUpdateListener);
 
-        ft.replace(R.id.filterSettingFrame_dialog, searchPrefFragment, SearchActivity.TAG_FILTER_PREF_FRAGMENT);
-        ft.replace(R.id.sortSettingFrame_dialog, sortPrefFragment, SearchActivity.TAG_SORT_PREF_FRAGMENT);
+        ft.replace(R.id.filterSettingFrame_dialog, searchPrefFragment, ConstantsHolder.FRAGMENT_ITEM_FILTER);
+        ft.replace(R.id.sortSettingFrame_dialog, sortPrefFragment, ConstantsHolder.FRAGMENT_ITEM_SORT);
         ft.commit();
 
-        view.findViewById(R.id.dialogCloseButton).setOnClickListener(new View.OnClickListener(){
+        view.findViewById(R.id.dialogDoneButton).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 FilterPreference.saveToSharedPreference(getActivity(), searchPrefFragment.getSearchPreference());

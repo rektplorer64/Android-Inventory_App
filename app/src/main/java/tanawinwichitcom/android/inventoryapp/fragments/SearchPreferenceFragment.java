@@ -1,5 +1,6 @@
 package tanawinwichitcom.android.inventoryapp.fragments;
 
+
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -36,6 +37,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import es.dmoral.toasty.Toasty;
 import tanawinwichitcom.android.inventoryapp.R;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.DataRepository;
 import tanawinwichitcom.android.inventoryapp.roomdatabase.ItemViewModel;
@@ -92,29 +94,11 @@ public class SearchPreferenceFragment extends Fragment{
     public SearchPreferenceFragment(){
     }
 
-    //TODO: Implements more features
-    //
-    // //Simple
-    // toggle search by id
-    // *toggle search by tags
-    // toggle search by description
-    //
-    // date added
-    // date modified
-    // contains picture?
-    // no of reviews
-    // ratings
-    //
-    // Sort
-    // sort by name, date added, date modified, no of tags,
-
-
     public static SearchPreferenceFragment newInstance(){
         // Bundle args = new Bundle();
-        SearchPreferenceFragment fragment = new SearchPreferenceFragment();
         // args.putParcelable(SEARCH_PREF, searchPref);
         // fragment.setArguments(args);
-        return fragment;
+        return new SearchPreferenceFragment();
     }
 
     @Nullable
@@ -155,15 +139,19 @@ public class SearchPreferenceFragment extends Fragment{
             @Override
             public void onClick(View view){
                 FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-                final TagSelectorDialogFragment tagSelectorDialogFragment = TagSelectorDialogFragment.newInstance();
+                TagSelectorDialogFragment tagSelectorDialogFragment = (TagSelectorDialogFragment) getChildFragmentManager().findFragmentByTag("TAG_SELECTOR");
+                if(tagSelectorDialogFragment == null){
+                    tagSelectorDialogFragment = TagSelectorDialogFragment.newInstance();
+                }
                 tagSelectorDialogFragment.show(fragmentTransaction, "TAG_SELECTOR");
 
+                final TagSelectorDialogFragment finalTagSelectorDialogFragment = tagSelectorDialogFragment;
                 tagSelectorDialogFragment.setDismissListener(new TagSelectorDialogFragment.DismissListener(){
                     @Override
                     public void onDismiss(){
                         // Assert not null because onPositive will be called after the views are inflated
-                        List<String> selectedTags = tagSelectorDialogFragment.getSelectedTag();
-                        tagSelectorDialogFragment.resetTempTagSet();
+                        List<String> selectedTags = finalTagSelectorDialogFragment.getSelectedTags();
+                        finalTagSelectorDialogFragment.reInstantiateTagSet();
                         searchPref.setTagList(selectedTags);
                         tag_subtitle.setText((searchPref.getTagList().size() != 0) ?
                                 "Currently selected " + searchPref.getTagList().size() + " tags" : "No tag selected");
@@ -205,7 +193,7 @@ public class SearchPreferenceFragment extends Fragment{
                                 if(searchPreferenceUpdateListener != null){
                                     searchPreferenceUpdateListener.onSearchByDialogChange(searchBy);
                                 }
-                                return false;
+                                return true;
                             }
                         })
                         .show();
@@ -226,18 +214,11 @@ public class SearchPreferenceFragment extends Fragment{
                                 if(searchPreferenceUpdateListener != null){
                                     searchPreferenceUpdateListener.onImageModePrefChange(which);
                                 }
-                                return false;
+                                return true;
                             }
                         }).show();
             }
         });
-
-        // final MaterialDialog.Builder datePickerDialog = new MaterialDialog.Builder(getContext());
-        // datePickerDialog.customView(R.layout.dialog_datepicker, true)
-        //         .positiveText(android.R.string.ok)
-        //         .negativeText(android.R.string.cancel);
-        //
-
 
         quantitySwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @Override
@@ -296,13 +277,13 @@ public class SearchPreferenceFragment extends Fragment{
 
         Integer count = 0;
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility.getCurrentLocale(getContext()));
-        for(TextView dateDisplay : dateDisplayTextView){
+        for(TextView dateDisplay: dateDisplayTextView){
             Date date = searchPref.getDatePreference(dateTypes[count++]).getDate();
             dateDisplay.setText(dateFormat.format(date));
         }
 
         count = 0;
-        for(final CardView cardView : datePickerCards){
+        for(final CardView cardView: datePickerCards){
             final Integer finalCount = count;
 
             Calendar calendar = Calendar.getInstance();
@@ -325,7 +306,7 @@ public class SearchPreferenceFragment extends Fragment{
         count = 0;
         final int colorFrom = Color.WHITE;
         @SuppressLint("ResourceType") final int colorTo = Color.parseColor(getString(R.color.md_yellow_400));
-        for(CheckBox checkBox : switchArrayList){
+        for(CheckBox checkBox: switchArrayList){
             final Integer finalCount = count;
             boolean datePrefCheckBox = searchPref.getDatePreference(dateTypes[finalCount]).isPreferenceEnabled();
             // Set appearances of card depending on checkBox's state
@@ -350,13 +331,15 @@ public class SearchPreferenceFragment extends Fragment{
     }
 
     private void populateExistingData(){
-        imageFiltering_subtitle.setText(subtitleImageModeStr[searchPref.getImageMode()]);
-        quantitySwitch.setChecked(searchPref.getQuantityPreference().isPreferenceEnabled());
         searchBy_subtitle.setText((searchPref.getSearchBy() == SearchBy.ItemName) ?
                 searchByStrings[0] : (searchPref.getSearchBy() == SearchBy.ItemId) ? searchByStrings[1] : searchByStrings[2]);
 
+        imageFiltering_subtitle.setText(subtitleImageModeStr[searchPref.getImageMode()]);
+        quantitySwitch.setChecked(searchPref.getQuantityPreference().isPreferenceEnabled());
+
         tag_subtitle.setText((searchPref.getTagList().size() != 0) ?
-                "Currently selected " + searchPref.getTagList().size() + " tags" : "No tag selected");
+                "Currently selected " + searchPref.getTagList().size() + " tag"
+                        + ((searchPref.getTagList().size() > 1) ? "s" : "") : "No tag selected");
     }
 
     private void animateDateDisplayText(boolean isChecked
@@ -420,7 +403,7 @@ public class SearchPreferenceFragment extends Fragment{
         populateExistingData();
         setupViewArray();
         if(searchPreferenceUpdateListener != null){
-            searchPreferenceUpdateListener.onFragmentResume(searchPref);
+            searchPreferenceUpdateListener.onFragmentResumed(searchPref);
         }
     }
 
@@ -525,18 +508,12 @@ public class SearchPreferenceFragment extends Fragment{
     @Override
     public void onPause(){
         super.onPause();
-        // System.out.println("onPause......: " + searchPref);
+        Toasty.success(getContext(), "Saved filter preferences").show();
         saveToSharedPreference(getContext(), searchPref);
     }
 
     public FilterPreference getSearchPreference(){
         return searchPref;
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState){
-        super.onSaveInstanceState(outState);
-        // outState.putParcelable("preferences", searchPref);
     }
 
     public interface SearchPreferenceUpdateListener{
@@ -552,7 +529,7 @@ public class SearchPreferenceFragment extends Fragment{
 
         void onQuantityRangeChange(int min, int max);
 
-        void onFragmentResume(FilterPreference filterPreference);
+        void onFragmentResumed(FilterPreference filterPreference);
 
         void onTagSelectionConfirm(List<String> tagSelections);
     }
