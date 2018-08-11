@@ -103,4 +103,7 @@
 	<string name="pref_title_view_mode">List view mode</string>
 	<string name="pref_title_in_grid">in grid mode</string>
 	<string name="pref_title_column_grid">grid column</string>
+	<string name="placeholderText">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis faucibus tempor tempor. Morbi in ultricies tortor, commodo suscipit velit. Quisque vehicula quam pharetra fermentum eleifend. Integer mollis lobortis dignissim. Vestibulum rhoncus dui interdum erat consequat, quis malesuada odio tempor. Fusce at leo pharetra, consectetur ipsum quis, laoreet nisi. Maecenas ac nisl at libero dignissim luctus nec at lorem. Nunc euismod diam mauris, in mollis odio euismod sit amet. Ut lobortis sit amet risus ac posuere. Donec urna nisi, ullamcorper eget scelerisque vel, tempor sed massa. Sed non tincidunt magna. Donec quis neque ut nisl convallis posuere. Sed facilisis nisi lacus, sed elementum felis interdum nec. Fusce molestie euismod placerat.</string>
+	<string name="list_item_image">Item Image</string>
+	<string name="list_item_total_user">Total Rated User</string>
 </resources>

@@ -47,7 +47,7 @@
 				android:paddingRight="16dp"
 				android:paddingTop="16dp">
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/itemTextView"
 					android:layout_width="match_parent"
 					android:layout_marginEnd="60dp"
@@ -58,17 +58,19 @@
 					android:textSize="16sp"
 					tools:text="Item Name"/>
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/quantityTextView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_alignParentEnd="true"
-					android:textColor="#B1B1B1"
+					android:textColor="@android:color/black"
 					android:textAllCaps="true"
+					android:gravity="end"
 					android:letterSpacing="0.2"
-					android:textSize="10dp"
+					android:textSize="10sp"
 					android:textStyle="bold"
-					tools:text="quantity 5"/>
+					tools:text="quantity 5"
+					tools:ignore="SmallSp"/>
 
 				<LinearLayout
 					android:id="@+id/ratingViewGroup"
@@ -86,7 +88,7 @@
 						android:rating="4.5"
 						android:stepSize="0.5"/>
 
-					<TextView
+					<androidx.appcompat.widget.AppCompatTextView
 						android:id="@+id/ratingTextView"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
@@ -102,7 +104,7 @@
 						android:src="@drawable/ic_person_black_24dp"/>
 				</LinearLayout>
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/descriptionTextView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"

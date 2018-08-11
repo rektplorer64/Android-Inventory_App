@@ -5,7 +5,7 @@
 	android:id="@+id/navigationSlidingPane"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:showIn="@layout/activity_main">
+	tools:showIn="@layout/activity_collection">
 
 
 	<LinearLayout
@@ -22,7 +22,7 @@
 
 			<fragment
 				android:id="@+id/itemListFragment"
-				android:name="tanawinwichitcom.android.inventoryapp.fragments.ItemListFragment"
+				android:name="io.rektplorer.inventoryapp.fragments.ItemListFragment"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"/>
 		</androidx.cardview.widget.CardView>

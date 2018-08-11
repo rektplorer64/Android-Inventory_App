@@ -5,7 +5,7 @@
 	android:layout_height="wrap_content">
 
 	<fragment
-		android:name="tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment"
+		android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment"
 		android:id="@+id/sortSettingFrame"
 		android:layout_width="match_parent"
 		android:layout_height="250dp">

@@ -2,8 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 	<group android:checkableBehavior="single">
 		<item
-			android:id="@+id/nav_camera"
+			android:id="@+id/nav_collection"
 			android:icon="@drawable/ic_filter_list_black_24dp"
 			android:title="Collection" />
+
+		<item
+			android:id="@+id/nav_search"
+			android:icon="@drawable/ic_search_black_24dp"
+			android:title="Search"/>
+
 	</group>
 </menu>

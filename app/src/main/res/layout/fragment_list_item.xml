@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.kennyc.view.MultiStateView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/rvMultiViewState"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	app:msv_emptyView="@layout/item_list_empty"
+	app:msv_errorView="@layout/item_list_error"
+	app:msv_loadingView="@layout/item_list_loading"
+	app:msv_viewState="loading"
+	tools:ignore="MissingConstraints"
+	app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/itemsList"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:nestedScrollingEnabled="true"
+			android:scrollbars="vertical"/>
+	</LinearLayout>
+</com.kennyc.view.MultiStateView>

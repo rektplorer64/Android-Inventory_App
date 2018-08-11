@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="tanawinwichitcom.android.inventoryapp">
+          package="io.rektplorer.inventoryapp">
 
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
@@ -13,7 +13,7 @@
 		android:supportsRtl="true"
 		android:theme="@style/AppTheme">
 		<activity
-			android:name=".MainActivity"
+			android:name="io.rektplorer.inventoryapp.CollectionActivity"
 			android:label="@string/app_name"
 			android:theme="@style/AppTheme.NoActionBar">
 			<intent-filter>
@@ -23,11 +23,11 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name=".ItemProfileContainerActivity"
+			android:name="io.rektplorer.inventoryapp.ItemProfileContainerActivity"
 			android:theme="@style/AppTheme.NoActionBar">
 		</activity>
 		<activity
-			android:name=".SearchActivity"
+			android:name="io.rektplorer.inventoryapp.SearchActivity"
 			android:theme="@style/AppTheme.NoActionBar">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH"/>
@@ -40,22 +40,25 @@
 			</meta-data>
 		</activity>
 		<activity
-			android:name=".SettingsActivity"
+			android:name="io.rektplorer.inventoryapp.SettingsActivity"
 			android:label="@string/title_activity_settings"
-			android:parentActivityName=".MainActivity"
+			android:parentActivityName="io.rektplorer.inventoryapp.CollectionActivity"
 			android:launchMode="singleTop">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value="tanawinwichitcom.android.inventoryapp.MainActivity"/>
+				android:value="io.rektplorer.inventoryapp.CollectionActivity"/>
 		</activity>
 
 		<activity
-			android:name=".ItemEditingContainerActivity"
-			android:parentActivityName=".MainActivity"
+			android:name="io.rektplorer.inventoryapp.ItemEditingContainerActivity"
+			android:parentActivityName="io.rektplorer.inventoryapp.CollectionActivity"
 			android:launchMode="singleTop"
 			android:theme="@style/AppTheme.NoActionBar">
 		</activity>
 
+		<activity
+			android:name="io.rektplorer.inventoryapp.NavigationDrawerActivity"
+			android:launchMode="singleTop"/>
 	</application>
 
 </manifest>

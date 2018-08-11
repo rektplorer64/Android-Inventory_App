@@ -9,7 +9,7 @@
               android:paddingRight="16dp"
               android:paddingLeft="16dp">
 
-	<TextView
+	<androidx.appcompat.widget.AppCompatTextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="center_horizontal"

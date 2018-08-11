@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	>
+
+
+	<LinearLayout
+		android:id="@+id/linearLayoutEdit"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingStart="16dp"
+			android:paddingTop="16dp"
+			android:paddingEnd="16dp"
+			android:paddingBottom="8dp">
+
+			<ImageView
+				android:id="@+id/nameIconImageView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="top"
+				android:foreground="?attr/selectableItemBackgroundBorderless"
+				android:padding="16dp"
+				android:src="@drawable/ic_label_black_24dp"/>
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/nameEditWrapper"
+				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Name"
+				app:counterEnabled="true"
+				app:errorEnabled="true">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/nameEditText"
+					style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+					android:layout_width="match_parent"
+					android:layout_height="56dp"
+					android:gravity="start|top"
+					android:inputType="text"
+					android:paddingStart="12dp"
+					android:paddingEnd="12dp"
+					android:textAlignment="viewStart"
+					android:textColor="@android:color/black"
+					android:textSize="16sp"
+					tools:text="Headline 5"/>
+			</com.google.android.material.textfield.TextInputLayout>
+		</LinearLayout>
+
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="56dp"
+			android:orientation="horizontal"
+			android:padding="8dp"
+			android:paddingStart="16dp"
+			android:paddingEnd="16dp">
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/quantityEditWrapper"
+				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Quantity"
+				app:counterEnabled="true"
+				app:errorEnabled="true"
+				app:helperText="Enter number">
+
+				<EditText
+					android:id="@+id/quantityEditText"
+					android:layout_width="match_parent"
+					android:layout_height="56dp"
+					android:gravity="start|center_vertical"
+					android:inputType="number"
+					android:paddingStart="12dp"
+					android:paddingEnd="12dp"
+					android:textAlignment="viewStart"
+					android:textColor="@android:color/black"
+					android:textSize="16sp"
+					tools:text="12115152"/>
+			</com.google.android.material.textfield.TextInputLayout>
+		</LinearLayout>
+
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:orientation="horizontal"
+			android:padding="8dp"
+			android:paddingStart="16dp"
+			android:paddingEnd="16dp">
+
+			<ImageView
+				android:id="@+id/descriptionIconImageView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="top"
+				android:foreground="?attr/selectableItemBackgroundBorderless"
+				android:padding="16dp"
+				android:src="@drawable/ic_mode_edit_black_24dp"/>
+
+			<com.google.android.material.textfield.TextInputLayout
+				android:id="@+id/descriptionEditWrapper"
+				style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="Description"
+				app:counterEnabled="true"
+				app:errorEnabled="true"
+				app:helperText="Tell something about it">
+
+				<EditText
+					android:id="@+id/descriptionEditText"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:gravity="top|start"
+					android:inputType="textMultiLine|textAutoCorrect"
+					android:maxLines="20"
+					android:minLines="10"
+					android:paddingStart="12dp"
+					android:paddingEnd="12dp"
+					android:textAlignment="viewStart"
+					android:textColor="@android:color/black"
+					android:textSize="16sp"
+					tools:text="@tools:sample/lorem/random"/>
+			</com.google.android.material.textfield.TextInputLayout>
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/colorEditButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:foreground="?attr/selectableItemBackgroundBorderless"
+			android:orientation="horizontal"
+			android:paddingStart="16dp"
+			android:paddingEnd="16dp">
+
+			<ImageButton
+				android:id="@+id/colorCircle"
+				android:layout_width="24dp"
+				android:layout_height="24dp"
+				android:layout_margin="16dp"
+				android:background="@drawable/square_button"
+				android:foreground="?attr/selectableItemBackgroundBorderless"/>
+
+			<androidx.appcompat.widget.AppCompatTextView
+				android:layout_width="match_parent"
+				android:layout_height="56dp"
+				android:backgroundTint="@android:color/white"
+				android:gravity="start|center_vertical"
+				android:paddingStart="12dp"
+				android:paddingEnd="12dp"
+				android:text="EDIT COLOR ACCENT"
+				android:textAlignment="viewStart"
+				android:textAllCaps="true"
+				android:textColor="@color/colorPrimaryBlue"
+				android:textStyle="bold"/>
+		</LinearLayout>
+
+		<com.google.android.material.card.MaterialCardView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:backgroundTint="@color/colorPrimaryBlue"
+			app:cardCornerRadius="0dp"
+			app:cardElevation="5dp">
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<androidx.appcompat.widget.AppCompatTextView
+					android:id="@+id/itemImageTextView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_alignBottom="@+id/addMultiImageButton"
+					android:paddingStart="84dp"
+					android:paddingTop="16dp"
+					android:paddingEnd="84dp"
+					android:paddingBottom="19dp"
+					android:text="Item Images"
+					android:textAlignment="viewStart"
+					android:textColor="@android:color/white"
+					android:textSize="16sp"/>
+
+				<ImageButton
+					android:id="@+id/addMultiImageButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
+					android:layout_alignParentEnd="true"
+					android:layout_marginEnd="16dp"
+					android:background="?selectableItemBackgroundBorderless"
+					android:clickable="false"
+					android:focusable="false"
+					android:padding="16dp"
+					android:src="@drawable/ic_add_white_24dp"
+					android:tooltipText="Add Image"/>
+
+				<androidx.recyclerview.widget.RecyclerView
+					android:id="@+id/imageRecyclerView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/itemImageTextView"
+					android:layout_alignParentBottom="true">
+				</androidx.recyclerview.widget.RecyclerView>
+			</RelativeLayout>
+		</com.google.android.material.card.MaterialCardView>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:layout_marginEnd="16dp"
+			android:layout_marginBottom="16dp"
+			android:foreground="?attr/selectableItemBackgroundBorderless"
+			android:orientation="horizontal"
+			android:paddingStart="16dp"
+			android:paddingEnd="16dp">
+
+			<ImageView
+				android:id="@+id/tagIconImageView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="top"
+				android:foreground="?attr/selectableItemBackgroundBorderless"
+				android:padding="16dp"
+				android:src="@drawable/ic_local_offer_black_24dp"/>
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<com.google.android.material.chip.ChipGroup
+					android:id="@+id/tagChipGroup"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_gravity="top"
+					android:layout_marginBottom="8dp"/>
+
+				<com.google.android.material.textfield.TextInputLayout
+					android:id="@+id/tagEditTextWrapper"
+					style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/tagChipGroup"
+					android:hint="Tag"
+					app:counterEnabled="true"
+					app:errorEnabled="true"
+					app:helperText="Tag your items">
+
+					<AutoCompleteTextView
+						android:id="@+id/tagEditText"
+						android:layout_width="match_parent"
+						android:layout_height="56dp"
+						android:layout_below="@id/tagChipGroup"
+						android:gravity="start|center_vertical"
+						android:inputType="text"
+						android:minLines="1"
+						android:paddingStart="12dp"
+						android:paddingEnd="12dp"
+						android:textAlignment="viewStart"
+						android:textColor="@android:color/black"
+						android:textSize="16sp"/>
+				</com.google.android.material.textfield.TextInputLayout>
+			</RelativeLayout>
+		</LinearLayout>
+	</LinearLayout>
+</layout>
+

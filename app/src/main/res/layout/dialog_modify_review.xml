@@ -22,7 +22,7 @@
 			android:layout_width="match_parent"
 			android:orientation="vertical">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/rateItemText"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
 					android:numStars="5"
 					android:stepSize="0.5"/>
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/scoreTextView"
 					android:layout_marginLeft="10dp"
 					android:layout_width="wrap_content"
@@ -58,7 +58,7 @@
 
 		</LinearLayout>
 
-		<TextView
+		<androidx.appcompat.widget.AppCompatTextView
 			android:layout_marginTop="22dp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

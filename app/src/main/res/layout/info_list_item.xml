@@ -6,7 +6,7 @@
                 android:paddingStart="24dp"
                 android:padding="16dp">
 
-	<TextView
+	<androidx.appcompat.widget.AppCompatTextView
 		android:text="Info Entry"
 		android:textSize="12.25dp"
 		android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
 			style="@style/Base.Widget.AppCompat.RatingBar.Small"
 			android:layout_gravity="center_vertical"/>
 
-		<TextView
+		<androidx.appcompat.widget.AppCompatTextView
 			android:id="@+id/infoValueText"
 			android:layout_toEndOf="@id/infoRatingBar"
 			android:layout_below="@id/infoTopicText"

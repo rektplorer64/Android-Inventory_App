@@ -25,8 +25,11 @@
 				android:layout_height="wrap_content"
 				app:goIcon="@drawable/ic_search_black_24dp"
 				app:search_hint="Search items"
+				app:search_theme="play"
 				app:search_logo="arrow"
-				app:search_version="toolbar"/>
+				app:search_version="toolbar"
+				app:layout_behavior="com.lapism.searchview.widget.SearchBehavior"/>
+
 		</com.google.android.material.appbar.AppBarLayout>
 
 		<FrameLayout
@@ -34,7 +37,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="84dp"
 			android:layout_below="@id/appBarLayout"
-			android:background="@color/colorPrimary"
+			android:background="@color/colorPrimaryBlue"
 			android:elevation="4dp"/>
 
 		<androidx.cardview.widget.CardView
@@ -53,16 +56,20 @@
 				android:layout_height="match_parent"
 				android:orientation="vertical">
 
-				<TextView
-					android:id="@+id/totalSearchTextView"
+				<com.google.android.material.appbar.AppBarLayout
 					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:background="?android:selectableItemBackgroundBorderless"
-					android:padding="16dp"
-					android:text="Total Search Result: 0"
-					android:textAllCaps="true"
-					android:textColor="@android:color/black"
-					android:textStyle="bold"/>
+					android:layout_height="wrap_content">
+
+					<androidx.appcompat.widget.Toolbar
+						app:titleTextAppearance="@style/Toolbar.TitleText"
+						android:id="@+id/searchActivityToolbar"
+						android:layout_width="match_parent"
+						android:layout_height="50dp"
+						android:background="@color/search_action_bar"
+						app:titleTextColor="@android:color/white"
+						app:subtitleTextColor="@android:color/white">
+					</androidx.appcompat.widget.Toolbar>
+				</com.google.android.material.appbar.AppBarLayout>
 
 				<FrameLayout
 					android:id="@+id/itemListFragmentFrame"
@@ -75,7 +82,7 @@
 	</RelativeLayout>
 
 	<com.google.android.material.floatingactionbutton.FloatingActionButton
-		android:id="@+id/searchDialogButton"
+		android:id="@+id/searchDialogFab"
 		android:layout_width="56dp"
 		android:layout_height="56dp"
 		android:layout_gravity="end|bottom"
@@ -84,6 +91,6 @@
 		android:background="?android:selectableItemBackgroundBorderless"
 		android:backgroundTint="@color/md_red_400"
 		android:scaleType="center"
-		android:src="@drawable/ic_settings_white_24dp"/>
+		android:src="@drawable/ic_tune_white_24dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

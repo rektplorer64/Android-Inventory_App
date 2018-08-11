@@ -9,7 +9,7 @@
 	app:msv_errorView="@layout/item_list_error"
 	app:msv_emptyView="@layout/item_list_empty"
 	app:msv_loadingView="@layout/item_list_loading"
-	app:msv_viewState="empty">
+	app:msv_viewState="loading">
 
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
 		android:layout_width="match_parent"
@@ -42,7 +42,7 @@
 				<androidx.appcompat.widget.Toolbar
 					android:id="@+id/fragmentToolbar"
 					android:layout_width="match_parent"
-					android:layout_height="?attr/actionBarSize"
+					android:layout_height="?android:attr/actionBarSize"
 					android:elevation="5dp"
 					app:layout_collapseMode="pin"
 					app:popupTheme="@style/AppTheme.PopupOverlay"/>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/searchActivityLayoutParent"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true"
+	android:orientation="vertical"
+	tools:context=".SearchActivity"
+	tools:ignore="MissingDefaultResource">
+
+	<com.google.android.material.appbar.AppBarLayout
+		android:id="@+id/appBarLayout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<androidx.appcompat.widget.Toolbar
+			android:id="@+id/searchActivityToolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_vertical"
+			app:subtitleTextColor="@android:color/white"
+			app:titleTextAppearance="@style/Toolbar.TitleText"
+			app:titleTextColor="@android:color/white">
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+				<com.lapism.searchview.widget.SearchView
+					android:id="@+id/searchView"
+					android:layout_width="360dp"
+					android:layout_height="wrap_content"
+					android:layout_alignParentStart="true"
+					app:search_hint="Search items"
+					app:search_logo="arrow"
+					app:search_version="toolbar"/>
+			</RelativeLayout>
+
+		</androidx.appcompat.widget.Toolbar>
+
+	</com.google.android.material.appbar.AppBarLayout>
+
+	<FrameLayout
+		android:id="@+id/v_toolbar_extension"
+		android:layout_width="match_parent"
+		android:layout_height="84dp"
+		android:layout_below="@id/appBarLayout"
+		android:background="?attr/colorPrimary"
+		android:elevation="4dp"/>
+
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@id/appBarLayout"
+		android:elevation="5dp">
+
+		<androidx.cardview.widget.CardView
+			android:id="@+id/containerCardView"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_marginLeft="120dp"
+			android:layout_marginRight="120dp">
+
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:weightSum="10">
+
+				<androidx.cardview.widget.CardView
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_marginStart="8dp"
+					android:layout_marginTop="8dp"
+					android:layout_marginBottom="8dp"
+					android:layout_weight="4"
+					app:cardCornerRadius="7dp"
+					app:cardElevation="3dp">
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:orientation="vertical">
+
+						<include
+							layout="@layout/pane_search_option"/>
+
+						<RelativeLayout
+							android:layout_width="match_parent"
+							android:layout_height="52dp">
+
+							<Button
+								android:id="@+id/dialogSaveButton"
+								android:layout_width="wrap_content"
+								android:layout_height="wrap_content"
+								android:layout_alignParentEnd="true"
+								android:layout_margin="8dp"
+								android:background="@android:color/transparent"
+								android:foreground="?android:selectableItemBackgroundBorderless"
+								android:text="Save"
+								android:textColor="@color/colorPrimaryBlue_dark"
+								android:textStyle="bold"/>
+						</RelativeLayout>
+					</LinearLayout>
+
+
+				</androidx.cardview.widget.CardView>
+
+				<androidx.cardview.widget.CardView
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_margin="8dp"
+					android:layout_weight="6"
+					app:cardCornerRadius="7dp">
+
+					<LinearLayout
+						android:layout_width="match_parent"
+						android:layout_height="match_parent"
+						android:orientation="vertical">
+
+						<FrameLayout
+							android:id="@+id/itemListFragmentFrame"
+							android:layout_width="match_parent"
+							android:layout_height="match_parent">
+						</FrameLayout>
+
+					</LinearLayout>
+				</androidx.cardview.widget.CardView>
+			</LinearLayout>
+		</androidx.cardview.widget.CardView>
+	</FrameLayout>
+</RelativeLayout>

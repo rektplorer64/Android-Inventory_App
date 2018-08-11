@@ -27,7 +27,7 @@
 				android:padding="8dp"
 				android:layout_centerVertical="true"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/starNumberTextView"
 				android:layout_toEndOf="@id/starIconImageView"
 				android:layout_centerVertical="true"
@@ -39,7 +39,7 @@
 				android:textAllCaps="true"
 				android:layout_gravity="center_vertical"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/detailedScoreTextView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

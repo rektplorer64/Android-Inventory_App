@@ -6,7 +6,7 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<TextView
+	<androidx.appcompat.widget.AppCompatTextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="14dp"
@@ -14,7 +14,7 @@
 		android:paddingTop="14dp"
 		android:paddingEnd="14dp"
 		android:text="Filters"
-		android:textColor="@color/colorPrimary"
+		android:textColor="@color/colorPrimaryBlue"
 		android:textSize="12.25sp"
 		android:textStyle="bold"/>
 
@@ -42,7 +42,7 @@
 			android:paddingTop="14dp"
 			android:paddingBottom="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/searchBy_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/searchBy_subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
 			android:paddingTop="14dp"
 			android:paddingBottom="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/imageFiltering_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -113,7 +113,7 @@
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/imageFiltering_subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -153,7 +153,7 @@
 			android:paddingTop="14dp"
 			android:paddingBottom="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/quantity_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -175,18 +175,19 @@
 				android:layout_below="@id/quantitySwitch"
 				android:layout_marginLeft="16dp"
 				android:layout_marginRight="16dp"
-				app:mrb_connectingLineColor="@color/md_amber_400"
-				app:mrb_pinColor="#ffab40"
+				app:mrb_connectingLineColor="@color/colorPrimaryGreen"
+				app:mrb_pinColor="#33691e"
 				app:mrb_pinMaxFont="16sp"
 				app:mrb_pinRadius="18dp"
 				app:mrb_pinTextColor="@android:color/white"
-				app:mrb_rangeBarColor="@color/colorPrimaryLightWarm"
+				app:mrb_rangeBarColor="@color/colorPrimaryGreen_light"
 				app:mrb_rangeBarPaddingBottom="16dp"
 				app:mrb_rangeBar_rounded="true"
-				app:mrb_selectorBoundaryColor="@color/colorPrimaryWarm"
+				app:mrb_barWeight="10dp"
+				app:mrb_selectorBoundaryColor="@color/colorPrimaryGreen"
 				app:mrb_selectorBoundarySize="4dp"
-				app:mrb_selectorColor="@color/colorPrimaryWarm"
-				app:mrb_selectorSize="4dp"
+				app:mrb_selectorColor="@color/colorPrimaryGreen"
+				app:mrb_selectorSize="8dp"
 				app:mrb_tickColor="@android:color/white"/>
 
 		</RelativeLayout>
@@ -209,8 +210,8 @@
 		<ImageView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginEnd="14dp"
 			android:layout_gravity="center_vertical"
+			android:layout_marginEnd="14dp"
 			android:src="@drawable/ic_local_offer_black_24dp"/>
 
 		<RelativeLayout
@@ -220,7 +221,7 @@
 			android:paddingTop="14dp"
 			android:paddingBottom="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/tag_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -228,7 +229,7 @@
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/tag_subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="tanawinwichitcom.android.inventoryapp.ItemProfileActivity">
+      tools:context="io.rektplorer.inventoryapp.ItemProfileActivity">
 
 	<item
 		android:id="@+id/action_more_info"

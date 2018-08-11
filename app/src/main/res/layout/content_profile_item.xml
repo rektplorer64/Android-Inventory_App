@@ -24,53 +24,57 @@
 			android:layout_margin="8dp"
 			android:elevation="2dp"
 			app:cardCornerRadius="4dp"
-			app:cardElevation="5dp"
-			app:contentPadding="16dp">
+			app:cardElevation="3dp">
 
 			<RelativeLayout
 				android:layout_width="match_parent"
-				android:layout_height="match_parent">
+				android:layout_height="match_parent"
+				android:paddingStart="16dp"
+				android:paddingBottom="20dp">
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/itemTextView"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_marginEnd="62dp"
+					android:layout_marginEnd="150dp"
 					android:ellipsize="end"
-					android:fontFamily="@font/univers_next_pro_bold_condensed"
-					android:maxLines="2"
+					android:textAlignment="viewStart"
+					android:maxLines="3"
 					android:textAppearance="@style/TextAppearance.AppCompat"
 					android:textColor="@android:color/black"
 					android:textSize="26sp"
-					android:typeface="monospace"
+					app:firstBaselineToTopHeight="44dp"
 					tools:text="Item Name"/>
 
 				<LinearLayout
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
 					android:layout_alignParentEnd="true"
-					android:orientation="vertical">
+					android:orientation="vertical"
+					android:textAlignment="viewStart"
+					android:padding="24dp">
 
-					<TextView
+					<androidx.appcompat.widget.AppCompatTextView
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:textColor="#B1B1B1"
-						android:textAllCaps="true"
-						android:textSize="10sp"
-						android:textStyle="bold"
 						android:layout_gravity="end"
-						android:text="quantity"/>
+						android:text="quantity"
+						android:textAllCaps="true"
+						android:textColor="@android:color/black"
+						android:textSize="10sp"
+						android:textStyle="bold"/>
 
-					<TextView
+					<androidx.appcompat.widget.AppCompatTextView
 						android:id="@+id/quantityTextView"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:textColor="#B1B1B1"
-						android:textAllCaps="true"
-						android:letterSpacing="0.2"
-						android:textSize="14sp"
-						android:layout_marginTop="-5dp"
 						android:layout_gravity="end"
+						android:layout_marginTop="-5dp"
+						android:letterSpacing="0.2"
+						android:textAllCaps="true"
+						android:textColor="@android:color/black"
+						android:textSize="14sp"
 						android:textStyle="bold"
 						tools:text="567 K"/>
 				</LinearLayout>
@@ -84,57 +88,70 @@
 					android:orientation="horizontal">
 				</LinearLayout>
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/descriptionHeadTextView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/ratingViewGroup"
 					android:layout_gravity="start"
-					android:layout_marginTop="18dp"
 					android:text="Descriptions"
+					android:textAlignment="viewStart"
 					android:textColor="@android:color/black"
-					android:textSize="14sp"/>
+					android:textSize="14sp"
+					app:firstBaselineToTopHeight="32dp"/>
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/descriptionTextView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/descriptionHeadTextView"
 					android:layout_gravity="start"
-					android:layout_marginTop="12dp"
+					android:textAlignment="viewStart"
+					android:layout_marginEnd="24dp"
 					android:ellipsize="end"
 					android:textSize="14sp"
-					tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis faucibus tempor tempor. Morbi in ultricies tortor, commodo suscipit velit. Quisque vehicula quam pharetra fermentum eleifend. Integer mollis lobortis dignissim. Vestibulum rhoncus dui interdum erat consequat, quis malesuada odio tempor. Fusce at leo pharetra, consectetur ipsum quis, laoreet nisi. Maecenas ac nisl at libero dignissim luctus nec at lorem. Nunc euismod diam mauris, in mollis odio euismod sit amet. Ut lobortis sit amet risus ac posuere. Donec urna nisi, ullamcorper eget scelerisque vel, tempor sed massa. Sed non tincidunt magna. Donec quis neque ut nisl convallis posuere. Sed facilisis nisi lacus, sed elementum felis interdum nec. Fusce molestie euismod placerat."/>
-
+					app:firstBaselineToTopHeight="26dp"
+					tools:text="@string/placeholderText"/>
 				<View
 					android:id="@+id/divider"
 					android:layout_width="match_parent"
 					android:layout_height="1dp"
 					android:layout_below="@id/descriptionTextView"
 					android:layout_marginTop="24dp"
+					android:layout_marginEnd="24dp"
 					android:background="@color/lighter_gray"/>
 
-				<TextView
+				<androidx.appcompat.widget.AppCompatTextView
 					android:id="@+id/tagsTextView"
-					android:layout_width="wrap_content"
+					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/divider"
 					android:layout_gravity="start"
-					android:layout_marginTop="18dp"
+					android:layout_marginEnd="24dp"
 					android:text="Tags"
+					android:textAlignment="viewStart"
 					android:textColor="@android:color/black"
-					android:textSize="14sp"/>
+					android:textSize="16sp"
+					app:firstBaselineToTopHeight="36dp"/>
 
 				<com.google.android.material.chip.ChipGroup
 					android:id="@+id/tagChipGroup"
 					android:layout_width="match_parent"
+					android:layout_marginTop="14dp"
+					android:layout_marginBottom="4dp"
 					android:layout_height="wrap_content"
-					android:layout_below="@id/tagsTextView"
-					android:paddingTop="14dp"
-					android:paddingBottom="28dp">
+					android:layout_below="@id/tagsTextView">
 				</com.google.android.material.chip.ChipGroup>
 			</RelativeLayout>
 		</androidx.cardview.widget.CardView>
+
+		<include
+			layout="@layout/item_images_card"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="8dp"
+			android:layout_marginEnd="8dp"
+			android:layout_marginBottom="8dp"/>
 
 		<include
 			layout="@layout/rating_card"

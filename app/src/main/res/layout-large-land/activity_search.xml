@@ -2,130 +2,131 @@
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/searchActivityLayoutParent"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:fitsSystemWindows="true"
-	android:orientation="vertical"
-	tools:context=".SearchActivity">
+	android:layout_height="match_parent">
 
-	<com.google.android.material.appbar.AppBarLayout
-		android:id="@+id/appBarLayout"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content">
 
-		<com.lapism.searchview.widget.SearchView
-			android:id="@+id/searchView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="200dp"
-			android:layout_marginRight="200dp"
-			app:search_hint="Search items"
-			app:search_logo="arrow"
-			app:search_version="toolbar"/>
-
-	</com.google.android.material.appbar.AppBarLayout>
-
-	<FrameLayout
-		android:id="@+id/v_toolbar_extension"
-		android:layout_width="match_parent"
-		android:layout_height="84dp"
-		android:layout_below="@id/appBarLayout"
-		android:background="?attr/colorPrimary"
-		android:elevation="4dp"/>
-
-	<FrameLayout
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_below="@id/appBarLayout"
-		android:elevation="5dp">
+		android:baselineAligned="false"
+		android:elevation="6dp"
+		android:orientation="horizontal"
+		android:weightSum="10">
 
-		<androidx.cardview.widget.CardView
-			android:id="@+id/containerCardView"
-			android:layout_width="match_parent"
+		<RelativeLayout
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			android:layout_marginLeft="120dp"
-			android:layout_marginRight="120dp">
+			android:layout_weight="4">
+
+			<com.google.android.material.card.MaterialCardView
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				app:cardCornerRadius="0dp"
+				app:cardElevation="5dp">
+
+				<FrameLayout
+					android:id="@+id/v_toolbar_extension"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:background="?attr/colorPrimary"
+					android:elevation="4dp"/>
+			</com.google.android.material.card.MaterialCardView>
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:weightSum="10">
+				android:layout_marginLeft="8dp"
+				android:layout_marginRight="8dp"
+				android:elevation="5dp"
+				android:orientation="vertical">
+
+				<com.lapism.searchview.widget.SearchView
+					android:id="@+id/searchView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					app:search_hint="Search items"
+					app:search_logo="arrow"
+					android:layout_marginTop="8dp"
+					app:search_version="toolbar"
+					app:search_version_margins="menu_item"/>
 
 				<androidx.cardview.widget.CardView
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_marginBottom="8dp"
-					android:layout_marginStart="8dp"
-					android:layout_marginTop="8dp"
-					android:layout_weight="4"
-					app:cardCornerRadius="7dp"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="8dp"
+					android:layout_marginRight="8dp"
 					app:cardElevation="3dp">
 
-					<LinearLayout
+					<ScrollView
 						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:orientation="vertical">
+						android:layout_height="wrap_content">
 
-						<include
-							layout="@layout/pane_search_option"/>
+						<include layout="@layout/pane_search_option"/>
 
-						<RelativeLayout
-							android:layout_width="match_parent"
-							android:layout_height="52dp">
-
-							<Button
-								android:id="@+id/dialogSaveButton"
-								android:layout_width="wrap_content"
-								android:layout_height="wrap_content"
-								android:layout_alignParentEnd="true"
-								android:layout_margin="8dp"
-								android:background="@android:color/transparent"
-								android:foreground="?android:selectableItemBackgroundBorderless"
-								android:text="Save"
-								android:textColor="@color/colorPrimaryDark"
-								android:textStyle="bold"/>
-						</RelativeLayout>
-					</LinearLayout>
-
+					</ScrollView>
 
 				</androidx.cardview.widget.CardView>
 
-				<androidx.cardview.widget.CardView
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_margin="8dp"
-					android:layout_weight="6"
-					app:cardCornerRadius="7dp">
-
-					<LinearLayout
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:orientation="vertical">
-
-						<TextView
-							android:id="@+id/totalSearchTextView"
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:padding="16dp"
-							android:text="Total Search Result: 0"
-							android:textAllCaps="true"
-							android:background="?android:selectableItemBackgroundBorderless"
-							android:textColor="@android:color/black"
-							android:textStyle="bold"/>
-
-						<FrameLayout
-							android:id="@+id/itemListFragmentFrame"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent">
-						</FrameLayout>
-
-					</LinearLayout>
-				</androidx.cardview.widget.CardView>
 			</LinearLayout>
-		</androidx.cardview.widget.CardView>
-	</FrameLayout>
+		</RelativeLayout>
 
+		<RelativeLayout
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="6">
+
+			<FrameLayout
+				android:id="@+id/v_toolbar_extension2"
+				android:layout_width="match_parent"
+				android:layout_height="120dp"
+				android:background="#34439A"
+				android:elevation="4dp"/>
+
+			<com.google.android.material.appbar.AppBarLayout
+				android:id="@+id/appBarLayout"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:elevation="6dp">
+
+				<androidx.appcompat.widget.Toolbar
+					android:id="@+id/searchActivityToolbar"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:background="@color/search_action_bar"
+					app:subtitleTextColor="@android:color/white"
+					app:titleTextAppearance="@style/Toolbar.TitleText"
+					app:titleTextColor="@android:color/white">
+				</androidx.appcompat.widget.Toolbar>
+
+			</com.google.android.material.appbar.AppBarLayout>
+
+			<FrameLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_below="@id/appBarLayout"
+				android:elevation="5dp">
+
+				<com.google.android.material.card.MaterialCardView
+					android:id="@+id/containerCardView"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_marginStart="8dp"
+					android:layout_marginEnd="8dp"
+					app:cardElevation="5dp">
+
+					<FrameLayout
+						android:id="@+id/itemListFragmentFrame"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent">
+					</FrameLayout>
+				</com.google.android.material.card.MaterialCardView>
+			</FrameLayout>
+		</RelativeLayout>
+
+
+	</LinearLayout>
 
 </RelativeLayout>

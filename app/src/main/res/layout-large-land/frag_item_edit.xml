@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fitsSystemWindows="false"
+		android:orientation="horizontal"
+		android:weightSum="100">
+
+		<com.google.android.material.card.MaterialCardView
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="32"
+			app:cardCornerRadius="0dp"
+			app:cardElevation="10dp">
+
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+				<com.google.android.material.appbar.AppBarLayout
+					android:id="@+id/appBarLayout"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:theme="@style/AppTheme.AppBarOverlay"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent">
+
+					<androidx.appcompat.widget.Toolbar
+						android:id="@+id/toolbar"
+						android:layout_width="match_parent"
+						android:layout_height="?attr/actionBarSize"
+						android:elevation="5dp"
+						app:layout_collapseMode="pin"
+						app:popupTheme="@style/AppTheme.PopupOverlay"/>
+				</com.google.android.material.appbar.AppBarLayout>
+
+				<ImageView
+					android:id="@+id/itemImageView"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_below="@id/appBarLayout"
+					android:contentDescription="Hero Image"
+					android:foreground="?android:selectableItemBackgroundBorderless"
+					android:scaleType="centerCrop"
+					android:src="@drawable/ic_launcher_background"/>
+			</RelativeLayout>
+		</com.google.android.material.card.MaterialCardView>
+
+		<androidx.core.widget.NestedScrollView
+			android:id="@+id/editNestedScrollView"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="68"
+			android:background="@color/colorPrimaryBlue_dark">
+
+			<com.google.android.material.card.MaterialCardView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_margin="56dp"
+				app:cardCornerRadius="5dp"
+				app:cardElevation="5dp">
+
+				<include
+					android:id="@+id/editFields"
+					layout="@layout/frag_body_item_edit"/>
+			</com.google.android.material.card.MaterialCardView>
+		</androidx.core.widget.NestedScrollView>
+
+	</LinearLayout>
+
+</layout>

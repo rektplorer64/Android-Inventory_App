@@ -14,7 +14,7 @@
 			android:id="@+id/filterSettingFrame"
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent"
-			android:name="tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment">
+			android:name="io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment">
 		</fragment>
 
 		<View
@@ -26,7 +26,7 @@
 			android:id="@+id/sortSettingFrame"
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent"
-			android:name="tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment">
+			android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment">
 		</fragment>
 
 	</LinearLayout>

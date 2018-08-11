@@ -26,7 +26,7 @@
 			android:paddingBottom="14dp"
 			android:paddingTop="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/dateCreated_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
 							android:layout_width="match_parent"
 							android:layout_height="match_parent">
 
-							<TextView
+							<androidx.appcompat.widget.AppCompatTextView
 								android:id="@+id/dateCreated_fromTitle"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
@@ -68,12 +68,14 @@
 								android:textSize="12sp"
 								android:textAllCaps="true"/>
 
-							<TextView
+							<androidx.appcompat.widget.AppCompatTextView
 								android:id="@+id/dateCreated_from"
-								android:layout_width="wrap_content"
+								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:layout_below="@id/dateCreated_fromTitle"
 								android:text="7/10/2018"
+								android:layout_marginEnd="30dp"
+								android:autoSizeTextType="uniform"
 								android:textColor="@android:color/black"/>
 
 							<CheckBox
@@ -101,7 +103,7 @@
 							android:layout_width="match_parent"
 							android:layout_height="match_parent">
 
-							<TextView
+							<androidx.appcompat.widget.AppCompatTextView
 								android:id="@+id/dateCreated_toTitle"
 								android:layout_width="wrap_content"
 								android:layout_height="wrap_content"
@@ -109,12 +111,13 @@
 								android:textSize="12sp"
 								android:textAllCaps="true"/>
 
-							<TextView
+							<androidx.appcompat.widget.AppCompatTextView
 								android:id="@+id/dateCreated_to"
-								android:layout_width="wrap_content"
+								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:layout_below="@id/dateCreated_toTitle"
 								android:text="7/21/2018"
+								android:layout_marginEnd="30dp"
 								android:textColor="@android:color/black"/>
 
 							<CheckBox

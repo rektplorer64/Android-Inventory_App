@@ -5,7 +5,7 @@
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
 
-	<TextView
+	<androidx.appcompat.widget.AppCompatTextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="14dp"
@@ -13,7 +13,7 @@
 		android:paddingStart="14dp"
 		android:paddingTop="14dp"
 		android:text="Sorting"
-		android:textColor="@color/colorPrimary"
+		android:textColor="@color/colorPrimaryBlue"
 		android:textSize="12.25sp"
 		android:textStyle="bold"/>
 
@@ -41,7 +41,7 @@
 			android:paddingBottom="14dp"
 			android:paddingTop="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/sortBy_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/sortBy_subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
 			android:paddingBottom="14dp"
 			android:paddingTop="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/textLength_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
 			android:paddingBottom="14dp"
 			android:paddingTop="14dp">
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/sortingOrder_title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -137,7 +137,7 @@
 				android:textColor="@android:color/black"
 				android:textSize="14sp"/>
 
-			<TextView
+			<androidx.appcompat.widget.AppCompatTextView
 				android:id="@+id/sortingOrder_subtitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

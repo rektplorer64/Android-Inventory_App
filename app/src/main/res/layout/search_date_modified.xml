@@ -14,7 +14,7 @@
 		android:paddingBottom="14dp"
 		android:paddingTop="14dp">
 
-		<TextView
+		<androidx.appcompat.widget.AppCompatTextView
 			android:id="@+id/dateModified_title"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="match_parent">
 
-						<TextView
+						<androidx.appcompat.widget.AppCompatTextView
 							android:id="@+id/dateModified_fromTitle"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -56,9 +56,10 @@
 							android:textSize="12sp"
 							android:textAllCaps="true"/>
 
-						<TextView
+						<androidx.appcompat.widget.AppCompatTextView
 							android:id="@+id/dateModified_from"
-							android:layout_width="wrap_content"
+							android:layout_width="match_parent"
+							android:layout_marginEnd="30dp"
 							android:layout_height="wrap_content"
 							android:layout_below="@id/dateModified_fromTitle"
 							android:text="7/10/2018"
@@ -89,7 +90,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="match_parent">
 
-						<TextView
+						<androidx.appcompat.widget.AppCompatTextView
 							android:id="@+id/dateModified_toTitle"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -97,9 +98,10 @@
 							android:textAllCaps="true"
 							android:textSize="12sp"/>
 
-						<TextView
+						<androidx.appcompat.widget.AppCompatTextView
 							android:id="@+id/dateModified_to"
-							android:layout_width="wrap_content"
+							android:layout_width="match_parent"
+							android:layout_marginEnd="30dp"
 							android:layout_height="wrap_content"
 							android:layout_below="@id/dateModified_toTitle"
 							android:text="7/21/2018"
