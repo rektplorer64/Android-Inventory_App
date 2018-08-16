@@ -4,17 +4,16 @@ package io.rektplorer.inventoryapp.roomdatabase.Entities;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.Date;
+import java.util.Set;
+
+import androidx.annotation.ColorInt;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
-import androidx.annotation.ColorInt;
-
-import java.util.Date;
-import java.util.Set;
-
-import io.rektplorer.inventoryapp.roomdatabase.DateConverter;
-import io.rektplorer.inventoryapp.roomdatabase.TagsConverter;
+import io.rektplorer.inventoryapp.roomdatabase.typeconverters.DateConverter;
+import io.rektplorer.inventoryapp.roomdatabase.typeconverters.TagsConverter;
 
 @Entity(tableName = "items")
 public class Item{

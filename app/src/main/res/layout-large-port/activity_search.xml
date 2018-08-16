@@ -66,13 +66,14 @@
 						app:liftOnScroll="true">
 
 						<androidx.appcompat.widget.Toolbar
-							android:id="@+id/searchActivityToolbar"
-							android:layout_width="match_parent"
-							app:titleTextAppearance="@style/Toolbar.TitleText"
-							android:layout_height="50dp"
-							android:background="@color/search_action_bar"
-							app:subtitleTextColor="@android:color/white"
-							app:titleTextColor="@android:color/white">
+                            android:id="@+id/searchActivityToolbar"
+                            android:layout_width="match_parent"
+                            app:titleTextAppearance="@style/Toolbar.TitleText"
+                            app:subtitleTextAppearance="@style/Toolbar.SubtitleText"
+                            android:layout_height="50dp"
+                            android:background="@color/search_action_bar"
+                            app:subtitleTextColor="@android:color/white"
+                            app:titleTextColor="@android:color/white">
 						</androidx.appcompat.widget.Toolbar>
 					</com.google.android.material.appbar.AppBarLayout>
 

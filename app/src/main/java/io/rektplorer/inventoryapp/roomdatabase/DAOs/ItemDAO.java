@@ -32,9 +32,7 @@ public interface ItemDAO{
     @Query("SELECT MIN(quantity) FROM items")
     int getMinItemQuantity();
 
-    @Query("SELECT * FROM (SELECT * FROM items WHERE id > :itemId ORDER BY id limit 1)" +
-            " UNION ALL " +
-            "SELECT * FROM (SELECT * FROM items WHERE id < :itemId ORDER BY id desc limit 1)")
+    @Query("SELECT * FROM (SELECT * FROM items WHERE id > :itemId ORDER BY id limit 1) UNION ALL SELECT * FROM (SELECT * FROM items WHERE id < :itemId ORDER BY id desc limit 1)")
     int[] getBothNearestIds(int itemId);
 
     @Query("SELECT tags FROM items")

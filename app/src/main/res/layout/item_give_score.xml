@@ -2,36 +2,36 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:orientation="vertical"
-              android:paddingTop="16dp"
-              android:paddingRight="16dp"
-              android:paddingLeft="16dp"
+              android:layout_centerInParent="true"
               android:layout_centerVertical="true"
-              android:layout_centerInParent="true">
+              android:orientation="vertical"
+              android:paddingLeft="16dp"
+              android:paddingTop="16dp"
+              android:paddingRight="16dp">
 
-	<androidx.appcompat.widget.AppCompatTextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
-		android:text="Rate this item"/>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Rate this item"/>
 
-	<me.zhanghai.android.materialratingbar.MaterialRatingBar
-		android:id="@+id/giveScoreRatingBar"
-		style="@style/Widget.MaterialRatingBar.RatingBar"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="26dp"
-		android:layout_gravity="center_horizontal"
-		android:max="5"
-		android:numStars="5"
-		android:stepSize="0.5"/>
+    <me.zhanghai.android.materialratingbar.MaterialRatingBar
+        android:id="@+id/giveScoreRatingBar"
+        style="@style/Widget.MaterialRatingBar.RatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="26dp"
+        android:max="5"
+        android:numStars="5"
+        android:stepSize="0.5"/>
 
-	<Button
-		android:id="@+id/submitScoreButton"
-		android:layout_marginTop="40dp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="submit"
-		android:background="?android:attr/selectableItemBackground"
-		android:layout_gravity="bottom|right"/>
+    <Button
+        android:id="@+id/submitScoreButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginTop="40dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:text="submit"/>
 </LinearLayout>

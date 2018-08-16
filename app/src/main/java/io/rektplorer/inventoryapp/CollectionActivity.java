@@ -54,6 +54,7 @@ public class CollectionActivity extends NavigationDrawerActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
+        setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         // setContentView(R.layout.activity_collection);
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

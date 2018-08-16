@@ -1,4 +1,4 @@
-package io.rektplorer.inventoryapp.roomdatabase;
+package io.rektplorer.inventoryapp.roomdatabase.typeconverters;
 
 
 import java.util.Arrays;

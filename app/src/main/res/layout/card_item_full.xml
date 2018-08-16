@@ -1,152 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/itemCardView"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:layout_margin="4dp"
-	android:elevation="2dp"
-	android:foreground="?selectableItemBackgroundBorderless"
-	app:cardCornerRadius="4dp"
-	app:cardPreventCornerOverlap="false">
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemCardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:elevation="2dp"
+    android:foreground="?selectableItemBackgroundBorderless"
+    app:cardCornerRadius="@dimen/card_md_corner"
+    app:cardElevation="@dimen/card_md_elevation"
+    android:stateListAnimator="@animator/card_pressed"
+    app:cardPreventCornerOverlap="false">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:paddingBottom="14dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="14dp">
 
-		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/imageConstraintLayout"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/imageConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-			<ImageView
-				android:id="@+id/imageView"
-				android:layout_width="0dp"
-				android:layout_height="0dp"
-				app:layout_constraintDimensionRatio="H,16:9"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				app:srcCompat="@mipmap/ic_launcher"/>
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="H,16:9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@mipmap/ic_launcher"/>
 
-		</androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-		<LinearLayout
-			android:id="@+id/itemDetailsRelativeLayout"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical"
-			android:padding="16dp"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/imageConstraintLayout">
+        <LinearLayout
+            android:id="@+id/itemDetailsRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageConstraintLayout">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/quantityTextView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:letterSpacing="0.2"
-				android:textAlignment="viewStart"
-				android:textAllCaps="true"
-				android:textColor="@android:color/black"
-				android:textSize="10sp"
-				android:textStyle="bold"
-				tools:text="quantity\n51.1M"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quantityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.2"
+                android:textAlignment="viewStart"
+                android:textAllCaps="true"
+                android:textColor="@android:color/black"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                tools:text="quantity\n51.1M"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/itemTextView"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:ellipsize="end"
-				android:maxLines="3"
-				android:textAlignment="viewStart"
-				android:textColor="@android:color/black"
-				android:textSize="24sp"
-				app:firstBaselineToTopHeight="30dp"
-				tools:text="Item Name"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/itemTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:textAlignment="viewStart"
+                android:textColor="@android:color/black"
+                android:textSize="24sp"
+                app:firstBaselineToTopHeight="30dp"
+                tools:text="Item Name"/>
 
-			<LinearLayout
-				android:id="@+id/ratingViewGroup"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
+            <LinearLayout
+                android:id="@+id/ratingViewGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-				<RatingBar
-					android:id="@+id/ratingBarView"
-					style="@style/Base.Widget.AppCompat.RatingBar.Small"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="bottom"
-					android:max="5"
-					android:rating="4.5"
-					android:stepSize="0.5"/>
+                <RatingBar
+                    android:id="@+id/ratingBarView"
+                    style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:max="5"
+                    android:rating="4.5"
+                    android:stepSize="0.5"/>
 
-				<androidx.appcompat.widget.AppCompatTextView
-					android:id="@+id/ratingTextView"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_marginStart="8dp"
-					android:textSize="12sp"
-					app:firstBaselineToTopHeight="24dp"
-					tools:text="4.5 (69)"/>
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/ratingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="12sp"
+                    app:firstBaselineToTopHeight="24dp"
+                    tools:text="4.5 (69)"/>
 
-				<ImageView
-					android:id="@+id/userIconImageView"
-					android:layout_width="16dp"
-					android:layout_height="16dp"
-					android:layout_gravity="bottom"
-					android:layout_marginStart="4dp"
-					android:baselineAlignBottom="true"
-					android:src="@drawable/ic_person_black_24dp"/>
-			</LinearLayout>
+                <ImageView
+                    android:id="@+id/userIconImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginStart="4dp"
+                    android:baselineAlignBottom="true"
+                    android:src="@drawable/ic_person_black_24dp"/>
+            </LinearLayout>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/descriptionHeadTextView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="start"
-				android:text="Descriptions"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"
-				app:firstBaselineToTopHeight="32dp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/descriptionHeadTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="Descriptions"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                app:firstBaselineToTopHeight="32dp"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/descriptionTextView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="start"
-				android:ellipsize="end"
-				android:maxLines="2"
-				android:textAlignment="viewStart"
-				android:textSize="14sp"
-				app:firstBaselineToTopHeight="26dp"
-				tools:text="@string/placeholderText"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/descriptionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAlignment="viewStart"
+                android:textSize="14sp"
+                app:firstBaselineToTopHeight="26dp"
+                tools:text="@string/placeholderText"/>
 
-			<View
-				android:id="@+id/divider"
-				android:layout_width="match_parent"
-				android:layout_height="1dp"
-				android:layout_marginTop="24dp"
-				android:background="@color/lighter_gray"/>
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="@color/lighter_gray"/>
 
-		</LinearLayout>
+        </LinearLayout>
 
-		<com.google.android.material.chip.ChipGroup
-			android:id="@+id/tagChipGroup"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="4dp"
-			android:paddingStart="16dp"
-			android:paddingEnd="16dp"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/itemDetailsRelativeLayout"
-			app:singleLine="false">
-		</com.google.android.material.chip.ChipGroup>
-	</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/tagChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/itemDetailsRelativeLayout"
+            app:singleLine="false">
+        </com.google.android.material.chip.ChipGroup>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
 

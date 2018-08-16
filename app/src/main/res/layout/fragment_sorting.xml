@@ -1,159 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-	<androidx.appcompat.widget.AppCompatTextView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="14dp"
-		android:paddingEnd="14dp"
-		android:paddingStart="14dp"
-		android:paddingTop="14dp"
-		android:text="Sorting"
-		android:textColor="@color/colorPrimaryBlue"
-		android:textSize="12.25sp"
-		android:textStyle="bold"/>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:paddingStart="14dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="14dp"
+        android:text="Sorting"
+        android:textColor="@color/colorPrimaryBlue"
+        android:textSize="12.25sp"
+        android:textStyle="bold"/>
 
-	<!-- Item's Field Filter -->
-	<LinearLayout
-		android:id="@+id/Pref_sortBy"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <!-- Item's Field Filter -->
+    <LinearLayout
+        android:id="@+id/Pref_sortBy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_label_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_label_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/sortBy_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Sort by"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/sortBy_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sort by"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/sortBy_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/sortBy_title"
-				android:text="Item ID"
-				android:textSize="12.25sp"/>
-		</RelativeLayout>
-	</LinearLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/sortBy_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sortBy_title"
+                android:text="Item ID"
+                android:textSize="12.25sp"/>
+        </RelativeLayout>
+    </LinearLayout>
 
-	<LinearLayout
-		android:id="@+id/Pref_textLength"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <LinearLayout
+        android:id="@+id/Pref_textLength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_straighten_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_straighten_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/textLength_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_centerVertical="true"
-				android:text="Use text length"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/textLength_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Use text length"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<Switch
-				android:id="@+id/textLengthSwitch"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentEnd="true"
-				android:layout_centerVertical="true"
-				android:layout_toEndOf="@id/imageFiltering_title"/>
-		</RelativeLayout>
-	</LinearLayout>
+            <Switch
+                android:id="@+id/textLengthSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/imageFiltering_title"/>
+        </RelativeLayout>
+    </LinearLayout>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"/>
 
-	<LinearLayout
-		android:id="@+id/Pref_sortingOrder"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <LinearLayout
+        android:id="@+id/Pref_sortingOrder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_sort_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_sort_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingBottom="14dp"
-			android:paddingTop="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/sortingOrder_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Sorting order"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/sortingOrder_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sorting order"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/sortingOrder_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/sortingOrder_title"
-				android:text="Descending Order"
-				android:textSize="12.25sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/sortingOrder_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sortingOrder_title"
+                android:text="Descending Order"
+                android:textSize="12.25sp"/>
 
-			<Switch
-				android:id="@+id/sortingSwitch"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentEnd="true"
-				android:layout_centerVertical="true"
-				android:layout_toEndOf="@id/imageFiltering_title"/>
-		</RelativeLayout>
-	</LinearLayout>
+            <Switch
+                android:id="@+id/sortingSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/imageFiltering_title"/>
+        </RelativeLayout>
+    </LinearLayout>
 
 </LinearLayout>
 

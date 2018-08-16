@@ -1,54 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-	<ScrollView
-		android:layout_width="match_parent"
-		android:layout_height="400dp"
-		android:id="@+id/frameLayoutsScroller">
+    <ScrollView
+        android:id="@+id/frameLayoutsScroller"
+        android:layout_width="match_parent"
+        android:layout_height="400dp">
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-			<FrameLayout
-				android:id="@+id/filterSettingFrame_dialog"
-				android:layout_height="wrap_content"
-				android:layout_width="match_parent"
-				android:name="tanawinwichitcom.android.inventoryapp.fragments.SearchPreferenceFragment">
-			</FrameLayout>
+            <FrameLayout
+                android:id="@+id/filterSettingFrame_dialog"
+                android:name="io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </FrameLayout>
 
-			<View
-				android:background="?android:attr/listDivider"
-				android:layout_height="1dp"
-				android:layout_width="match_parent"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider"/>
 
-			<FrameLayout
-				android:id="@+id/sortSettingFrame_dialog"
-				android:layout_height="wrap_content"
-				android:layout_width="match_parent"
-				android:name="tanawinwichitcom.android.inventoryapp.fragments.SortPreferenceFragment">
-			</FrameLayout>
+            <FrameLayout
+                android:id="@+id/sortSettingFrame_dialog"
+                android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </FrameLayout>
 
-		</LinearLayout>
+        </LinearLayout>
 
-	</ScrollView>
+    </ScrollView>
 
-	<RelativeLayout
-		android:layout_width="match_parent"
-		android:layout_height="52dp">
-		<Button
-			android:id="@+id/dialogDoneButton"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentStart="true"
-			android:layout_margin="8dp"
-			android:background="@android:color/transparent"
-			android:foreground="?android:selectableItemBackgroundBorderless"
-			android:text="Close"/>
-	</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp">
+
+        <Button
+            android:id="@+id/dialogDoneButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="8dp"
+            android:text="@android:string/ok"
+            android:textColor="@color/colorPrimaryBlue"/>
+    </RelativeLayout>
 </LinearLayout>

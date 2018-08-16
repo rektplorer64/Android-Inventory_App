@@ -1,9 +1,8 @@
 package io.rektplorer.inventoryapp.rvadapters;
 
+
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +10,13 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Review;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.User;
@@ -28,10 +29,8 @@ public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.Vi
     private SparseArray<User> userMap;
 
     private int itemId;
-    private Context context;
 
-    public UserReviewAdapter(int itemId, Context context){
-        this.context = context;
+    public UserReviewAdapter(int itemId){
         this.itemId = itemId;
         userMap = new SparseArray<>();
         reviewArrayList = new ArrayList<>();
@@ -40,7 +39,8 @@ public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.Vi
     @NonNull
     @Override
     public UserReviewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_reviews, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext())
+                                      .inflate(R.layout.card_reviews, parent, false);
         return new UserReviewAdapter.ViewHolder(itemView);
     }
 
@@ -49,17 +49,26 @@ public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.Vi
         Review review = reviewArrayList.get(position);
         User user = userMap.get(review.getUserId());
 
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility.getCurrentLocale(holder.cardView.getContext()));
-        if(user != null){
-            // if(position == reviewArrayList.size() - 1){
-            //     ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) holder.cardView.getLayoutParams();
-            //     int pxMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, holder.cardView.getContext().getResources().getDisplayMetrics());
-            //     params.setMargins(pxMargin, pxMargin, pxMargin, pxMargin);
-            //     holder.cardView.setLayoutParams(params);
-            // }
-            holder.userNameTextView.setText(new StringBuilder().append(user.getName()).append(" ").append(user.getSurname()).append(" (").append(user.getUsername()).append(")").toString());
+        Context context = holder.cardView.getContext();
 
-            holder.userReviewDateTextView.setText(dateFormat.format(review.getTimeStamp()));
+        // DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility
+        //         .getCurrentLocale(holder.cardView.getContext()));
+        if(user != null){
+            holder.realNameTextView.setText(
+                    new StringBuilder().append(user.getName()).append(" ")
+                                       .append(user.getSurname()));
+            holder.userNameTextView.setText(user.getUsername());
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(String.format(
+                    HelperUtility.getCurrentLocale(context), "%.1f",
+                    review.getRating())).append(" · ")
+                         .append(DateUtils.getRelativeTimeSpanString(
+                                 review.getTimeStamp().getTime(),
+                                 Calendar.getInstance().getTimeInMillis(),
+                                 DateUtils.MINUTE_IN_MILLIS));
+            holder.userReviewDateTextView.setText(stringBuilder.toString());
+            // holder.userReviewDateTextView.setText(dateFormat.format(review.getTimeStamp()));
             holder.userReviewCommentTextView.setText(review.getComment());
             holder.scoreRatingBar.setRating((float) review.getRating());
             holder.scoreRatingBar.setStepSize(0.5f);
@@ -97,13 +106,14 @@ public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.Vi
     class ViewHolder extends RecyclerView.ViewHolder{
 
         CardView cardView;
-        TextView userNameTextView, userReviewDateTextView, userReviewCommentTextView;
+        TextView userNameTextView, userReviewDateTextView, userReviewCommentTextView, realNameTextView;
         RatingBar scoreRatingBar;
 
         ViewHolder(View itemView){
             super(itemView);
             cardView = itemView.findViewById(R.id.reviewCardView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
+            realNameTextView = itemView.findViewById(R.id.realNameTextView);
             scoreRatingBar = itemView.findViewById(R.id.scoreRatingBar);
             userReviewDateTextView = itemView.findViewById(R.id.userReviewDateTextView);
             userReviewCommentTextView = itemView.findViewById(R.id.userReviewCommentTextView);

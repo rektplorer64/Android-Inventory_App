@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="192dp"
-              android:background="?attr/colorPrimaryDark"
-              android:theme="@style/ThemeOverlay.AppCompat.Dark"
-              android:orientation="vertical"
-              android:gravity="bottom">
+                android:layout_width="match_parent"
+                android:layout_height="192dp"
+                android:background="?attr/colorPrimaryDark"
+                android:gravity="bottom"
+                android:orientation="vertical"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-	<ImageView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:src="@color/md_red_400"
-		android:scaleType="centerCrop"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@color/md_red_400"/>
 
-	<androidx.appcompat.widget.AppCompatTextView
-		android:layout_alignParentBottom="true"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="My header title"
-		android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-		android:padding="16dp"/>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="16dp"
+        android:text="My header title"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
 </RelativeLayout>

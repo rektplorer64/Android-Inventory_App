@@ -1,243 +1,243 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-	<androidx.appcompat.widget.AppCompatTextView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="14dp"
-		android:paddingStart="14dp"
-		android:paddingTop="14dp"
-		android:paddingEnd="14dp"
-		android:text="Filters"
-		android:textColor="@color/colorPrimaryBlue"
-		android:textSize="12.25sp"
-		android:textStyle="bold"/>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:paddingStart="14dp"
+        android:paddingTop="14dp"
+        android:paddingEnd="14dp"
+        android:text="Filters"
+        android:textColor="@color/colorPrimaryBlue"
+        android:textSize="12.25sp"
+        android:textStyle="bold"/>
 
-	<!-- Item's Field Filter -->
-	<LinearLayout
-		android:id="@+id/Pref_searchItemBy"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <!-- Item's Field Filter -->
+    <LinearLayout
+        android:id="@+id/Pref_searchItemBy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_label_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_label_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingTop="14dp"
-			android:paddingBottom="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/searchBy_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Search by"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/searchBy_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search by"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/searchBy_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/searchBy_title"
-				android:text="Item Name"
-				android:textSize="12.25sp"/>
-		</RelativeLayout>
-	</LinearLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/searchBy_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/searchBy_title"
+                android:text="Item Name"
+                android:textSize="12.25sp"/>
+        </RelativeLayout>
+    </LinearLayout>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"/>
 
-	<!-- Date Created Filter -->
-	<include layout="@layout/search_date_created"/>
+    <!-- Date Created Filter -->
+    <include layout="@layout/search_date_created"/>
 
-	<!-- Date Modified Filter -->
-	<include
-		layout="@layout/search_date_modified"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginStart="38dp"
-		android:layout_marginTop="-14dp"/>
+    <!-- Date Modified Filter -->
+    <include
+        layout="@layout/search_date_modified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="-14dp"/>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"/>
 
-	<!-- Image Filtering mode -->
-	<LinearLayout
-		android:id="@+id/Pref_containsImage"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <!-- Image Filtering mode -->
+    <LinearLayout
+        android:id="@+id/Pref_containsImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_image_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_image_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingTop="14dp"
-			android:paddingBottom="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/imageFiltering_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Image"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/imageFiltering_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Image"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/imageFiltering_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/imageFiltering_title"
-				android:text="Fetch only Items with an Image"
-				android:textSize="12.25sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/imageFiltering_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/imageFiltering_title"
+                android:text="Fetch only Items with an Image"
+                android:textSize="12.25sp"/>
 
-		</RelativeLayout>
-	</LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"/>
 
-	<!-- Contain Quantity Filter -->
-	<LinearLayout
-		android:id="@+id/Pref_quantity"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <!-- Contain Quantity Filter -->
+    <LinearLayout
+        android:id="@+id/Pref_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="14dp"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_format_list_numbered_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_format_list_numbered_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingTop="14dp"
-			android:paddingBottom="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/quantity_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Quantity"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/quantity_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quantity"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<Switch
-				android:id="@+id/quantitySwitch"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_alignParentEnd="true"
-				android:layout_toEndOf="@id/quantity_title"/>
+            <Switch
+                android:id="@+id/quantitySwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@id/quantity_title"/>
 
-			<com.appyvet.materialrangebar.RangeBar
-				android:id="@+id/quantityRangeBar"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/quantitySwitch"
-				android:layout_marginLeft="16dp"
-				android:layout_marginRight="16dp"
-				app:mrb_connectingLineColor="@color/colorPrimaryGreen"
-				app:mrb_pinColor="#33691e"
-				app:mrb_pinMaxFont="16sp"
-				app:mrb_pinRadius="18dp"
-				app:mrb_pinTextColor="@android:color/white"
-				app:mrb_rangeBarColor="@color/colorPrimaryGreen_light"
-				app:mrb_rangeBarPaddingBottom="16dp"
-				app:mrb_rangeBar_rounded="true"
-				app:mrb_barWeight="10dp"
-				app:mrb_selectorBoundaryColor="@color/colorPrimaryGreen"
-				app:mrb_selectorBoundarySize="4dp"
-				app:mrb_selectorColor="@color/colorPrimaryGreen"
-				app:mrb_selectorSize="8dp"
-				app:mrb_tickColor="@android:color/white"/>
+            <com.appyvet.materialrangebar.RangeBar
+                android:id="@+id/quantityRangeBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/quantitySwitch"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                app:mrb_barWeight="10dp"
+                app:mrb_connectingLineColor="@color/colorPrimaryGreen"
+                app:mrb_pinColor="#33691e"
+                app:mrb_pinMaxFont="16sp"
+                app:mrb_pinRadius="18dp"
+                app:mrb_pinTextColor="@android:color/white"
+                app:mrb_rangeBarColor="@color/colorPrimaryGreen_light"
+                app:mrb_rangeBarPaddingBottom="16dp"
+                app:mrb_rangeBar_rounded="true"
+                app:mrb_selectorBoundaryColor="@color/colorPrimaryGreen"
+                app:mrb_selectorBoundarySize="4dp"
+                app:mrb_selectorColor="@color/colorPrimaryGreen"
+                app:mrb_selectorSize="8dp"
+                app:mrb_tickColor="@android:color/white"/>
 
-		</RelativeLayout>
-	</LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
 
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1dp"
-		android:background="?android:attr/listDivider"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider"/>
 
-	<LinearLayout
-		android:id="@+id/Pref_tags"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:foreground="?selectableItemBackgroundBorderless"
-		android:orientation="horizontal"
-		android:paddingLeft="14dp"
-		android:paddingRight="14dp">
+    <LinearLayout
+        android:id="@+id/Pref_tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:orientation="horizontal"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp">
 
-		<ImageView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginEnd="14dp"
-			android:src="@drawable/ic_local_offer_black_24dp"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="14dp"
+            android:src="@drawable/ic_local_offer_black_24dp"/>
 
-		<RelativeLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:paddingTop="14dp"
-			android:paddingBottom="14dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp">
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/tag_title"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="Tags"
-				android:textColor="@android:color/black"
-				android:textSize="14sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tag_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tags"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/tag_subtitle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/tag_title"
-				android:text="Item Name"
-				android:textSize="12.25sp"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tag_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tag_title"
+                android:text="Item Name"
+                android:textSize="12.25sp"/>
 
-		</RelativeLayout>
-	</LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>
 

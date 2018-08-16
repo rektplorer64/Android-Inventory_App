@@ -8,7 +8,7 @@ import androidx.room.TypeConverters;
 import java.util.Date;
 import java.util.List;
 
-import io.rektplorer.inventoryapp.roomdatabase.DateConverter;
+import io.rektplorer.inventoryapp.roomdatabase.typeconverters.DateConverter;
 
 @Entity(tableName = "reviews")
 public class Review{

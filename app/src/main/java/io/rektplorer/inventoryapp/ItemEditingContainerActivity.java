@@ -1,16 +1,18 @@
 package io.rektplorer.inventoryapp;
 
-import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.appcompat.app.AppCompatActivity;
-import io.rektplorer.inventoryapp.fragments.ItemEditingFragment;
 
+import android.os.Bundle;
 import android.widget.FrameLayout;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
+import io.rektplorer.inventoryapp.fragments.ItemEditingFragment;
 
 public class ItemEditingContainerActivity extends AppCompatActivity{
 
     private FrameLayout itemEditingFrameLayout;
+    private ItemEditingFragment itemEditingFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState){
@@ -27,7 +29,20 @@ public class ItemEditingContainerActivity extends AppCompatActivity{
             itemId = bundle.getInt("itemId");
         }
 
-        ItemEditingFragment itemEditingFragment = ItemEditingFragment.newInstance(itemId);
-        ft.replace(itemEditingFrameLayout.getId(), itemEditingFragment).commit();
+        if(savedInstanceState == null){
+            itemEditingFragment = ItemEditingFragment.newInstance(itemId);
+        }else{
+            itemEditingFragment = (ItemEditingFragment) getSupportFragmentManager()
+                    .getFragment(savedInstanceState, ConstantsHolder.FRAGMENT_ITEM_EDIT);
+        }
+        ft.replace(itemEditingFrameLayout.getId(), itemEditingFragment,
+                   ConstantsHolder.FRAGMENT_ITEM_EDIT).commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        getSupportFragmentManager()
+                .putFragment(outState, ConstantsHolder.FRAGMENT_ITEM_EDIT, itemEditingFragment);
     }
 }

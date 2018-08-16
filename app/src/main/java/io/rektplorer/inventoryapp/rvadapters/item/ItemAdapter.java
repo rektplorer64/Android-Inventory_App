@@ -4,8 +4,6 @@ package io.rektplorer.inventoryapp.rvadapters.item;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -30,9 +28,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
-import org.apache.commons.math3.util.ArithmeticUtils;
-
-import java.io.File;
 import java.lang.ref.WeakReference;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -51,6 +46,7 @@ import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.selection.ItemDetailsLookup;
+import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -71,14 +67,15 @@ import io.rektplorer.inventoryapp.searchpreferencehelper.ListLayoutPreference;
 import io.rektplorer.inventoryapp.searchpreferencehelper.SortPreference;
 import io.rektplorer.inventoryapp.utility.HelperUtility;
 
-import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.*;
+import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.DateCreated_From;
+import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.DateCreated_To;
+import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.DateModified_From;
+import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.DateModified_To;
 import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.SEARCH_ALL_ITEMS;
 
 public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> implements Filterable{
 
     private List<Item> itemList;
-
-    private Context context;
 
     private FilterPreference searchPref;
     private SortPreference sortPref;
@@ -108,12 +105,11 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
      */
     private SparseArray<ArrayList<Review>> reviewHashMap;
     private ItemFilter itemFilter;
-    private SelectionTracker selectionTracker;
+    private SelectionTracker<Long> selectionTracker;
     private SparseArray<Image> heroImageSparseArray;
 
-    public ItemAdapter(Context context, ListLayoutPreference listViewModePref){
+    public ItemAdapter(ListLayoutPreference listViewModePref){
         super(DIFF_CALLBACK);
-        this.context = context;
         this.listViewModePref = listViewModePref;
 
         this.reviewHashMap = new SparseArray<>();
@@ -128,19 +124,23 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         View itemView = null;
         switch(listViewModePref.getListLayoutMode()){
             case ListLayoutPreference.FULL_CARD_LAYOUT:
-                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_full, parent, false);
+                itemView = LayoutInflater.from(parent.getContext())
+                                         .inflate(R.layout.card_item_full, parent, false);
                 break;
             case ListLayoutPreference.NORMAL_LIST_LAYOUT:
-                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_normal, parent, false);
+                itemView = LayoutInflater.from(parent.getContext())
+                                         .inflate(R.layout.card_item_normal, parent, false);
                 break;
             case ListLayoutPreference.SMALL_CARD_LAYOUT:
-                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_small_card, parent, false);
+                itemView = LayoutInflater.from(parent.getContext())
+                                         .inflate(R.layout.card_item_small_card, parent, false);
                 break;
             case ListLayoutPreference.COMPACT_LIST_LAYOUT:
-                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item_compact, parent, false);
+                itemView = LayoutInflater.from(parent.getContext())
+                                         .inflate(R.layout.card_item_compact, parent, false);
                 break;
         }
-        return new ItemViewHolder(itemView, listViewModePref.getListLayoutMode());
+        return new ItemViewHolder(itemView);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -149,9 +149,10 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         final Item item = getItem(position);
         if(item != null){
             final ArrayList<Review> reviewArrayList = reviewHashMap.get(item.getId());
-            holder.bindDataToView(reviewArrayList, listViewModePref.getListLayoutMode(), item, position);
+            holder.bindDataToView(reviewArrayList, item);
 
-            boolean isSelected = (selectionTracker != null) && selectionTracker.isSelected(item);
+            boolean isSelected = (selectionTracker != null) && selectionTracker
+                    .isSelected((long) item.getId());
             holder.setElementClickListener(itemSelectListener, this, item, isSelected);
         }
     }
@@ -330,7 +331,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
                 if(query != null){
                     if(!constraint.toString().isEmpty()){
-                        if(fieldValue.contains(query.toLowerCase()) || fieldValue.equalsIgnoreCase(query)){
+                        if(fieldValue.contains(query.toLowerCase()) || fieldValue
+                                .equalsIgnoreCase(query)){
                             filterList(searchPref, item, resultList, tagPreferences);
                         }
                     }else{
@@ -349,7 +351,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             return filterResults;
         }
 
-        private void filterList(FilterPreference pref, Item item, List<Item> resultList, Set<String> tagPreferences){
+        private void filterList(FilterPreference pref, Item item, List<Item> resultList,
+                                Set<String> tagPreferences){
             DatePreference dateCreatedFromPref = pref.getDatePreference(DateCreated_From);
             DatePreference dateCreatedToPref = pref.getDatePreference(DateCreated_To);
             DatePreference dateModifiedFromPref = pref.getDatePreference(DateModified_From);
@@ -360,7 +363,8 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             }
 
             if(dateCreatedFromPref.isPreferenceEnabled()
-                    && !(dateCreatedFromPref.getDate().getTime() <= item.getDateCreated().getTime())){
+                    && !(dateCreatedFromPref.getDate().getTime() <= item.getDateCreated()
+                                                                        .getTime())){
                 // System.out.println("Removed Item State #1");
                 return;
             }
@@ -372,26 +376,30 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             }
 
             if(dateModifiedFromPref.isPreferenceEnabled()
-                    && !(dateModifiedFromPref.getDate().getTime() <= item.getDateModified().getTime())){
+                    && !(dateModifiedFromPref.getDate().getTime() <= item.getDateModified()
+                                                                         .getTime())){
                 // System.out.println("Removed Item State #3");
                 return;
             }
 
             if(dateModifiedToPref.isPreferenceEnabled()
-                    && !(dateModifiedToPref.getDate().getTime() >= item.getDateModified().getTime())){
+                    && !(dateModifiedToPref.getDate().getTime() >= item.getDateModified()
+                                                                       .getTime())){
                 // System.out.println("Removed Item State #4");
                 return;
             }
 
             if(pref.getQuantityPreference().isPreferenceEnabled()
-                    && !(pref.getQuantityPreference().getMaxRange() >= item.getQuantity() && pref.getQuantityPreference().getMinRange() <= item.getQuantity())){
+                    && !(pref.getQuantityPreference().getMaxRange() >= item.getQuantity() && pref
+                    .getQuantityPreference().getMinRange() <= item.getQuantity())){
                 return;
             }
 
             // System.out.println("itemImageFile: " + item.getHeroImage());
             if(searchPref.getImageMode() != FilterPreference.ANY_IMAGE){
-                if(!((searchPref.getImageMode() == FilterPreference.CONTAINS_IMAGE) ? heroImageSparseArray.get(item.getId()).getImageFile() != null
-                        : heroImageSparseArray.get(item.getId()).getImageFile() == null)){
+                if(!((searchPref
+                        .getImageMode() == FilterPreference.CONTAINS_IMAGE) == (heroImageSparseArray
+                        .get(item.getId()) != null))){
                     return;
                 }
             }
@@ -427,7 +435,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         private ImageView imageView;
         private ChipGroup tagChipGroup;
 
-        ItemViewHolder(View itemView, int layoutMode){
+        ItemViewHolder(View itemView){
             super(itemView);
             cardView = itemView.findViewById(R.id.itemCardView);
 
@@ -443,25 +451,17 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             tagChipGroup = itemView.findViewById(R.id.tagChipGroup);
         }
 
-        public void bindDataToView(List<Review> reviewArrayList, int layoutMode, final Item item, int position){
+        void bindDataToView(List<Review> reviewArrayList, final Item item){
             final Context context = cardView.getContext();
-
-            final boolean screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(context);
 
             double averageRating = Review.calculateAverage(reviewArrayList);
             item.setRating(averageRating);
             int numberOfReviews = (reviewArrayList != null) ? reviewArrayList.size() : 0;
 
-
-            // if(!screenIsLargeOrPortrait && context instanceof CollectionActivity){
-            //     changeCardState(this, position);
-            // }
-
-            // ImageView Initialization
-            // TODO: Optimize this block of code
             RequestManager requestBuilder = Glide.with(context);    // Glide initializes
             RequestBuilder<Drawable> requestBuilder1 = null;
-            if(heroImageSparseArray != null && heroImageSparseArray.get(item.getId()) != null){        // If there is image file of current item
+            if(heroImageSparseArray != null && heroImageSparseArray
+                    .get(item.getId()) != null){        // If there is image file of current item
                 if(imageConstraintLayout != null){
                     imageConstraintLayout.setVisibility(View.VISIBLE);
                 }
@@ -470,7 +470,6 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                 requestBuilder1 = requestBuilder
                         .load(heroImageSparseArray.get(item.getId()).getImageFile())
                         .thumbnail(0.01f);
-
             }else{
                 if(listViewModePref.getListLayoutMode() != ListLayoutPreference.FULL_CARD_LAYOUT){
                     if(imageConstraintLayout != null){
@@ -503,35 +502,41 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
             if(imageConstraintLayout != null
                     && imageConstraintLayout.getVisibility() == View.VISIBLE
-                    && listViewModePref.getListLayoutMode() == ListLayoutPreference.FULL_CARD_LAYOUT){
-                if(heroImageSparseArray.get(item.getId()) != null){
-                    final ConstraintSet cs = new ConstraintSet();
-                    cs.clone(imageConstraintLayout);
-
-                    // Asynchronously Calculate image aspect ratio
-                    new ImageViewSizeAsyncCalculator(cs, imageConstraintLayout, imageView)
-                            .execute(heroImageSparseArray.get(item.getId()).getImageFile());
-                }else{
-                    ConstraintSet cs = new ConstraintSet();
-                    cs.clone(imageConstraintLayout);
-                    cs.setDimensionRatio(imageConstraintLayout.getViewById(imageView.getId()).getId(), "16:9");
-                    cs.applyTo(imageConstraintLayout);
-                    imageConstraintLayout.setConstraintSet(cs);
-                }
+                    && listViewModePref
+                    .getListLayoutMode() == ListLayoutPreference.FULL_CARD_LAYOUT){
+                // if(heroImageSparseArray.get(item.getId()) != null){
+                //     final ConstraintSet cs = new ConstraintSet();
+                //     cs.clone(imageConstraintLayout);
+                //
+                //     // Asynchronously Calculate image aspect ratio
+                //     new ImageViewSizeAsyncCalculator(cs, imageConstraintLayout, imageView)
+                //             .execute(heroImageSparseArray.get(item.getId()).getImageFile());
+                // }else{
+                ConstraintSet cs = new ConstraintSet();
+                cs.clone(imageConstraintLayout);
+                cs.setDimensionRatio(
+                        imageConstraintLayout.getViewById(imageView.getId()).getId(),
+                        heroImageSparseArray.get(item.getId()).getAspectRatio());
+                cs.applyTo(imageConstraintLayout);
+                imageConstraintLayout.setConstraintSet(cs);
+                // }
             }
 
             if(!isFiltering){
-                PrecomputedTextCompat textCompat = PrecomputedTextCompat.create(item.getName(), TextViewCompat.getTextMetricsParams(nameTextView));
+                PrecomputedTextCompat textCompat = PrecomputedTextCompat
+                        .create(item.getName(), TextViewCompat.getTextMetricsParams(nameTextView));
                 TextViewCompat.setPrecomputedText(nameTextView, textCompat);
             }else{
                 if(searchPref.getKeyword() != null && !searchPref.getKeyword().isEmpty()){
                     String keyword = searchPref.getKeyword().toLowerCase();
                     if(item.getName().toLowerCase().contains(keyword)){
                         // Replacing all query occurrences without ruining original Capitalization
-                        String formattedString = item.getName().replaceAll("(?i)(" + keyword + ")", "<b>$0</b>");
+                        String formattedString = item.getName().replaceAll("(?i)(" + keyword + ")",
+                                                                           "<b>$0</b>");
                         Spanned finalTagString;
                         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                            finalTagString = Html.fromHtml(formattedString, Html.FROM_HTML_MODE_COMPACT);
+                            finalTagString = Html
+                                    .fromHtml(formattedString, Html.FROM_HTML_MODE_COMPACT);
                         }else{
                             finalTagString = Html.fromHtml(formattedString);
                         }
@@ -544,37 +549,47 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                 }
             }
 
-            String rating = String.format(HelperUtility.getCurrentLocale(context), "%.1f", item.getRating());
-            String numbersOfReviews = NumberFormat.getNumberInstance(Locale.US).format(numberOfReviews);
+            String rating = String
+                    .format(HelperUtility.getCurrentLocale(context), "%.1f", item.getRating());
+            String numbersOfReviews = NumberFormat.getNumberInstance(Locale.US)
+                                                  .format(numberOfReviews);
             String shortenQuantityNumber = HelperUtility.shortenNumber(item.getQuantity());
 
-            ratingTextView.setText(new StringBuilder().append(rating).append(" (").append(numbersOfReviews).append(")").toString());
-            quantityTextView.setText(Html.fromHtml(new StringBuilder().append("<font color=\"#93928E\">quantity</font><br>").append(shortenQuantityNumber).toString()));
+            ratingTextView.setText(
+                    new StringBuilder().append(rating).append(" (").append(numbersOfReviews)
+                                       .append(")").toString());
+            quantityTextView.setText(Html.fromHtml(
+                    new StringBuilder().append("<font color=\"#93928E\">quantity</font><br>")
+                                       .append(shortenQuantityNumber).toString()));
 
             if(descriptionTextView != null){
                 int shortDecTextLength = Math.min(item.getDescription().length(), 100);
                 String shortenDesc = item.getDescription()
-                        .substring(0, shortDecTextLength) + ((shortDecTextLength <= item.getDescription().length()) ? "" : "...");
+                                         .substring(0,
+                                                    shortDecTextLength) + ((shortDecTextLength <= item
+                        .getDescription().length()) ? "" : "...");
                 // descriptionTextView.setText(shortenDesc);
 
-                PrecomputedTextCompat textCompat = PrecomputedTextCompat.create(shortenDesc, TextViewCompat.getTextMetricsParams(descriptionTextView));
+                PrecomputedTextCompat textCompat = PrecomputedTextCompat.create(shortenDesc,
+                                                                                TextViewCompat
+                                                                                        .getTextMetricsParams(
+                                                                                                descriptionTextView));
                 TextViewCompat.setPrecomputedText(descriptionTextView, textCompat);
             }
 
             if(tagChipGroup != null){
                 tagChipGroup.removeAllViews();
-                for(String tag : item.getTags()){
-                    Chip tagChip = new Chip(context);
-                    tagChip.setText(tag);
-                    tagChipGroup.addView(tagChip);
-                }
+                new TagChipAsyncBuilder(tagChipGroup)
+                        .execute(item.getTags().toArray(new String[0]));
             }
-            ratingBar.setRating((item.getRating() != null) ? Float.valueOf(String.valueOf(item.getRating())) : 0f);
+            ratingBar.setRating((item.getRating() != null) ? Float
+                    .valueOf(String.valueOf(item.getRating())) : 0f);
 
         }
 
         @SuppressLint("ClickableViewAccessibility")
-        public void setElementClickListener(final ItemSelectListener itemSelectListener, final ItemAdapter itemAdapter
+        void setElementClickListener(final ItemSelectListener itemSelectListener,
+                                     final ItemAdapter itemAdapter
                 , final Item item, final boolean isFocused){
             final int touchCoordinate[] = new int[2];
 
@@ -589,29 +604,34 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
                 }
             });
 
-            if(isFocused){
-                cardView.setCardBackgroundColor(Color.parseColor("#E5E1E0"));
-                // cardView.setCardBackgroundColor(Color.RED);
-            }else{
-                cardView.setCardBackgroundColor(Color.WHITE);
-            }
+            // if(isFocused){
+            //     cardView.setCardBackgroundColor(Color.parseColor("#E5E1E0"));
+            //     // cardView.setCardBackgroundColor(Color.RED);
+            // }else{
+            //     cardView.setCardBackgroundColor(Color.WHITE);
+            // }
+            cardView.setSelected(isFocused);
 
             cardView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(final View v){
                     if(HelperUtility.isScreenLargeOrPortrait(v.getContext())){
                         // Toast.makeText(v.getContext(), "Item #" + position + " is clicked...", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(v.getContext(), ItemProfileContainerActivity.class);
+                        Intent intent = new Intent(v.getContext(),
+                                                   ItemProfileContainerActivity.class);
                         intent.putExtra("itemId", item.getId());
                         v.getContext().startActivity(intent);
                     }else{
-                        FragmentTransaction fragmentTransaction = ((AppCompatActivity) v.getContext()).getSupportFragmentManager().beginTransaction();
+                        FragmentTransaction fragmentTransaction = ((AppCompatActivity) v
+                                .getContext()).getSupportFragmentManager().beginTransaction();
                         if(v.getContext() instanceof CollectionActivity){
                             if(itemSelectListener != null && !isFocused){
-                                itemSelectListener.onSelect(item.getId(), touchCoordinate[1], itemAdapter);
+                                itemSelectListener
+                                        .onSelect(item.getId(), touchCoordinate[1], itemAdapter);
                             }
                         }else{
-                            ItemProfileDialogFragment itemProfileDialog = ItemProfileDialogFragment.newInstance(item.getId());
+                            ItemProfileDialogFragment itemProfileDialog = ItemProfileDialogFragment
+                                    .newInstance(item.getId());
                             itemProfileDialog.show(fragmentTransaction, "itemProfileDialog");
                         }
                     }
@@ -620,54 +640,70 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         }
 
         @Override
-        public ItemDetailsLookup.ItemDetails getItemDetails(){
-            return new ItemDetailsLookup.ItemDetails(){
+        public ItemDetailsLookup.ItemDetails<Long> getItemDetails(){
+            return new ItemDetailsLookup.ItemDetails<Long>(){
                 @Override
                 public int getPosition(){
                     return getAdapterPosition();
                 }
 
                 @Override
-                public Object getSelectionKey(){
-                    return getItem(getAdapterPosition());
+                public Long getSelectionKey(){
+                    return (long) getItem(getAdapterPosition()).getId();
                 }
             };
         }
     }
 
-    private static class ImageViewSizeAsyncCalculator extends AsyncTask<File, Void, String>{
+    public static class TagChipAsyncBuilder extends AsyncTask<String, Chip, Void>{
 
-        private ConstraintSet cs;
-        private WeakReference<ConstraintLayout> weakConstraintLayout;
-        private WeakReference<ImageView> weakImageView;
+        private WeakReference<ChipGroup> chipGroupWeakReference;
 
-        ImageViewSizeAsyncCalculator(ConstraintSet constraintSet, ConstraintLayout cl, ImageView imageView){
-            this.cs = constraintSet;
-            weakConstraintLayout = new WeakReference<>(cl);
-            weakImageView = new WeakReference<>(imageView);
+        public TagChipAsyncBuilder(ChipGroup chipGroup){
+            chipGroupWeakReference = new WeakReference<>(chipGroup);
         }
 
         @Override
-        protected String doInBackground(File... files){
-            Bitmap bitmap = BitmapFactory.decodeFile(files[0].getPath());      /* Gets Bitmap from file */
-
-            int widthRatio = 1, heightRatio = 1;
-            if(bitmap != null){
-                int width = bitmap.getWidth(), height = bitmap.getHeight();
-                int resolutionGcd = ArithmeticUtils.gcd(width, height);
-                widthRatio = width / resolutionGcd;
-                heightRatio = height / resolutionGcd;
-
+        protected Void doInBackground(String... strings){
+            Chip tagChip;
+            for(String tag : strings){
+                tagChip = new Chip(chipGroupWeakReference.get().getContext());
+                tagChip.setText(tag);
+                publishProgress(tagChip);
             }
-            return widthRatio + ":" + heightRatio;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s){
-            cs.setDimensionRatio(weakConstraintLayout.get().getViewById(weakImageView.get().getId()).getId(), s);
-            cs.applyTo(weakConstraintLayout.get());
-            weakConstraintLayout.get().setConstraintSet(cs);
-            super.onPostExecute(s);
+        protected void onProgressUpdate(Chip... chips){
+            super.onProgressUpdate(chips);
+            chipGroupWeakReference.get().addView(chips[0]);
+        }
+    }
+
+    public static class ItemEntityKeyProvider extends ItemKeyProvider<Long>{
+
+        private final ItemAdapter adapter;
+
+        public ItemEntityKeyProvider(ItemAdapter adapter){
+            super(ItemKeyProvider.SCOPE_CACHED);
+            this.adapter = adapter;
+        }
+
+        @Override
+        public Long getKey(int position){
+            return (long) adapter.getItem(position).getId();
+        }
+
+        @Override
+        public int getPosition(@NonNull Long key){
+            for(int i = 0; i < adapter.getItemCount(); i++){
+                Item item = adapter.getItem(i);
+                if(item.getId() == key){
+                    return i;
+                }
+            }
+            return 0;
         }
     }
 }

@@ -156,7 +156,9 @@ public class SearchPreferenceFragment extends Fragment{
                         searchPref.setTagList(selectedTags);
                         tag_subtitle.setText((searchPref.getTagList().size() != 0) ?
                                 "Currently selected " + searchPref.getTagList().size() + " tags" : "No tag selected");
-                        FilterPreference.saveToSharedPreference(getContext(), searchPref);
+                        if(getContext() != null){
+                            FilterPreference.saveToSharedPreference(getContext(), searchPref);
+                        }
                         if(searchPreferenceUpdateListener != null){
                             searchPreferenceUpdateListener.onTagSelectionConfirm(selectedTags);
                         }

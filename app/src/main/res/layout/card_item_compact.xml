@@ -1,105 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemCardView"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:clickable="true"
+    android:elevation="2dp"
+    android:translationZ="0dp"
+    app:cardElevation="0dp"
+    android:focusable="true"
+    android:foreground="?selectableItemBackgroundBorderless"
+    android:stateListAnimator="@animator/card_pressed">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="16dp"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toEndOf="@id/imageConstraintLayout"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/itemTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="60dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    app:firstBaselineToTopHeight="32dp"
+                    tools:text="Item Name"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/quantityTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="end"
+                    android:letterSpacing="0.2"
+                    android:paddingEnd="16dp"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/black"
+                    android:textSize="10dp"
+                    android:textStyle="bold"
+                    app:firstBaselineToTopHeight="28dp"
+                    tools:text="quantity 5"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ratingViewGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                xmlns:app="http://schemas.android.com/apk/res-auto">
+                android:orientation="horizontal">
 
-	<androidx.cardview.widget.CardView
-		android:id="@+id/itemCardView"
-		android:layout_width="match_parent"
-		android:layout_height="72dp"
-		android:clickable="true"
-		android:elevation="2dp"
-		android:focusable="true"
-		android:foreground="?selectableItemBackgroundBorderless">
+                <RatingBar
+                    android:id="@+id/ratingBarView"
+                    style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:max="5"
+                    android:rating="4.5"
+                    android:stepSize="0.5"/>
 
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:orientation="horizontal">
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/ratingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textSize="12sp"
+                    tools:text="4.5 (69)"/>
 
-			<de.hdodenhof.circleimageview.CircleImageView
-				android:id="@+id/imageView"
-				android:layout_width="40dp"
-				android:layout_height="40dp"
-				android:scaleType="centerCrop"
-				android:layout_margin="16dp"
-				android:src="@mipmap/ic_launcher"/>
-
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:layout_toEndOf="@id/imageConstraintLayout"
-				android:orientation="vertical">
-
-				<RelativeLayout
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content">
-
-					<androidx.appcompat.widget.AppCompatTextView
-						android:id="@+id/itemTextView"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:layout_marginEnd="60dp"
-						android:ellipsize="end"
-						android:maxLines="1"
-						app:firstBaselineToTopHeight="32dp"
-						android:textColor="@android:color/black"
-						android:textSize="16sp"
-						tools:text="Item Name"/>
-
-					<androidx.appcompat.widget.AppCompatTextView
-						android:id="@+id/quantityTextView"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_alignParentEnd="true"
-						app:firstBaselineToTopHeight="28dp"
-						android:paddingEnd="16dp"
-						android:textColor="@android:color/black"
-						android:textAllCaps="true"
-						android:gravity="end"
-						android:letterSpacing="0.2"
-						android:textSize="10dp"
-						android:textStyle="bold"
-						tools:text="quantity 5"/>
-				</RelativeLayout>
-
-				<LinearLayout
-					android:id="@+id/ratingViewGroup"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:orientation="horizontal">
-
-					<RatingBar
-						android:id="@+id/ratingBarView"
-						style="@style/Base.Widget.AppCompat.RatingBar.Small"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:max="5"
-						android:rating="4.5"
-						android:stepSize="0.5"/>
-
-					<androidx.appcompat.widget.AppCompatTextView
-						android:id="@+id/ratingTextView"
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:layout_marginStart="8dp"
-						android:textSize="12sp"
-						tools:text="4.5 (69)"/>
-
-					<ImageView
-						android:id="@+id/userIconImageView"
-						android:layout_width="16dp"
-						android:layout_height="16dp"
-						android:layout_marginStart="4dp"
-						android:src="@drawable/ic_person_black_24dp"/>
-				</LinearLayout>
-			</LinearLayout>
+                <ImageView
+                    android:id="@+id/userIconImageView"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_person_black_24dp"/>
+            </LinearLayout>
+        </LinearLayout>
 
 
-		</LinearLayout>
+    </LinearLayout>
 
-	</androidx.cardview.widget.CardView>
+</androidx.cardview.widget.CardView>
 
-</RelativeLayout>

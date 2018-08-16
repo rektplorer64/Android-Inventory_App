@@ -33,4 +33,5 @@
 	<color name="md_bluegray_400">#78909c</color>
 	<color name="selected_background">#E5E1E0</color>
 	<color name="search_action_bar">#34439A</color>
+    <color name="light_transparent">#4bffffff</color>
 </resources>

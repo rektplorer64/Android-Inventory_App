@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -16,20 +17,24 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import es.dmoral.toasty.Toasty;
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.databinding.CardEditImageBinding;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Image;
+import io.rektplorer.inventoryapp.rvadapters.item.ItemAdapter;
 
 public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHolder>{
 
     private Context context;
-    private boolean editMode;
+    private final boolean editMode;
+    private final boolean dynamicHeight;
     private SelectionTracker<Long> selectionTracker;
 
     private static DiffUtil.ItemCallback<Image> IMAGE_FILE_DIFF_UTIL = new DiffUtil.ItemCallback<Image>(){
@@ -46,10 +51,11 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
 
     private DeleteClickListener deleteClickListener;
 
-    public ItemImageAdapter(Context context, boolean editMode){
+    public ItemImageAdapter(Context context, boolean editMode, boolean dynamicHeight){
         super(IMAGE_FILE_DIFF_UTIL);
         this.context = context;
         this.editMode = editMode;
+        this.dynamicHeight = dynamicHeight;
     }
 
     @NonNull
@@ -66,7 +72,7 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
 
     @Override
     public long getItemId(int position){
-        return position;
+        return getItem(position).getDateAdded().getTime();
     }
 
     public void applyDataChanges(List<Image> imageFileList){
@@ -84,7 +90,7 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
     }
 
     public interface DeleteClickListener{
-        void onDelete(File imageFile, int position);
+        void onDelete(Image imageFile, int position);
     }
 
     public final class ViewHolder extends RecyclerView.ViewHolder implements Detailable{
@@ -103,38 +109,53 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
                 return;
             }
 
-            Glide.with(context)
-                    .load(imageFile)
-                    .apply(RequestOptions.centerCropTransform())
-                    .transition(DrawableTransitionOptions.withCrossFade())
-                    .thumbnail(0.01f)
-                    .into(binding.imageView);
+            RequestBuilder requestBuilder = Glide.with(context)
+                                                 .load(imageFile)
+                                                 .transition(DrawableTransitionOptions.withCrossFade())
+                                                 .thumbnail(0.01f);
 
-            binding.imageTitle.setText(String.valueOf(position + 1));
+            // Asynchronously Calculate image aspect ratio
+            if(dynamicHeight){
+                new Image.ImageViewSizeAsyncCalculator(binding.imageConstraintLayout,
+                                                       binding.imageView, getItem(position))
+                        .execute(imageFile);
+                // ConstraintSet cs = new ConstraintSet();
+                // cs.clone(binding.imageConstraintLayout);
+                // cs.setDimensionRatio(
+                //         binding.imageConstraintLayout.getViewById(binding.imageView.getId()).getId(), getItem(position).getAspectRatio());
+                // cs.applyTo(binding.imageConstraintLayout);
+                // binding.imageConstraintLayout.setConstraintSet(cs);
+                requestBuilder.into(binding.imageView);
+            }else{
+                requestBuilder.apply(RequestOptions.centerCropTransform()).into(binding.imageView);
+            }
+            // binding.heroImageSelector.setVisibility((editMode)? View.VISIBLE : View.GONE);
+            // binding.imageTitle.setText(String.valueOf(position + 1));
 
             if(editMode){
                 binding.heroImageSelector.setVisibility(View.VISIBLE);
                 binding.heroImageSelector.setImageResource((selectionTracker.isSelected(key)) ?
-                        R.drawable.ic_check_circle_24dp : R.drawable.ic_radio_button_unchecked_black_24dp);
+                                                                   R.drawable.ic_check_circle_24dp : R.drawable.ic_radio_button_unchecked_white_24dp);
 
-                binding.heroImageSelector.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view){
-                        if(!selectionTracker.isSelected(key)){
-                            selectionTracker.select(key);
-                        }
-                    }
-                });
+                // binding.heroImageSelector.setOnClickListener(new View.OnClickListener(){
+                //     @Override
+                //     public void onClick(View view){
+                //         if(!selectionTracker.isSelected(key)){
+                //             selectionTracker.select(key);
+                //         }
+                //     }
+                // });
 
                 binding.removeImageButton.setVisibility(View.VISIBLE);
-                binding.removeImageButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View view){
-                        if(deleteClickListener != null){
-                            deleteClickListener.onDelete(imageFile, position);
-                        }
-                    }
-                });
+                // binding.removeImageButton.setOnClickListener(new View.OnClickListener(){
+                //     @Override
+                //     public void onClick(View view){
+                //         Toasty.success(view.getContext(), "Removed image").show();
+                //         if(deleteClickListener != null){
+                //             deleteClickListener.onDelete(getItem(position), position);
+                //         }
+                //     }
+                // });
             }else{
                 binding.heroImageSelector.setVisibility(View.GONE);
                 binding.removeImageButton.setVisibility(View.GONE);
@@ -152,7 +173,7 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
                 @Nullable
                 @Override
                 public Long getSelectionKey(){
-                    return (long) getItem(getAdapterPosition()).getDateAdded().getTime();
+                    return getItem(getAdapterPosition()).getDateAdded().getTime();
                 }
             };
         }
@@ -168,7 +189,7 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
          * @param adapter image adapter
          */
         public ItemImageKeyProvider(ItemImageAdapter adapter){
-            super(ItemKeyProvider.SCOPE_MAPPED);
+            super(ItemKeyProvider.SCOPE_CACHED);
             this.adapter = adapter;
         }
 

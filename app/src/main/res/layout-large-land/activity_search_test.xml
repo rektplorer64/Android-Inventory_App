@@ -17,13 +17,14 @@
 		android:layout_height="wrap_content">
 
 		<androidx.appcompat.widget.Toolbar
-			android:id="@+id/searchActivityToolbar"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			app:subtitleTextColor="@android:color/white"
-			app:titleTextAppearance="@style/Toolbar.TitleText"
-			app:titleTextColor="@android:color/white">
+            android:id="@+id/searchActivityToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:subtitleTextColor="@android:color/white"
+            app:titleTextAppearance="@style/Toolbar.TitleText"
+            app:subtitleTextAppearance="@style/Toolbar.SubtitleText"
+            app:titleTextColor="@android:color/white">
 
 			<RelativeLayout
 				android:layout_width="match_parent"

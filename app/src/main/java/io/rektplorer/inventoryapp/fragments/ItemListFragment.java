@@ -45,7 +45,6 @@ import io.rektplorer.inventoryapp.roomdatabase.Entities.Review;
 import io.rektplorer.inventoryapp.roomdatabase.ItemViewModel;
 import io.rektplorer.inventoryapp.rvadapters.item.ItemAdapter;
 import io.rektplorer.inventoryapp.rvadapters.item.multiselectutil.MyItemDetailsLookup;
-import io.rektplorer.inventoryapp.rvadapters.item.multiselectutil.ItemEntityKeyProvider;
 import io.rektplorer.inventoryapp.utility.HelperUtility;
 
 import static io.rektplorer.inventoryapp.searchpreferencehelper.ListLayoutPreference.COMPACT_LIST_LAYOUT;
@@ -63,7 +62,7 @@ public class ItemListFragment extends Fragment{
     private RecyclerView recyclerView;
     private ItemAdapter itemAdapter;
     private MultiStateView rvMultiViewState;
-    private SelectionTracker selectionTracker;
+    private SelectionTracker<Long> selectionTracker;
     private ItemAdapter.ItemSelectListener itemSelectListener;
 
     private ActionMode mActionMode;
@@ -80,7 +79,8 @@ public class ItemListFragment extends Fragment{
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState){
         return inflater.inflate(R.layout.fragment_list_item, container, false);
     }
 
@@ -106,7 +106,7 @@ public class ItemListFragment extends Fragment{
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
 
         rvMultiViewState = view.findViewById(R.id.rvMultiViewState);
-        itemAdapter = new ItemAdapter(getContext(), loadFromSharedPreference(view.getContext()));
+        itemAdapter = new ItemAdapter(loadFromSharedPreference(view.getContext()));
         itemAdapter.setHasStableIds(true);
         itemAdapter.setItemSelectListener(itemSelectListener);
 
@@ -115,26 +115,33 @@ public class ItemListFragment extends Fragment{
         }
 
         setupRecyclerView(itemAdapter.getListViewModePreference(), recyclerView, itemAdapter);
+        setupSelection();
 
-        final ItemViewModel itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
+        final ItemViewModel itemViewModel = ViewModelProviders.of(getActivity())
+                                                              .get(ItemViewModel.class);
         itemViewModel.getAllItems().observe(getActivity(), new Observer<List<Item>>(){
             @Override
             public void onChanged(@Nullable final List<Item> items){
                 if(items != null && !items.isEmpty()){
-                    setupSelectionContextMenu(itemViewModel, items);
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
                 }else{
                     rvMultiViewState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
                 }
 
-                if(getActivity() instanceof CollectionActivity && ((CollectionActivity) getActivity()).getSupportActionBar() != null){
+                initializeActionCallback(items, itemViewModel);
+
+                if(getActivity() instanceof CollectionActivity && ((CollectionActivity) getActivity())
+                        .getSupportActionBar() != null){
                     String totalItemStr;
                     if(items != null && items.size() >= 1){
-                        totalItemStr = NumberFormat.getInstance(HelperUtility.getCurrentLocale(getContext())).format(items.size()) + " Item" + ((items.size() == 1) ? "" : "s");
+                        totalItemStr = NumberFormat
+                                .getInstance(HelperUtility.getCurrentLocale(getContext()))
+                                .format(items.size()) + " Item" + ((items.size() == 1) ? "" : "s");
                     }else{
                         totalItemStr = "No Item Added";
                     }
-                    ((CollectionActivity) getActivity()).getSupportActionBar().setSubtitle(totalItemStr);
+                    ((CollectionActivity) getActivity()).getSupportActionBar()
+                                                        .setSubtitle(totalItemStr);
                 }
                 itemAdapter.applyItemDataChanges(items, false);
             }
@@ -144,29 +151,34 @@ public class ItemListFragment extends Fragment{
             @Override
             public void onChanged(List<Image> imageList){
                 itemAdapter.applyHeroImageDataChanges(imageList);
-                Snackbar.make(view, "There are " + imageList.size() + " hero images!", Snackbar.LENGTH_INDEFINITE).show();
+                Snackbar.make(view, "There are " + imageList.size() + " hero images!",
+                              Snackbar.LENGTH_INDEFINITE).show();
             }
         });
 
         // After every children views are inflated, proceed the scroll movement
         // NOTE: It is required to use this observer because if the scroll are invoke too early, there won't be any effect
         //       This method works really well with LiveData.
-        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener(){
-            @Override
-            public void onGlobalLayout(){
-                if(savedInstanceState != null){
-                    // Toast.makeText(getContext(), "Loading scroll position", Toast.LENGTH_SHORT).show();
-                    recyclerView.getLayoutManager().onRestoreInstanceState(savedInstanceState.getParcelable(RECYCLER_LAYOUT_MANAGER_INSTANCE));
-                }
-                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
+        recyclerView.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener(){
+                        @Override
+                        public void onGlobalLayout(){
+                            if(savedInstanceState != null){
+                                // Toast.makeText(getContext(), "Loading scroll position", Toast.LENGTH_SHORT).show();
+                                recyclerView.getLayoutManager().onRestoreInstanceState(
+                                        savedInstanceState
+                                                .getParcelable(RECYCLER_LAYOUT_MANAGER_INSTANCE));
+                            }
+                            recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        }
+                    });
 
         itemViewModel.getAllReviews().observe(getActivity(), new Observer<List<Review>>(){
             @Override
             public void onChanged(@Nullable List<Review> reviews){
                 if(reviews != null){
-                    itemAdapter.applyReviewDataChanges(ItemViewModel.convertReviewListToSparseArray(reviews));
+                    itemAdapter.applyReviewDataChanges(
+                            ItemViewModel.convertReviewListToSparseArray(reviews));
                 }
             }
         });
@@ -186,7 +198,8 @@ public class ItemListFragment extends Fragment{
                         layoutManager.setSmoothScrollbarEnabled(true);
                         layoutManager.scrollToPosition(0);
                     }else{
-                        StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) recyclerView.getLayoutManager();
+                        StaggeredGridLayoutManager layoutManager = (StaggeredGridLayoutManager) recyclerView
+                                .getLayoutManager();
                         layoutManager.scrollToPosition(0);
                     }
                     Toasty.normal(v.getContext(), "Scrolled to top!").show();
@@ -241,15 +254,17 @@ public class ItemListFragment extends Fragment{
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private Integer[] listLayoutMenuItemIds = new Integer[]{R.id.view_option_normal,
-                                                            R.id.view_option_small_card,
-                                                            R.id.view_option_compact,
-                                                            R.id.view_option_full};
+    private Integer[] listLayoutMenuItemIds = new Integer[]{
+            R.id.view_option_normal,
+            R.id.view_option_small_card,
+            R.id.view_option_compact,
+            R.id.view_option_full};
 
-    private Integer[] gridLayoutSettingMenuItemIds = new Integer[]{R.id.view_grid_col_1,
-                                                                   R.id.view_grid_col_2,
-                                                                   R.id.view_grid_col_3,
-                                                                   R.id.view_grid_col_4};
+    private Integer[] gridLayoutSettingMenuItemIds = new Integer[]{
+            R.id.view_grid_col_1,
+            R.id.view_grid_col_2,
+            R.id.view_grid_col_3,
+            R.id.view_grid_col_4};
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
@@ -317,27 +332,52 @@ public class ItemListFragment extends Fragment{
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState){
         super.onSaveInstanceState(outState);
-        outState.putParcelable(RECYCLER_LAYOUT_MANAGER_INSTANCE, recyclerView.getLayoutManager().onSaveInstanceState());
+        outState.putParcelable(RECYCLER_LAYOUT_MANAGER_INSTANCE,
+                               recyclerView.getLayoutManager().onSaveInstanceState());
     }
 
     // TODO: fix this
-    private void setupSelectionContextMenu(final ItemViewModel itemViewModel, final List<Item> items){
+    private void setupSelection(){
+        selectionTracker = new SelectionTracker.Builder<>("ITEM_SELECTION"
+                , recyclerView
+                , new ItemAdapter.ItemEntityKeyProvider(itemAdapter)
+                , new MyItemDetailsLookup(recyclerView)
+                , StorageStrategy.createLongStorage())
+                .withOnDragInitiatedListener(new OnDragInitiatedListener(){
+                    @Override
+                    public boolean onDragInitiated(MotionEvent e){
+                        return true;
+                    }
+                }).build();
 
-        if(selectionTracker == null){
-            selectionTracker = new SelectionTracker.Builder<>("ITEM_SELECTION", recyclerView
-                    , new ItemEntityKeyProvider(1, items), new MyItemDetailsLookup(recyclerView)
-                    , StorageStrategy.createLongStorage()).withOnDragInitiatedListener(new OnDragInitiatedListener(){
-                @Override
-                public boolean onDragInitiated(MotionEvent e){
-                    return true;
+        selectionTracker.addObserver(new SelectionTracker.SelectionObserver(){
+            @Override
+            public void onSelectionChanged(){
+                super.onSelectionChanged();
+                if(selectionTracker.hasSelection()){
+                    if(mActionMode == null){
+                        if(getActivity() != null){
+                            mActionMode = ((AppCompatActivity) getActivity())
+                                    .startSupportActionMode(actionModeCallback);
+                        }
+                    }else{
+                        mActionMode.setTitle(
+                                "Selected " + selectionTracker.getSelection().size() + " items");
+                    }
                 }
-            }).build();
-        }
+            }
+        });
+        itemAdapter.setSetSelectionTracker(selectionTracker);
+    }
+
+    private void initializeActionCallback(final List<Item> itemList,
+                                          final ItemViewModel itemViewModel){
         actionModeCallback = new androidx.appcompat.view.ActionMode.Callback(){
             @Override
             public boolean onCreateActionMode(ActionMode actionMode, Menu menu){
                 actionMode.getMenuInflater().inflate(R.menu.menu_item_selection, menu);
-                actionMode.setTitle("Selected " + selectionTracker.getSelection().size() + " items");
+                actionMode
+                        .setTitle("Selected " + selectionTracker.getSelection().size() + " items");
                 return true;
             }
 
@@ -355,19 +395,25 @@ public class ItemListFragment extends Fragment{
                         actionMode.finish();
                         break;
                     case R.id.action_select_delete:
-                        new MaterialDialog.Builder(getContext()).title("Delete " + selectionTracker.getSelection().size() + " items?")
+                        new MaterialDialog.Builder(getContext())
+                                .title("Delete " + selectionTracker.getSelection()
+                                                                   .size() + " items?")
                                 .positiveText(android.R.string.ok).positiveColor(Color.RED)
                                 .negativeText(android.R.string.no)
                                 .onPositive(new MaterialDialog.SingleButtonCallback(){
                                     @Override
                                     public void onClick(MaterialDialog dialog, DialogAction which){
-                                        MaterialDialog intermediate = new MaterialDialog.Builder(getContext())
-                                                .progress(true, selectionTracker.getSelection().size(), true)
+                                        MaterialDialog intermediate = new MaterialDialog.Builder(
+                                                getContext())
+                                                .progress(true,
+                                                          selectionTracker.getSelection().size(),
+                                                          true)
                                                 .show();
                                         int i = 0;
                                         // TODO: make this async
-                                        for(Item item : items){
-                                            if(selectionTracker.getSelection().contains(item)){
+                                        for(Item item : itemList){
+                                            if(selectionTracker.getSelection()
+                                                               .contains((long) item.getId())){
                                                 intermediate.setProgress(i++);
                                                 itemViewModel.delete(item);
                                             }
@@ -390,29 +436,14 @@ public class ItemListFragment extends Fragment{
                 mActionMode = null;
             }
         };
-        selectionTracker.addObserver(new SelectionTracker.SelectionObserver(){
-            @Override
-            public void onSelectionChanged(){
-                super.onSelectionChanged();
-                if(selectionTracker.hasSelection()){
-                    if(mActionMode == null){
-                        if(getActivity() != null){
-                            mActionMode = ((AppCompatActivity) getActivity()).startSupportActionMode(actionModeCallback);
-                        }
-                    }else{
-                        mActionMode.setTitle("Selected " + selectionTracker.getSelection().size() + " items");
-                    }
-                }
-            }
-        });
-        itemAdapter.setSetSelectionTracker(selectionTracker);
     }
 
     public void setItemSelectListener(ItemAdapter.ItemSelectListener itemSelectListener){
         this.itemSelectListener = itemSelectListener;
     }
 
-    public void setAdapterInitiationListener(ItemAdapterInitiationListener adapterInitiationListener){
+    public void setAdapterInitiationListener(
+            ItemAdapterInitiationListener adapterInitiationListener){
         this.adapterInitiationListener = adapterInitiationListener;
     }
 

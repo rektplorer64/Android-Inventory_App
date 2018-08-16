@@ -1,81 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/reviewCardView"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:layout_marginLeft="8dp"
-	android:layout_marginRight="8dp"
-	android:layout_marginTop="8dp"
-	android:foreground="?selectableItemBackgroundBorderless"
-	app:cardCornerRadius="2dp"
-	app:cardElevation="1dp">
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/reviewCardView"
+    style="@style/Widget.MaterialComponents.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:foreground="?selectableItemBackgroundBorderless"
+    android:stateListAnimator="@animator/card_pressed"
+    app:cardCornerRadius="@dimen/card_md_corner"
+    app:cardElevation="@dimen/card_md_elevation">
 
-	<RelativeLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="16dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-		<ImageView
-			android:id="@+id/userProfileImage"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignBaseline="@id/userNameAndRating"
-			android:layout_marginEnd="8dp"
-			android:src="@drawable/ic_account_circle_black_24dp"/>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/userProfileImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="22dp"
+            android:src="@drawable/ic_account_circle_black_24dp"/>
 
-		<LinearLayout
-			android:id="@+id/userNameAndRating"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_toEndOf="@id/userProfileImage"
-			android:orientation="vertical">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/realNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/userNameTextView"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@id/userProfileImage"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            tools:text="Tanawin Wichit"/>
 
-			<androidx.appcompat.widget.AppCompatTextView
-				android:id="@+id/userNameTextView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
-				android:text="User Name"
-				android:textColor="@android:color/black"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/userNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@id/userProfileImage"
+            android:textColor="@android:color/black"
+            android:textSize="10sp"
+            app:firstBaselineToTopHeight="22dp"
+            tools:text="rektplorer64"/>
 
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:orientation="horizontal">
+        <RatingBar
+            android:id="@+id/scoreRatingBar"
+            style="@style/Base.Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/realNameTextView"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@id/userProfileImage"
+            tools:rating="4"/>
 
-				<RatingBar
-					android:id="@+id/scoreRatingBar"
-					style="@style/Base.Widget.AppCompat.RatingBar.Small"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/userReviewDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/realNameTextView"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/scoreRatingBar"
+            tools:text="4.5 · 5 hours ago"/>
 
-				<androidx.appcompat.widget.AppCompatTextView
-					android:id="@+id/userReviewDateTextView"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_gravity="center_vertical"
-					android:layout_marginLeft="8dp"
-					tools:text="4.5"/>
-			</LinearLayout>
+        <ImageButton
+            android:id="@+id/upvoteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/userReviewDateTextView"
+            android:layout_toStartOf="@id/downvoteButton"
+            android:backgroundTint="@android:color/transparent"
+            android:baselineAlignBottom="true"
+            android:src="@drawable/ic_arrow_upward_black_24dp"
+            android:visibility="invisible"/>
 
-		</LinearLayout>
+        <ImageButton
+            android:id="@+id/downvoteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/userReviewDateTextView"
+            android:layout_alignParentEnd="true"
+            android:backgroundTint="@android:color/transparent"
+            android:baselineAlignBottom="true"
+            android:src="@drawable/ic_arrow_downward_black_24dp"
+            android:visibility="invisible"/>
 
-		<androidx.appcompat.widget.AppCompatTextView
-			android:id="@+id/userReviewCommentTextView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_below="@id/userNameAndRating"
-			android:ellipsize="end"
-			android:paddingTop="14dp"
-			android:textColor="@android:color/black"
-			android:textSize="14sp"
-			android:layout_marginLeft="32dp"
-			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis faucibus tempor tempor. Morbi in ultricies tortor, commodo suscipit velit. Quisque vehicula quam pharetra fermentum eleifend. Integer mollis lobortis dignissim. Vestibulum rhoncus dui interdum erat consequat, quis malesuada odio tempor. Fusce at leo pharetra, consectetur ipsum quis, laoreet nisi. Maecenas ac nisl at libero dignissim luctus nec at lorem. Nunc euismod diam mauris, in mollis odio euismod sit amet. Ut lobortis sit amet risus ac posuere. Donec urna nisi, ullamcorper eget scelerisque vel, tempor sed massa. Sed non tincidunt magna. Donec quis neque ut nisl convallis posuere. Sed facilisis nisi lacus, sed elementum felis interdum nec. Fusce molestie euismod placerat."/>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/userReviewCommentTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/scoreRatingBar"
+            android:ellipsize="end"
+            android:maxLines="6"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            app:firstBaselineToTopHeight="26dp"
+            tools:text="@string/placeholderText"/>
+    </RelativeLayout>
 
-	</RelativeLayout>
-
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

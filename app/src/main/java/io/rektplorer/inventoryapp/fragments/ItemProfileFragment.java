@@ -58,8 +58,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import es.dmoral.toasty.Toasty;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 import io.rektplorer.inventoryapp.CollectionActivity;
@@ -103,6 +105,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
     //private RatingBar ratingBar;
 
     // Views of the Image Card
+    private MultiStateView imageRecyclerMultiState;
     private RecyclerView imageRecyclerView;
     private ItemImageAdapter imageAdapter;
 
@@ -167,7 +170,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
         itemInfoAdapter = new ItemInfoAdapter(getContext());
 
-        userReviewAdapter = new UserReviewAdapter(finalItemId, getContext());
+        userReviewAdapter = new UserReviewAdapter(finalItemId);
         userReviewAdapter.setHasStableIds(true);
 
         final Toolbar.OnMenuItemClickListener menuItemClickListener = this;
@@ -238,7 +241,12 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         itemViewModel.getImagesByItemId(itemId).observe(this, new Observer<List<Image>>(){
             @Override
             public void onChanged(List<Image> imageList){
-                imageAdapter.applyDataChanges(imageList);
+                if(imageList != null && !imageList.isEmpty()){
+                    imageRecyclerMultiState.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+                    imageAdapter.applyDataChanges(imageList);
+                }else{
+                    imageRecyclerMultiState.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+                }
             }
         });
     }
@@ -246,6 +254,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
     private void setupScoreInfoDialog(List<Review> reviewList){
         final DetailedScoreAdapter detailedScoreAdapter = new DetailedScoreAdapter();
         detailedScoreAdapter.applyReviewsDataChanges(reviewList);
+
         scoreRatioCardView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -253,7 +262,9 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                         .title("Score Information")
                         .negativeText("close")
                         .content("Full details of all score rated this item, separated by Number of stars.")
-                        .adapter(detailedScoreAdapter, new LinearLayoutManager(getContext()))
+                        .adapter(detailedScoreAdapter,
+                                 new LinearLayoutManager(getContext(), RecyclerView.VERTICAL,
+                                                         false))
                         .build();
 
                 RecyclerView rc = materialDialog.getRecyclerView();
@@ -278,11 +289,14 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                 reviewControl.showNext();
             }
 
-            TextView userNameTextView = rootView.findViewById(R.id.userNameTextView);
+            TextView realNameTextView = rootView.findViewById(R.id.realNameTextView);
             TextView ratedDateTextView = rootView.findViewById(R.id.ratedDateTextView);
             MaterialRatingBar indicatorScoreRatingBar = rootView.findViewById(R.id.indicatorScoreRatingBar);
 
-            userNameTextView.setText(new StringBuilder().append(user.getName()).append(" ").append(user.getSurname()).append(" (").append(user.getUsername()).append(")").toString());
+            realNameTextView.setText(
+                    new StringBuilder().append(user.getName()).append(" ").append(user.getSurname())
+                                       .append(" (").append(user.getUsername()).append(")")
+                                       .toString());
 
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility.getCurrentLocale(getContext()));
             ratedDateTextView.setText(new StringBuilder().append("Rated on ").append(dateFormat.format(review.getTimeStamp())).toString());
@@ -555,10 +569,13 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
         tagChipGroup = view.findViewById(R.id.tagChipGroup);
 
+        imageRecyclerMultiState = view.findViewById(R.id.imageRecyclerMultiState);
+
         imageRecyclerView = view.findViewById(R.id.imageRecyclerView);
-        imageAdapter = new ItemImageAdapter(getContext(), false);
+        imageAdapter = new ItemImageAdapter(getContext(), false, false);
         imageRecyclerView.setAdapter(imageAdapter);
-        imageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+        imageRecyclerView.setLayoutManager(
+                new GridLayoutManager(getContext(), 3, RecyclerView.HORIZONTAL, false));
 
         /* Setup Views of the lower card */
         reviewOptionImageButton = view.findViewById(R.id.reviewOptionImageButton);
@@ -700,11 +717,21 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                     // bundle.putInt("itemId", finalItemId);
                     // allReviewDialogFragment.setArguments(bundle);
                     // allReviewDialogFragment.show(getActivity().getSupportFragmentManager(), "Oh shit");
-                    new MaterialDialog.Builder(getContext())
+                    MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(getContext())
                             .title("All Reviews (" + reviewMap.get(itemId).size() + ")")
-                            .positiveText("Done")
-                            .adapter(userReviewAdapter, new LinearLayoutManager(getContext()))
-                            .show();
+                            .positiveText("Done");
+
+                    RecyclerView.LayoutManager layoutManager;
+
+                    if(HelperUtility
+                            .getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                        layoutManager = new GridLayoutManager(getContext(),
+                                                              GridLayoutManager.VERTICAL);
+                    }else{
+                        layoutManager = new LinearLayoutManager(getContext());
+                    }
+                    dialogBuilder.adapter(userReviewAdapter, layoutManager);
+                    dialogBuilder.show();
                 }
             });
         }else{

@@ -29,14 +29,23 @@ public class MarginItemDecoration extends RecyclerView.ItemDecoration{
     }
 
     @Override
-    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state){
+    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                               @NonNull RecyclerView parent
+            , @NonNull RecyclerView.State state){
         super.getItemOffsets(outRect, view, parent, state);
         // TODO: Adjust this to suit with Grid layout
-        if(parent.getChildAdapterPosition(view) < column){
+        int position = parent.getChildAdapterPosition(view) + 1;
+
+        if(position <= column){
             outRect.top = margin;
+        }else{
+
         }
+
         outRect.left = margin;
-        outRect.right = margin;
+        if(position % column == 0){
+            outRect.right = margin;
+        }
         outRect.bottom = margin;
     }
 }

@@ -8,7 +8,7 @@ import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rektplorer.inventoryapp.rvadapters.Detailable;
 
-public class MyItemDetailsLookup extends ItemDetailsLookup{
+public class MyItemDetailsLookup extends ItemDetailsLookup<Long>{
 
     private final RecyclerView recyclerView;
 
@@ -17,7 +17,7 @@ public class MyItemDetailsLookup extends ItemDetailsLookup{
     }
 
     @Override
-    public ItemDetails getItemDetails(MotionEvent e){
+    public ItemDetails<Long> getItemDetails(MotionEvent e){
         View view = recyclerView.findChildViewUnder(e.getX(), e.getY());
         if(view != null){
             RecyclerView.ViewHolder holder = recyclerView.getChildViewHolder(view);

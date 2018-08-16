@@ -8,6 +8,7 @@ public final class ConstantsHolder{
     public static final String SharedPrefKey_LOGIN_SESSION_USER_ID = "SharedPrefKey_LOGIN_SESSION_USER_ID";
 
     public static final String FRAGMENT_ITEM_LIST = "FRAGMENT_ITEM_LIST";
+    public static final String FRAGMENT_ITEM_EDIT = "FRAGMENT_ITEM_EDIT";
 
     public static final String FRAGMENT_ITEM_FILTER = "FRAGMENT_ITEM_FILTER";
     public static final String FRAGMENT_ITEM_SORT = "FRAGMENT_ITEM_SORT";

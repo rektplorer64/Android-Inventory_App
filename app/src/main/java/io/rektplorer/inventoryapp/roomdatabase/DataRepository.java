@@ -1,10 +1,8 @@
 package io.rektplorer.inventoryapp.roomdatabase;
 
-import android.app.Application;
-import androidx.lifecycle.LiveData;
-import android.os.AsyncTask;
 
-import androidx.annotation.IntDef;
+import android.app.Application;
+import android.os.AsyncTask;
 
 import java.lang.annotation.Retention;
 import java.util.Arrays;
@@ -13,7 +11,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import androidx.annotation.IntDef;
+import androidx.lifecycle.LiveData;
 import io.rektplorer.inventoryapp.roomdatabase.DAOs.ImageDAO;
 import io.rektplorer.inventoryapp.roomdatabase.DAOs.ItemDAO;
 import io.rektplorer.inventoryapp.roomdatabase.DAOs.ReviewDAO;
@@ -69,7 +71,7 @@ public class DataRepository{
     private LiveData<List<Image>> allImage;
 
     DataRepository(Application application){
-        AppDatabase database = AppDatabase.getDatabase(application, AppDatabase.DatabaseInstanceType.ITEMS);
+        AppDatabase database = AppDatabase.getDatabase(application);
         itemDAO = database.itemDao();
         reviewDAO = database.reviewDao();
         userDAO = database.userDao();
@@ -89,15 +91,19 @@ public class DataRepository{
         return userDAO.findUserById(id);
     }
 
-    public int getItemDomain(@EntityType int entityType, @DomainType int domainType, @ItemFieldType int itemFieldType){
+    public int getItemDomain(@EntityType int entityType, @DomainType int domainType,
+                             @ItemFieldType int itemFieldType){
         try{
-            return new FindDomainItemAsyncTask(itemDAO, entityType, domainType, itemFieldType).execute().get();
+            return new FindDomainItemAsyncTask(itemDAO, entityType, domainType, itemFieldType)
+                    .execute().get(1000, TimeUnit.MILLISECONDS);
         }catch(InterruptedException e){
             e.printStackTrace();
         }catch(ExecutionException e){
             e.printStackTrace();
+        }catch(TimeoutException e){
+            e.printStackTrace();
         }
-        return 0;
+        return 1;
     }
 
     public LiveData<List<Item>> getAllItems(){
@@ -130,7 +136,8 @@ public class DataRepository{
 
     public Image getImageByTimeStamp(long time){
         try{
-            return (Image) new FindEntryByColumn(itemDAO, reviewDAO, userDAO, imageDAO).execute(time).get();
+            return (Image) new FindEntryByColumn(itemDAO, reviewDAO, userDAO, imageDAO)
+                    .execute(time).get();
         }catch(ExecutionException e){
             e.printStackTrace();
         }catch(InterruptedException e){
@@ -174,15 +181,18 @@ public class DataRepository{
     }
 
     public void insert(Object o){
-        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, imageDAO, GeneralDbOperatorAsync.INSERT).execute(o);
+        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, imageDAO,
+                                   GeneralDbOperatorAsync.INSERT).execute(o);
     }
 
     public void delete(Object o){
-        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, imageDAO, GeneralDbOperatorAsync.DELETE).execute(o);
+        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, imageDAO,
+                                   GeneralDbOperatorAsync.DELETE).execute(o);
     }
 
     public void update(Object o){
-        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, imageDAO, GeneralDbOperatorAsync.UPDATE).execute(o);
+        new GeneralDbOperatorAsync(itemDAO, reviewDAO, userDAO, imageDAO,
+                                   GeneralDbOperatorAsync.UPDATE).execute(o);
     }
 
     private static class GeneralDbOperatorAsync extends AsyncTask<Object, Void, Void>{
@@ -204,7 +214,8 @@ public class DataRepository{
         public static final int UPDATE = 2;
 
         public GeneralDbOperatorAsync(ItemDAO itemDAO
-                , ReviewDAO reviewDAO, UserDAO userDAO, ImageDAO imageDao, @DbOperationType int type){
+                , ReviewDAO reviewDAO, UserDAO userDAO, ImageDAO imageDao,
+                                      @DbOperationType int type){
             this.itemDAO = itemDAO;
             this.reviewDAO = reviewDAO;
             this.userDAO = userDAO;
@@ -259,7 +270,9 @@ public class DataRepository{
         private final int domainType;
         private final int itemFieldType;
 
-        public FindDomainItemAsyncTask(ItemDAO itemDAO, @EntityType int entityType, @DomainType int domainType, @ItemFieldType int itemFieldType){
+        public FindDomainItemAsyncTask(ItemDAO itemDAO, @EntityType int entityType,
+                                       @DomainType int domainType,
+                                       @ItemFieldType int itemFieldType){
             this.itemDAO = itemDAO;
             this.entityType = entityType;
             this.domainType = domainType;
@@ -306,7 +319,7 @@ public class DataRepository{
         protected Set<String> doInBackground(Void... voids){
             Set<String> allTags = new TreeSet<>(itemDAO.getAllTags());
             Set<String> individualTagSet = new TreeSet<>();
-            for(String s: allTags){
+            for(String s : allTags){
                 String tagsString[] = s.split(" ");
                 individualTagSet.addAll(Arrays.asList(tagsString));
             }

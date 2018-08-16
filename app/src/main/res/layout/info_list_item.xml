@@ -3,41 +3,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:foreground="?selectableItemBackgroundBorderless"
-                android:paddingStart="24dp"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:paddingStart="24dp">
 
-	<androidx.appcompat.widget.AppCompatTextView
-		android:text="Info Entry"
-		android:textSize="12.25dp"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:id="@+id/infoTopicText"/>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/infoTopicText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Info Entry"
+        android:textSize="12.25dp"/>
 
-	<LinearLayout
-		android:layout_below="@id/infoTopicText"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/infoTopicText">
 
-		<androidx.appcompat.widget.AppCompatRatingBar
-			android:id="@+id/infoRatingBar"
-			android:layout_below="@id/infoTopicText"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginRight="8dp"
-			style="@style/Base.Widget.AppCompat.RatingBar.Small"
-			android:layout_gravity="center_vertical"/>
+        <androidx.appcompat.widget.AppCompatRatingBar
+            android:id="@+id/infoRatingBar"
+            style="@style/Base.Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/infoTopicText"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="8dp"/>
 
-		<androidx.appcompat.widget.AppCompatTextView
-			android:id="@+id/infoValueText"
-			android:layout_toEndOf="@id/infoRatingBar"
-			android:layout_below="@id/infoTopicText"
-			android:textColor="@android:color/black"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Info Value"
-			android:textSize="16dp"
-			android:layout_gravity="center_vertical"/>
-	</LinearLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/infoValueText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/infoTopicText"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@id/infoRatingBar"
+            android:text="Info Value"
+            android:textColor="@android:color/black"
+            android:textSize="16dp"/>
+    </LinearLayout>
 
 
 </RelativeLayout>

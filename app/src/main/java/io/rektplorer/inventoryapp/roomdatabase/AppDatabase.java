@@ -35,14 +35,11 @@ import io.rektplorer.inventoryapp.roomdatabase.Entities.User;
                       Image.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase{
 
-    private static AppDatabase INSTANCE_REVIEWS;
-    private static AppDatabase INSTANCE_USERS;
     private static AppDatabase INSTANCE_ITEMS;
-    private static AppDatabase INSTANCE_IMAGES;
 
     private static RoomDatabase.Callback callback;
 
-    public static AppDatabase getDatabase(final Context context, DatabaseInstanceType databaseInstanceType){
+    public static AppDatabase getDatabase(final Context context){
 
         // The Callback is used to assign an operation for database (Populate the database) when it is created
         callback = new RoomDatabase.Callback(){
@@ -55,22 +52,6 @@ public abstract class AppDatabase extends RoomDatabase{
 
         //TODO: Verify this code, if it is really necessary to do like this
 
-        if(INSTANCE_REVIEWS == null){
-            synchronized(AppDatabase.class){
-                if(INSTANCE_REVIEWS == null){
-                    INSTANCE_REVIEWS = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "reviews")
-                            .addCallback(callback).fallbackToDestructiveMigration().build();
-                }
-            }
-        }
-        if(INSTANCE_USERS == null){
-            synchronized(AppDatabase.class){
-                if(INSTANCE_USERS == null){
-                    INSTANCE_USERS = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "users")
-                            .addCallback(callback).fallbackToDestructiveMigration().build();
-                }
-            }
-        }
         if(INSTANCE_ITEMS == null){
             synchronized(AppDatabase.class){
                 if(INSTANCE_ITEMS == null){
@@ -80,24 +61,7 @@ public abstract class AppDatabase extends RoomDatabase{
             }
         }
 
-        if(INSTANCE_IMAGES == null){
-            synchronized(AppDatabase.class){
-                if(INSTANCE_IMAGES == null){
-                    INSTANCE_IMAGES = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "images")
-                            .addCallback(callback).fallbackToDestructiveMigration().build();
-                }
-            }
-        }
-
-        switch(databaseInstanceType){
-            case REVIEWS:
-                return INSTANCE_REVIEWS;
-            case USERS:
-                return INSTANCE_USERS;
-            case ITEMS:
-                return INSTANCE_ITEMS;
-        }
-        return null;
+        return INSTANCE_ITEMS;
     }
 
     public abstract ItemDAO itemDao();
@@ -107,8 +71,6 @@ public abstract class AppDatabase extends RoomDatabase{
     public abstract ReviewDAO reviewDao();
 
     public abstract ImageDAO imageDAO();
-
-    public enum DatabaseInstanceType{REVIEWS, USERS, ITEMS, IMAGES}
 
     /**
      * This class will populate the database in an background thread when it is called.
@@ -125,8 +87,8 @@ public abstract class AppDatabase extends RoomDatabase{
 
         /**
          * Default Constructor for PopulateDataAsync class
+         *  @param appDatabase the custom RoomDatabase class
          *
-         * @param appDatabase the custom RoomDatabase class
          */
         public PopulateDatabaseAsync(AppDatabase appDatabase){
             itemDAO = appDatabase.itemDao();
@@ -217,6 +179,11 @@ public abstract class AppDatabase extends RoomDatabase{
         @Override
         protected void onProgressUpdate(Integer... values){
             super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid){
+            super.onPostExecute(aVoid);
         }
     }
 }

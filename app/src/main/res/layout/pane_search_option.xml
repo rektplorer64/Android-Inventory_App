@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
-	android:id="@+id/frameLayoutsScroller"
-	android:layout_height="wrap_content"
-	android:layout_width="match_parent"
-	xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frameLayoutsScroller"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-	<LinearLayout
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"
-		android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-		<fragment
-			android:id="@+id/filterSettingFrame"
-			android:layout_height="wrap_content"
-			android:layout_width="match_parent"
-			android:name="io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment">
-		</fragment>
+        <fragment
+            android:id="@+id/filterSettingFrame"
+            android:name="io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </fragment>
 
-		<View
-			android:background="?android:attr/listDivider"
-			android:layout_height="1dp"
-			android:layout_width="match_parent"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"/>
 
-		<fragment
-			android:id="@+id/sortSettingFrame"
-			android:layout_height="wrap_content"
-			android:layout_width="match_parent"
-			android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment">
-		</fragment>
+        <fragment
+            android:id="@+id/sortSettingFrame"
+            android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </fragment>
 
-	</LinearLayout>
+    </LinearLayout>
 </ScrollView>

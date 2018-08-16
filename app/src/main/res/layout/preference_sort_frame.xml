@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
-	<fragment
-		android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment"
-		android:id="@+id/sortSettingFrame"
-		android:layout_width="match_parent"
-		android:layout_height="250dp">
-	</fragment>
+    <fragment
+        android:id="@+id/sortSettingFrame"
+        android:name="io.rektplorer.inventoryapp.fragments.SortPreferenceFragment"
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
+    </fragment>
 </androidx.constraintlayout.widget.ConstraintLayout>

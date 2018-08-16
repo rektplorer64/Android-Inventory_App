@@ -1,59 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.kennyc.view.MultiStateView
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/itemProfFragMultiState"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	app:msv_errorView="@layout/item_list_error"
-	app:msv_emptyView="@layout/item_list_empty"
-	app:msv_loadingView="@layout/item_list_loading"
-	app:msv_viewState="loading">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/itemProfFragMultiState"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:msv_emptyView="@layout/item_list_empty"
+    app:msv_errorView="@layout/item_list_error"
+    app:msv_loadingView="@layout/item_list_loading"
+    app:msv_viewState="content">
 
-	<androidx.coordinatorlayout.widget.CoordinatorLayout
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		tools:context=".ItemProfileContainerActivity">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-		<com.google.android.material.appbar.AppBarLayout
-			android:id="@+id/appBarLayout"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/app_bar_height">
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/app_bar_height">
 
-			<com.google.android.material.appbar.CollapsingToolbarLayout
-				android:id="@+id/collapsingToolbar"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:fitsSystemWindows="true"
-				app:layout_scrollFlags="scroll|exitUntilCollapsed"
-				app:titleEnabled="false"
-				app:toolbarId="@id/toolbar">
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapsingToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+                app:titleEnabled="false"
+                app:toolbarId="@id/toolbar">
 
-				<ImageView
-					android:id="@+id/itemImageView"
-					android:layout_width="match_parent"
-					android:layout_height="600dp"
-					android:fitsSystemWindows="true"
-					android:scaleType="centerCrop"
-					app:layout_collapseMode="parallax"
-					app:layout_collapseParallaxMultiplier="0.6"/>
+                <ImageView
+                    android:id="@+id/itemImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="600dp"
+                    android:fitsSystemWindows="true"
+                    android:scaleType="centerCrop"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.6"/>
 
-				<androidx.appcompat.widget.Toolbar
-					android:id="@+id/fragmentToolbar"
-					android:layout_width="match_parent"
-					android:layout_height="?android:attr/actionBarSize"
-					android:elevation="5dp"
-					app:layout_collapseMode="pin"
-					app:popupTheme="@style/AppTheme.PopupOverlay"/>
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:src="@drawable/black_gradient"/>
 
-			</com.google.android.material.appbar.CollapsingToolbarLayout>
-		</com.google.android.material.appbar.AppBarLayout>
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/fragmentToolbar"
+                    style="@style/Widget.MaterialComponents.Toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:elevation="5dp"
+                    app:buttonGravity="bottom"
+                    app:layout_collapseMode="pin"
+                    app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
-		<include
-			layout="@layout/content_profile_item"
-			android:clickable="true"
-			android:focusable="true"/>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
-	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <include
+            layout="@layout/content_profile_item"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </com.kennyc.view.MultiStateView>
