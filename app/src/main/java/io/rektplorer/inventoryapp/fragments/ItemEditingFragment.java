@@ -2,6 +2,7 @@ package io.rektplorer.inventoryapp.fragments;
 
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
@@ -74,6 +75,7 @@ import androidx.recyclerview.selection.BandPredicate;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import es.dmoral.toasty.Toasty;
 import io.rektplorer.inventoryapp.ItemEditingContainerActivity;
@@ -87,7 +89,7 @@ import io.rektplorer.inventoryapp.roomdatabase.ItemViewModel;
 import io.rektplorer.inventoryapp.rvadapters.ItemImageAdapter;
 import io.rektplorer.inventoryapp.rvadapters.item.multiselectutil.MyItemDetailsLookup;
 import io.rektplorer.inventoryapp.utility.ColorUtility;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 import io.rektplorer.inventoryapp.utility.ImageUtility;
 
 import static android.app.Activity.RESULT_OK;
@@ -212,6 +214,8 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
      * @param colorInt color integer
      */
     private void setupTextFieldOnFocusAppearances(@ColorInt final int colorInt){
+        // FIXME: Do this with XML and ObjectAnimator
+        ObjectAnimator animator = ObjectAnimator.ofArgb(editBinding.nameIconImageView, "tint", colorInt);
         editBinding.nameEditText.setOnFocusChangeListener(new View.OnFocusChangeListener(){
             @Override
             public void onFocusChange(View v, boolean hasFocus){
@@ -444,7 +448,7 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
                 }
                 String imageHeadText = "Item Images" + ((imageList
                         .size() > 0) ? " (Total " + NumberFormat
-                        .getNumberInstance(HelperUtility.getCurrentLocale(getContext()))
+                        .getNumberInstance(ScreenUtility.getCurrentLocale(getContext()))
                         .format(imageList.size()) + ")" : "");
                 editBinding.itemImageTextView.setText(imageHeadText);
             }
@@ -564,8 +568,8 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         window = getActivity().getWindow();
         editBinding = binding.editFields;
 
-        itemImageAdapter = new ItemImageAdapter(getContext(), true, HelperUtility
-                .getScreenOrientation(getContext()) != HelperUtility.SCREENORIENTATION_PORTRAIT);
+        itemImageAdapter = new ItemImageAdapter(getContext(), true, ScreenUtility
+                .getScreenOrientation(getContext()) != ScreenUtility.SCREENORIENTATION_PORTRAIT);
         // itemImageAdapter.setHasStableIds(true);
         itemImageAdapter.setDeleteClickListener(new ItemImageAdapter.DeleteClickListener(){
             @Override
@@ -580,9 +584,12 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
         editBinding.imageRecyclerView.setHasFixedSize(false);
 
         editBinding.imageRecyclerView.setAdapter(itemImageAdapter);
+        editBinding.imageRecyclerView.setItemViewCacheSize(20);
 
         editBinding.imageRecyclerView.setLayoutManager(
                 new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL));
+
+
 
         // editBinding.imageRecyclerView.addItemDecoration(new MarginItemDecoration(getContext(), 4, 2));
         editBinding.addMultiImageButton.setOnClickListener(new View.OnClickListener(){
@@ -1089,16 +1096,16 @@ public class ItemEditingFragment extends Fragment implements ColorChooserDialog.
             super.onPreExecute();
 
             // TODO: update dialog code when there is a new version to support androidx
-            dialog = new MaterialDialog.Builder(contextWeakReference.get())
-                    .title("Processing image files...")
-                    .customView(R.layout.dialog_intermidiate_progress, false)
-                    .show();
+            // dialog = new MaterialDialog.Builder(contextWeakReference.get())
+            //         .title("Processing image files...")
+            //         .customView(R.layout.dialog_intermidiate_progress, false)
+            //         .show();
         }
 
         @Override
         protected void onPostExecute(Void aVoid){
             super.onPostExecute(aVoid);
-            dialog.dismiss();
+            // dialog.dismiss();
         }
 
         @Override

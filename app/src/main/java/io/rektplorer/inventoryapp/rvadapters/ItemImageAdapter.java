@@ -2,13 +2,16 @@ package io.rektplorer.inventoryapp.rvadapters;
 
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 
@@ -24,13 +27,13 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import es.dmoral.toasty.Toasty;
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.databinding.CardEditImageBinding;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Image;
-import io.rektplorer.inventoryapp.rvadapters.item.ItemAdapter;
 
 public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHolder>{
+
+    private static final String LOG_TAG = ItemImageAdapter.class.getSimpleName();
 
     private Context context;
     private final boolean editMode;
@@ -61,7 +64,8 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
-        CardEditImageBinding binding = CardEditImageBinding.inflate(LayoutInflater.from(context), parent, false);
+        CardEditImageBinding binding = CardEditImageBinding
+                .inflate(LayoutInflater.from(context), parent, false);
         return new ViewHolder(binding);
     }
 
@@ -78,10 +82,11 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
     public void applyDataChanges(List<Image> imageFileList){
         submitList(imageFileList);
         notifyDataSetChanged();
-        Log.d(this.getClass().getName(), "Submitted " + imageFileList.size() + " image(s) to adapter");
+        Log.d(this.getClass().getName(),
+              "Submitted " + imageFileList.size() + " image(s) to adapter");
     }
 
-    public void setSelectionTracker(SelectionTracker selectionTracker){
+    public void setSelectionTracker(SelectionTracker<Long> selectionTracker){
         this.selectionTracker = selectionTracker;
     }
 
@@ -101,9 +106,10 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
             this.binding = binding;
         }
 
-        public void bindToView(final int position){
-            final File imageFile = getItem(position).getImageFile();
-            final long key = getItem(position).getDateAdded().getTime();
+        void bindToView(final int position){
+            final Image image = getItem(position);
+            final File imageFile = image.getImageFile();
+            final long key = image.getDateAdded().getTime();
 
             if(selectionTracker == null && editMode){
                 return;
@@ -111,21 +117,28 @@ public class ItemImageAdapter extends ListAdapter<Image, ItemImageAdapter.ViewHo
 
             RequestBuilder requestBuilder = Glide.with(context)
                                                  .load(imageFile)
-                                                 .transition(DrawableTransitionOptions.withCrossFade())
+                                                 .transition(
+                                                         DrawableTransitionOptions.withCrossFade())
                                                  .thumbnail(0.01f);
 
+            // TODO: Preload Images
             // Asynchronously Calculate image aspect ratio
             if(dynamicHeight){
-                new Image.ImageViewSizeAsyncCalculator(binding.imageConstraintLayout,
-                                                       binding.imageView, getItem(position))
-                        .execute(imageFile);
-                // ConstraintSet cs = new ConstraintSet();
-                // cs.clone(binding.imageConstraintLayout);
-                // cs.setDimensionRatio(
-                //         binding.imageConstraintLayout.getViewById(binding.imageView.getId()).getId(), getItem(position).getAspectRatio());
-                // cs.applyTo(binding.imageConstraintLayout);
-                // binding.imageConstraintLayout.setConstraintSet(cs);
-                requestBuilder.into(binding.imageView);
+                String aspectRatio = image.getAspectRatio();
+                if(aspectRatio == null || aspectRatio.isEmpty()){
+                    Log.d(LOG_TAG, "Calculating image aspect ratio " + image.getImageFile().getName());
+                    new Image.ImageViewSizeAsyncCalculator(binding.imageConstraintLayout, binding.imageView, image)
+                            .execute(imageFile);
+                }else{
+                    ConstraintSet cs = new ConstraintSet();
+                    cs.clone(binding.imageConstraintLayout);
+                    cs.setDimensionRatio(
+                            binding.imageConstraintLayout.getViewById(binding.imageView.getId())
+                                                         .getId(), aspectRatio);
+                    cs.applyTo(binding.imageConstraintLayout);
+                    binding.imageConstraintLayout.setConstraintSet(cs);
+                    requestBuilder.into(binding.imageView);
+                }
             }else{
                 requestBuilder.apply(RequestOptions.centerCropTransform()).into(binding.imageView);
             }

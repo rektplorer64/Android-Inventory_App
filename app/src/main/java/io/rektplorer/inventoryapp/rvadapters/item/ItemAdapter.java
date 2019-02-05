@@ -4,7 +4,6 @@ package io.rektplorer.inventoryapp.rvadapters.item;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -65,7 +64,8 @@ import io.rektplorer.inventoryapp.searchpreferencehelper.DatePreference;
 import io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference;
 import io.rektplorer.inventoryapp.searchpreferencehelper.ListLayoutPreference;
 import io.rektplorer.inventoryapp.searchpreferencehelper.SortPreference;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
+import io.rektplorer.inventoryapp.utility.StringUtility;
 
 import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.DateCreated_From;
 import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType.DateCreated_To;
@@ -287,7 +287,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         this.itemSelectListener = itemSelectListener;
     }
 
-    public void setSetSelectionTracker(SelectionTracker selectionTracker){
+    public void setSetSelectionTracker(SelectionTracker<Long> selectionTracker){
         this.selectionTracker = selectionTracker;
     }
 
@@ -301,7 +301,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
     private class ItemFilter extends Filter{
 
-        public ItemFilter(){
+        ItemFilter(){
         }
 
         @Override
@@ -550,10 +550,10 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             }
 
             String rating = String
-                    .format(HelperUtility.getCurrentLocale(context), "%.1f", item.getRating());
+                    .format(ScreenUtility.getCurrentLocale(context), "%.1f", item.getRating());
             String numbersOfReviews = NumberFormat.getNumberInstance(Locale.US)
                                                   .format(numberOfReviews);
-            String shortenQuantityNumber = HelperUtility.shortenNumber(item.getQuantity());
+            String shortenQuantityNumber = StringUtility.shortenNumber(item.getQuantity());
 
             ratingTextView.setText(
                     new StringBuilder().append(rating).append(" (").append(numbersOfReviews)
@@ -615,7 +615,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
             cardView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(final View v){
-                    if(HelperUtility.isScreenLargeOrPortrait(v.getContext())){
+                    if(ScreenUtility.isScreenLargeOrPortrait(v.getContext())){
                         // Toast.makeText(v.getContext(), "Item #" + position + " is clicked...", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(v.getContext(),
                                                    ItemProfileContainerActivity.class);
@@ -659,7 +659,7 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
 
         private WeakReference<ChipGroup> chipGroupWeakReference;
 
-        public TagChipAsyncBuilder(ChipGroup chipGroup){
+        TagChipAsyncBuilder(ChipGroup chipGroup){
             chipGroupWeakReference = new WeakReference<>(chipGroup);
         }
 
@@ -677,7 +677,9 @@ public class ItemAdapter extends ListAdapter<Item, ItemAdapter.ItemViewHolder> i
         @Override
         protected void onProgressUpdate(Chip... chips){
             super.onProgressUpdate(chips);
-            chipGroupWeakReference.get().addView(chips[0]);
+            if(chipGroupWeakReference.get() != null){
+                chipGroupWeakReference.get().addView(chips[0]);
+            }
         }
     }
 

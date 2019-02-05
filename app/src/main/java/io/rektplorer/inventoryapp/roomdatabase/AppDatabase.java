@@ -50,7 +50,6 @@ public abstract class AppDatabase extends RoomDatabase{
             }
         };
 
-        //TODO: Verify this code, if it is really necessary to do like this
 
         if(INSTANCE_ITEMS == null){
             synchronized(AppDatabase.class){

@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Review;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.User;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.ViewHolder>{
 
@@ -51,7 +51,7 @@ public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.Vi
 
         Context context = holder.cardView.getContext();
 
-        // DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility
+        // DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", ScreenUtility
         //         .getCurrentLocale(holder.cardView.getContext()));
         if(user != null){
             holder.realNameTextView.setText(
@@ -61,7 +61,7 @@ public class UserReviewAdapter extends RecyclerView.Adapter<UserReviewAdapter.Vi
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(String.format(
-                    HelperUtility.getCurrentLocale(context), "%.1f",
+                    ScreenUtility.getCurrentLocale(context), "%.1f",
                     review.getRating())).append(" · ")
                          .append(DateUtils.getRelativeTimeSpanString(
                                  review.getTimeStamp().getTime(),

@@ -19,7 +19,7 @@ import java.util.Locale;
 
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Item;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoViewHolder>{
 
@@ -44,7 +44,7 @@ public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoVi
     @Override
     public void onBindViewHolder(@NonNull InfoViewHolder holder, int position){
         String keyInfoName = infoNameArray[position];
-        Locale locale = HelperUtility.getCurrentLocale(holder.infoTopicTextView.getContext());
+        Locale locale = ScreenUtility.getCurrentLocale(holder.infoTopicTextView.getContext());
 
         // System.out.println(keyInfoName);
         holder.infoTopicTextView.setText(keyInfoName);
@@ -97,7 +97,7 @@ public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoVi
                         long fileSizeBytes = imageFile.length();       /* Gets Image File size in bytes */
                         double fileSizeMB = fileSizeBytes / Math.pow(2, 20);    /* Converts Image File size to Megabytes*/
                         holder.infoValueTextView.setText(new StringBuilder()
-                                .append(String.format(HelperUtility.getCurrentLocale(context), "%.2f", fileSizeMB))
+                                .append(String.format(ScreenUtility.getCurrentLocale(context), "%.2f", fileSizeMB))
                                 .append(" MB").toString());
                     }else if(keyInfoName.contains("Resolution")){
                         Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());      /* Gets Bitmap from file */
@@ -141,7 +141,7 @@ public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoVi
         //             long fileSizeBytes = imageFile.length();       /* Gets Image File size in bytes */
         //             double fileSizeMB = fileSizeBytes / Math.pow(2, 20);    /* Converts Image File size to Megabytes*/
         //             holder.infoValueTextView.setText(new StringBuilder()
-        //                     .append(String.format(HelperUtility.getCurrentLocale(context), "%.2f", fileSizeMB))
+        //                     .append(String.format(ScreenUtility.getCurrentLocale(context), "%.2f", fileSizeMB))
         //                     .append(" MB").toString());
         //         }else if(keyInfoName.contains("Resolution")){
         //             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getPath());      /* Gets Bitmap from file */
@@ -182,7 +182,7 @@ public class ItemInfoAdapter extends RecyclerView.Adapter<ItemInfoAdapter.InfoVi
     public void applyReviewsChanges(String totalReview, double averageRating){
         // System.out.println("Applying Reviews Changes " + averageRating + " (" + totalReview + ")");
         infoHashMap.put("Total Number of Ratings", totalReview);
-        infoHashMap.put("Average Rating", String.format(HelperUtility.getCurrentLocale(context), "%.2f", averageRating));
+        infoHashMap.put("Average Rating", String.format(ScreenUtility.getCurrentLocale(context), "%.2f", averageRating));
         notifyDataSetChanged();
     }
 

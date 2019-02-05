@@ -26,11 +26,11 @@
 		</activity>
 		<activity
 			android:name="io.rektplorer.inventoryapp.ItemProfileContainerActivity"
-			android:theme="@style/AppTheme.NoActionBar">
+			android:theme="@style/AppTheme.NoActionBar.TransparentStatusBar">
 		</activity>
 		<activity
 			android:name="io.rektplorer.inventoryapp.SearchActivity"
-			android:theme="@style/AppTheme.NoActionBar">
+			android:theme="@style/AppTheme.NoActionBar.TransparentStatusBar">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH"/>
 			</intent-filter>
@@ -55,12 +55,15 @@
 			android:name="io.rektplorer.inventoryapp.ItemEditingContainerActivity"
 			android:parentActivityName="io.rektplorer.inventoryapp.CollectionActivity"
 			android:launchMode="singleTop"
-			android:theme="@style/AppTheme.NoActionBar">
+			android:theme="@style/AppTheme.NoActionBar.TransparentStatusBar">
 		</activity>
 
 		<activity
 			android:name="io.rektplorer.inventoryapp.NavigationDrawerActivity"
 			android:launchMode="singleTop"/>
+		<activity
+			android:theme="@style/AppTheme.NoActionBar"
+			android:name=".AlbumsActivity"/>
 	</application>
 
 </manifest>

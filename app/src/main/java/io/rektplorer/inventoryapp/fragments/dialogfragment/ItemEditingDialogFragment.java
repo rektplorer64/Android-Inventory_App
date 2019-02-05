@@ -21,7 +21,7 @@ import com.afollestad.materialdialogs.Theme;
 import io.rektplorer.inventoryapp.ItemEditingContainerActivity;
 import io.rektplorer.inventoryapp.fragments.ItemEditingFragment;
 import io.rektplorer.inventoryapp.R;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 public class ItemEditingDialogFragment extends DialogFragment{
 
@@ -95,8 +95,8 @@ public class ItemEditingDialogFragment extends DialogFragment{
     public void onResume(){
         super.onResume();
         // Set dialog dimension (Being in onResume() is a must)
-        int dialogWidth = HelperUtility.dpToPx(450, getContext());
-        int dialogHeight = HelperUtility.dpToPx(750, getContext());
+        int dialogWidth = ScreenUtility.dpToPx(450, getContext());
+        int dialogHeight = ScreenUtility.dpToPx(750, getContext());
         getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
     }
 

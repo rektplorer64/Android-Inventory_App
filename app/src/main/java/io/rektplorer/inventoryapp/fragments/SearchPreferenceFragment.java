@@ -43,7 +43,8 @@ import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.roomdatabase.DataRepository;
 import io.rektplorer.inventoryapp.roomdatabase.ItemViewModel;
 import io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
+import io.rektplorer.inventoryapp.utility.StringUtility;
 
 import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.DateType;
 import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.SearchBy;
@@ -279,7 +280,8 @@ public class SearchPreferenceFragment extends Fragment{
         final DateType dateTypes[] = DateType.values();
 
         Integer count = 0;
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility.getCurrentLocale(getContext()));
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", ScreenUtility
+                .getCurrentLocale(getContext()));
         for(TextView dateDisplay: dateDisplayTextView){
             Date date = searchPref.getDatePreference(dateTypes[count++]).getDate();
             dateDisplay.setText(dateFormat.format(date));
@@ -353,7 +355,7 @@ public class SearchPreferenceFragment extends Fragment{
             dateDisplayTextView.get(finalCount).setTypeface(Typeface.DEFAULT_BOLD);
             colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
             colorAnimation.setDuration(250); // milliseconds
-            // datePickerCards.get(finalCount).setRadius(HelperUtility.dpToPx(200, getContext()));
+            // datePickerCards.get(finalCount).setRadius(ScreenUtility.dpToPx(200, getContext()));
             colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
                 @Override
                 public void onAnimationUpdate(ValueAnimator animator){
@@ -365,7 +367,7 @@ public class SearchPreferenceFragment extends Fragment{
             dateDisplayTextView.get(finalCount).setTypeface(Typeface.DEFAULT);
             colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorTo, colorFrom);
             colorAnimation.setDuration(250); // milliseconds
-            // datePickerCards.get(finalCount).setRadius(HelperUtility.dpToPx(0, getContext()));
+            // datePickerCards.get(finalCount).setRadius(ScreenUtility.dpToPx(0, getContext()));
             colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener(){
                 @Override
                 public void onAnimationUpdate(ValueAnimator animator){
@@ -441,7 +443,7 @@ public class SearchPreferenceFragment extends Fragment{
         quantityRangeBar.setFormatter(new IRangeBarFormatter(){
             @Override
             public String format(String value){
-                return HelperUtility.shortenNumber(Long.valueOf(value));
+                return StringUtility.shortenNumber(Long.valueOf(value));
             }
         });
         try{
@@ -459,7 +461,8 @@ public class SearchPreferenceFragment extends Fragment{
     }
 
     private void setDateDialogPositiveBehavior(final DatePickerDialog d, final ArrayList<TextView> dateDisplayTextView, final int dateTypeIndex){
-        final DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility.getCurrentLocale(getContext()));
+        final DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", ScreenUtility
+                .getCurrentLocale(getContext()));
         d.setButton(DialogInterface.BUTTON_POSITIVE, getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which){

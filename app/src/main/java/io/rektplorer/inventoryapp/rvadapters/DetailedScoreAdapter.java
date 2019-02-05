@@ -15,7 +15,7 @@ import java.util.List;
 
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Review;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 import io.rektplorer.inventoryapp.utility.UserInterfaceUtility;
 
 public class DetailedScoreAdapter extends RecyclerView.Adapter<DetailedScoreAdapter.ViewHolder>{
@@ -46,9 +46,10 @@ public class DetailedScoreAdapter extends RecyclerView.Adapter<DetailedScoreAdap
         Context context = holder.detailedScoreTextView.getContext();
 
         holder.starNumberTextView.setText(String.valueOf(starNumber));
-        holder.detailedScoreTextView.setText(new StringBuilder().append(String.format(HelperUtility.getCurrentLocale(context), "%.2f", percentage)).append(" % (").append(totalUser).append(")").toString());
+        holder.detailedScoreTextView.setText(new StringBuilder().append(String.format(
+                ScreenUtility.getCurrentLocale(context), "%.2f", percentage)).append(" % (").append(totalUser).append(")").toString());
         holder.scoreRatioBarCardView.setLayoutParams(new LinearLayout.LayoutParams(0
-                , HelperUtility.dpToPx(30, context), percentage));
+                , ScreenUtility.dpToPx(30, context), percentage));
 
         holder.scoreRatioBarView.setBackgroundColor(Color.parseColor(colorStrings[position]));
     }

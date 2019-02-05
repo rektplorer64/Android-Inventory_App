@@ -1,8 +1,15 @@
 package io.rektplorer.inventoryapp.utility;
 
+import android.content.Context;
+import android.os.Build;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.ViewGroup;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.appcompat.widget.Toolbar;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.Review;
 
 public class UserInterfaceUtility{
@@ -64,5 +71,37 @@ public class UserInterfaceUtility{
         //System.out.println((float) oneStar / reviewArrayList.size());
 
         return result;
+    }
+
+    public static int getStatusBarHeight(Context context){
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if(resourceId > 0){
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    public static void expandActionBarToFitStatusBar(Toolbar toolbar, Context context){
+        // README: android:minHeight="?android:actionBarSize" is required in order to align menu icons
+        // center vertically inside action bar
+
+        // Sets the action bar's content padding, offset equal to height of the status bar
+        toolbar.setPadding(0, getStatusBarHeight(context), 0, 0);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            toolbar.setForegroundGravity(Gravity.CENTER_VERTICAL);
+        }
+        // Gets action bar's height (ActionBar.getHeight() is useless)
+        TypedValue tv = new TypedValue();
+        int toolBarHeight = 0;
+        if(context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)){
+            toolBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
+        }
+
+        // Sets action bar a new height (Height of Status bar + origin Height of Action bar)
+        ViewGroup.LayoutParams layoutParams = toolbar.getLayoutParams();
+        layoutParams.height = getStatusBarHeight(context) + toolBarHeight;
+        toolbar.setLayoutParams(layoutParams);
     }
 }

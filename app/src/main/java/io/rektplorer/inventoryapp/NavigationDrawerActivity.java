@@ -48,6 +48,8 @@ public class NavigationDrawerActivity extends AppCompatActivity implements Navig
             case R.id.nav_search:
                 startActivity(new Intent(this, SearchActivity.class));
                 break;
+            case R.id.nav_albums:
+                startActivity(new Intent(this, AlbumsActivity.class));
         }
         navDrawerLayout.closeDrawers();
         return true;

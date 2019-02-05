@@ -10,7 +10,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 public class PaddingLeftDecoration extends RecyclerView.ItemDecoration{
 
@@ -51,7 +51,7 @@ public class PaddingLeftDecoration extends RecyclerView.ItemDecoration{
     @Override
     public void onDraw(@NonNull Canvas canvas, @NonNull RecyclerView parent, @NonNull RecyclerView.State state){
         canvas.save();
-        final int leftWithMargin = HelperUtility.dpToPx(margin, context);
+        final int leftWithMargin = ScreenUtility.dpToPx(margin, context);
         final int right = parent.getWidth();
 
         final int childCount = parent.getChildCount();      // Get number of children in RecyclerView

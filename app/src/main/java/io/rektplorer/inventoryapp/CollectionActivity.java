@@ -16,15 +16,19 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import es.dmoral.toasty.Toasty;
 import io.rektplorer.inventoryapp.fragments.ItemListFragment;
 import io.rektplorer.inventoryapp.fragments.ItemProfileFragment;
 import io.rektplorer.inventoryapp.fragments.dialogfragment.CircularRevealFragment;
@@ -32,7 +36,8 @@ import io.rektplorer.inventoryapp.roomdatabase.DataRepository;
 import io.rektplorer.inventoryapp.roomdatabase.Entities.User;
 import io.rektplorer.inventoryapp.roomdatabase.ItemViewModel;
 import io.rektplorer.inventoryapp.rvadapters.item.ItemAdapter;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
+import io.rektplorer.inventoryapp.utility.UserInterfaceUtility;
 
 public class CollectionActivity extends NavigationDrawerActivity{
 
@@ -54,10 +59,25 @@ public class CollectionActivity extends NavigationDrawerActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
-        setTheme(R.style.AppTheme_NoActionBar);
+        int screenSizeCategory = ScreenUtility.getScreenSizeCategory(this);
+        if(ScreenUtility.getScreenOrientation(
+                this) == ScreenUtility.SCREENORIENTATION_LANDSCAPE && screenSizeCategory >= ScreenUtility.SCREENSIZE_LARGE){
+            switch(screenSizeCategory){
+                case ScreenUtility.SCREENSIZE_LARGE:
+                    setTheme(R.style.AppTheme_NoActionBar);
+                    break;
+                case ScreenUtility.SCREENSIZE_XLARGE:
+                    setTheme(R.style.AppTheme_NoActionBar_CustomActionModeOverlay);
+                    break;
+            }
+        }else{
+            setTheme(R.style.AppTheme_NoActionBar);
+        }
+
         super.onCreate(savedInstanceState);
         // setContentView(R.layout.activity_collection);
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         //inflate your activity layout here!
         @SuppressLint("InflateParams")
@@ -69,11 +89,16 @@ public class CollectionActivity extends NavigationDrawerActivity{
 
         initializeViews();
         setupActionBar();
-        HelperUtility.expandActionBarToFitStatusBar(toolbar, this);
+
+        Snackbar.make(findViewById(R.id.collectionCoordinator),
+                      "Screensize category: " + ScreenUtility.getScreenSizeCategory(this) + " Orientation: " + ScreenUtility
+                              .getScreenOrientation(this),
+                      Snackbar.LENGTH_INDEFINITE).show();
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if(savedInstanceState != null){
-            itemListFragment = (ItemListFragment) getSupportFragmentManager().getFragment(savedInstanceState, ConstantsHolder.FRAGMENT_ITEM_LIST);
+            itemListFragment = (ItemListFragment) getSupportFragmentManager()
+                    .getFragment(savedInstanceState, ConstantsHolder.FRAGMENT_ITEM_LIST);
         }else{
             itemListFragment = ItemListFragment.newInstance();
         }
@@ -81,7 +106,10 @@ public class CollectionActivity extends NavigationDrawerActivity{
 
         if(itemProfileFragmentFrame != null){
             itemProfileFragment = ItemProfileFragment.newInstance(R.layout.fragment_profile_item
-                    , itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID)
+                    , itemViewModel.getItemDomainValue(
+                            DataRepository.ENTITY_ITEM,
+                            DataRepository.MIN_VALUE,
+                            DataRepository.ITEM_FIELD_ID)
                     , 0, 0);
 
             ft.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
@@ -103,12 +131,16 @@ public class CollectionActivity extends NavigationDrawerActivity{
                 // System.out.println("toolbar's width " + toolbar.getWidth());
                 if(toolbar.getWidth() <= 502){
                     int matchParent = LinearLayout.LayoutParams.MATCH_PARENT;
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent, matchParent);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(matchParent,
+                                                                                     matchParent);
 
                     params.weight = 5;
-                    itemListFragmentCard.setLayoutParams(params);
+                    if(itemListFragmentCard != null){
+                        itemListFragmentCard.setLayoutParams(params);
+                    }
 
-                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent, matchParent);
+                    LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(matchParent,
+                                                                                      matchParent);
                     params1.weight = 10 - params.weight;
                     itemProfileFragmentFrame.setLayoutParams(params1);
                 }
@@ -117,11 +149,12 @@ public class CollectionActivity extends NavigationDrawerActivity{
         // }
     }
 
-    private void selectItemInLargeScreenLayout(int itemId, final int touchCoordinateY, final ItemAdapter itemAdapter){
+    private void selectItemInLargeScreenLayout(int itemId, final int touchCoordinateY,
+                                               final ItemAdapter itemAdapter){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final ItemProfileFragment itemProfileFragment
                 = ItemProfileFragment.newInstance(R.layout.fragment_profile_item, itemId,
-                0, touchCoordinateY);
+                                                  0, touchCoordinateY);
 
         // itemAdapter.notifyDataSetChanged();
 
@@ -130,7 +163,7 @@ public class CollectionActivity extends NavigationDrawerActivity{
             @Override
             public void onItemNotFound(int itemId){
                 int[] nearestIds = itemViewModel.getBothNearestIds(itemId);
-                int newId = 0;
+                int newId;
                 if(nearestIds.length == 1){
                     // newId = nearestIds[0];
                 }else if(nearestIds.length == 2){
@@ -147,7 +180,7 @@ public class CollectionActivity extends NavigationDrawerActivity{
     }
 
     private void initializeViews(){
-        screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(this);
+        screenIsLargeOrPortrait = ScreenUtility.isScreenLargeOrPortrait(this);
         toolbar = findViewById(R.id.toolbar);
         navDrawerLayout = findViewById(R.id.navDrawerLayout);
 
@@ -155,11 +188,11 @@ public class CollectionActivity extends NavigationDrawerActivity{
         fab.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                // if(HelperUtility.getScreenSizeCategory(view.getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                // if(ScreenUtility.getScreenSizeCategory(view.getContext()) >= ScreenUtility.SCREENSIZE_LARGE){
                 //     ItemEditingDialogFragment dialogFragment = ItemEditingDialogFragment.newInstance(0, false);
                 //     dialogFragment.show(getSupportFragmentManager(), "itemEditingDialogFragment");
                 // }else{
-                    startActivity(new Intent(view.getContext(), ItemEditingContainerActivity.class));
+                startActivity(new Intent(view.getContext(), ItemEditingContainerActivity.class));
                 // }
             }
         });
@@ -190,7 +223,7 @@ public class CollectionActivity extends NavigationDrawerActivity{
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
 
-        final boolean screenIsLargeOrPortrait = HelperUtility.isScreenLargeOrPortrait(this);
+        final boolean screenIsLargeOrPortrait = ScreenUtility.isScreenLargeOrPortrait(this);
 
         switch(menuItem.getItemId()){
             case android.R.id.home:{
@@ -208,12 +241,14 @@ public class CollectionActivity extends NavigationDrawerActivity{
     }
 
     public void simulateLoginSession(User user){
-        SharedPreferences loginData = getSharedPreferences(ConstantsHolder.SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE);
+        SharedPreferences loginData = getSharedPreferences(
+                ConstantsHolder.SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = loginData.edit();
         prefEditor.putInt(ConstantsHolder.SharedPrefKey_LOGIN_SESSION_USER_ID, user.getId());
         prefEditor.apply();
 
-        int loggedID = getSharedPreferences(ConstantsHolder.SharedPref_LOGIN_SESSION_DATA, Context.MODE_PRIVATE)
+        int loggedID = getSharedPreferences(ConstantsHolder.SharedPref_LOGIN_SESSION_DATA,
+                                            Context.MODE_PRIVATE)
                 .getInt(ConstantsHolder.SharedPrefKey_LOGIN_SESSION_USER_ID, -1);
         String toastMsg = "Logged in as: ID#" + loggedID;
         Toast.makeText(getApplicationContext(), toastMsg, Toast.LENGTH_LONG).show();
@@ -222,7 +257,20 @@ public class CollectionActivity extends NavigationDrawerActivity{
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        getSupportFragmentManager().putFragment(outState, ConstantsHolder.FRAGMENT_ITEM_LIST, itemListFragment);
+        getSupportFragmentManager()
+                .putFragment(outState, ConstantsHolder.FRAGMENT_ITEM_LIST, itemListFragment);
+    }
+
+    @Override
+    public void onSupportActionModeStarted(@NonNull ActionMode mode){
+        super.onSupportActionModeStarted(mode);
+        fab.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onSupportActionModeFinished(@NonNull ActionMode mode){
+        super.onSupportActionModeFinished(mode);
+        fab.setVisibility(View.VISIBLE);
     }
 
     public void setToolbarClickListener(View.OnClickListener toolbarClickListener){

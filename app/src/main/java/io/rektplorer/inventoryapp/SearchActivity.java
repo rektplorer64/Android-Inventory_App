@@ -29,7 +29,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import es.dmoral.toasty.Toasty;
 import io.rektplorer.inventoryapp.fragments.ItemListFragment;
 import io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment;
 import io.rektplorer.inventoryapp.fragments.SortPreferenceFragment;
@@ -40,7 +39,7 @@ import io.rektplorer.inventoryapp.roomdatabase.ItemViewModel;
 import io.rektplorer.inventoryapp.rvadapters.item.ItemAdapter;
 import io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference;
 import io.rektplorer.inventoryapp.searchpreferencehelper.SortPreference;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 import static io.rektplorer.inventoryapp.ConstantsHolder.FRAGMENT_ITEM_LIST;
 import static io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference.SEARCH_ALL_ITEMS;
@@ -198,11 +197,11 @@ public class SearchActivity extends AppCompatActivity
 
     private void adjustUiScales(View rootView){
         if(rootView.getWidth() <= 1676
-                && HelperUtility.getScreenSizeCategory(getApplicationContext()) >= HelperUtility.SCREENSIZE_LARGE
-                && HelperUtility.getScreenOrientation(getApplicationContext()) == HelperUtility.SCREENORIENTATION_LANDSCAPE){      // If the app takes the entire screen (too wide in landscape)
+                && ScreenUtility.getScreenSizeCategory(getApplicationContext()) >= ScreenUtility.SCREENSIZE_LARGE
+                && ScreenUtility.getScreenOrientation(getApplicationContext()) == ScreenUtility.SCREENORIENTATION_LANDSCAPE){      // If the app takes the entire screen (too wide in landscape)
             // Sets the horizontal padding
             if(containerCardView != null){
-                int margin = HelperUtility.dpToPx(0, rootView.getContext());
+                int margin = ScreenUtility.dpToPx(0, rootView.getContext());
                 ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) containerCardView.getLayoutParams();
                 layoutParams.setMargins(margin, 0, margin, 0);
                 containerCardView.requestLayout();

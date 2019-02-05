@@ -8,6 +8,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.math3.util.ArithmeticUtils;
@@ -156,9 +159,9 @@ public class Image implements Parcelable{
     }
 
     public String getAspectRatio(){
-        if(aspectRatio == null){
-            aspectRatio = calculateAspectRatio(imageFile);
-        }
+        // if(aspectRatio == null){
+        //     aspectRatio = calculateAspectRatio(imageFile);
+        // }
         return aspectRatio;
     }
 
@@ -266,6 +269,10 @@ public class Image implements Parcelable{
                         s);
                 cs.applyTo(weakConstraintLayout.get());
                 weakConstraintLayout.get().setConstraintSet(cs);
+                Glide.with(weakImageView.get().getContext())
+                     .load(image.getImageFile())
+                     .transition(DrawableTransitionOptions.withCrossFade()).thumbnail(0.01f)
+                     .into(weakImageView.get());
             }
             image.setAspectRatio(s);
             super.onPostExecute(s);

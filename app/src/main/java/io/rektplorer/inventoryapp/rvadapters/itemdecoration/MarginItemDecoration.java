@@ -7,7 +7,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 public class MarginItemDecoration extends RecyclerView.ItemDecoration{
 
@@ -25,7 +25,7 @@ public class MarginItemDecoration extends RecyclerView.ItemDecoration{
             throw new IllegalArgumentException("Column can't be lower than 1, current value is " + column);
         }
         this.column = column;
-        this.margin = HelperUtility.dpToPx(margin, context);
+        this.margin = ScreenUtility.dpToPx(margin, context);
     }
 
     @Override

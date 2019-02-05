@@ -61,9 +61,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import es.dmoral.toasty.Toasty;
-import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 import io.rektplorer.inventoryapp.CollectionActivity;
 import io.rektplorer.inventoryapp.ItemEditingContainerActivity;
 import io.rektplorer.inventoryapp.ItemProfileContainerActivity;
@@ -82,8 +80,9 @@ import io.rektplorer.inventoryapp.rvadapters.ItemImageAdapter;
 import io.rektplorer.inventoryapp.rvadapters.ItemInfoAdapter;
 import io.rektplorer.inventoryapp.rvadapters.UserReviewAdapter;
 import io.rektplorer.inventoryapp.utility.ColorUtility;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 import io.rektplorer.inventoryapp.utility.UserInterfaceUtility;
+import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 import static io.rektplorer.inventoryapp.utility.ColorUtility.darkenColor;
 
@@ -131,7 +130,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
     public ItemProfileFragment(){
     }
 
-    public static ItemProfileFragment newInstance(int fragmentLayoutRes, int itemId, int centerX, int centerY){
+    public static ItemProfileFragment newInstance(int fragmentLayoutRes, int itemId, int centerX,
+                                                  int centerY){
         Bundle args = new Bundle();
         args.putInt("resLayout", fragmentLayoutRes);
         args.putInt("itemId", itemId);
@@ -150,16 +150,14 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         setHasOptionsMenu(true);
     }
 
-    public void redrawFragment(){
-        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
-    }
-
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState){
         itemViewModel = ViewModelProviders.of(getActivity()).get(ItemViewModel.class);
         final Bundle bundle = getArguments();
 
-        itemId = itemViewModel.getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE, DataRepository.ITEM_FIELD_ID);
+        itemId = itemViewModel
+                .getItemDomainValue(DataRepository.ENTITY_ITEM, DataRepository.MIN_VALUE,
+                                    DataRepository.ITEM_FIELD_ID);
         if(bundle != null){
             itemId = bundle.getInt("itemId");
         }
@@ -231,10 +229,11 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             @Override
             public void onChanged(Image image){
                 Glide.with(getContext())
-                        .load((image != null) ? image.getImageFile() : R.drawable.md_wallpaper_placeholder)
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .thumbnail(0.025f)
-                        .into(itemImageView);
+                     .load((image != null) ? image
+                             .getImageFile() : R.drawable.md_wallpaper_placeholder)
+                     .transition(DrawableTransitionOptions.withCrossFade())
+                     .thumbnail(0.025f)
+                     .into(itemImageView);
             }
         });
 
@@ -261,23 +260,28 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                 MaterialDialog materialDialog = new MaterialDialog.Builder(getContext())
                         .title("Score Information")
                         .negativeText("close")
-                        .content("Full details of all score rated this item, separated by Number of stars.")
+                        .content(
+                                "Full details of all score rated this item, separated by Number of stars.")
                         .adapter(detailedScoreAdapter,
                                  new LinearLayoutManager(getContext(), RecyclerView.VERTICAL,
                                                          false))
                         .build();
 
                 RecyclerView rc = materialDialog.getRecyclerView();
-                rc.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+                rc.addItemDecoration(
+                        new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
                 materialDialog.show();
             }
         });
     }
 
-    private void adjustReviewControllerMode(View rootView, final boolean isRated, final User user, final Review review){
+    private void adjustReviewControllerMode(View rootView, final boolean isRated, final User user,
+                                            final Review review){
         ViewSwitcher reviewControl = rootView.findViewById(R.id.reviewControl);
-        reviewControl.setInAnimation(AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left));
-        reviewControl.setOutAnimation(AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_out_right));
+        reviewControl.setInAnimation(
+                AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_in_left));
+        reviewControl.setOutAnimation(
+                AnimationUtils.loadAnimation(getContext(), android.R.anim.slide_out_right));
 
         // ViewSwitcher States
         // 1. Empty State (No review from current user)
@@ -291,15 +295,19 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
             TextView realNameTextView = rootView.findViewById(R.id.realNameTextView);
             TextView ratedDateTextView = rootView.findViewById(R.id.ratedDateTextView);
-            MaterialRatingBar indicatorScoreRatingBar = rootView.findViewById(R.id.indicatorScoreRatingBar);
+            MaterialRatingBar indicatorScoreRatingBar = rootView
+                    .findViewById(R.id.indicatorScoreRatingBar);
 
             realNameTextView.setText(
                     new StringBuilder().append(user.getName()).append(" ").append(user.getSurname())
                                        .append(" (").append(user.getUsername()).append(")")
                                        .toString());
 
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", HelperUtility.getCurrentLocale(getContext()));
-            ratedDateTextView.setText(new StringBuilder().append("Rated on ").append(dateFormat.format(review.getTimeStamp())).toString());
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY", ScreenUtility
+                    .getCurrentLocale(getContext()));
+            ratedDateTextView.setText(new StringBuilder().append("Rated on ").append(dateFormat
+                                                                                             .format(review.getTimeStamp()))
+                                                         .toString());
             indicatorScoreRatingBar.setRating((float) review.getRating());
 
             reviewOptionImageButton.setVisibility(View.VISIBLE);
@@ -328,7 +336,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                                             .buttonRippleColor(Color.RED)
                                             .onPositive(new MaterialDialog.SingleButtonCallback(){
                                                 @Override
-                                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
+                                                public void onClick(@NonNull MaterialDialog dialog,
+                                                                    @NonNull DialogAction which){
                                                     itemViewModel.delete(review);
                                                 }
                                             }).show();
@@ -367,9 +376,11 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                 .build();
 
         View dialogRootView = dialog.getCustomView();
-        final MaterialRatingBar giveScoreRatingBar = dialogRootView.findViewById(R.id.giveScoreRatingBar);
+        final MaterialRatingBar giveScoreRatingBar = dialogRootView
+                .findViewById(R.id.giveScoreRatingBar);
         final TextView scoreTextView = dialogRootView.findViewById(R.id.scoreTextView);
-        final TextInputLayout reviewEditTextWrapper = dialogRootView.findViewById(R.id.reviewEditTextWrapper);
+        final TextInputLayout reviewEditTextWrapper = dialogRootView
+                .findViewById(R.id.reviewEditTextWrapper);
         final EditText reviewEditText = dialogRootView.findViewById(R.id.reviewEditText);
 
         final View positiveButton = dialog.getActionButton(DialogAction.POSITIVE);
@@ -408,7 +419,9 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
                     review.setTimeStamp(currentDate);
                     itemViewModel.update(review);
                 }else{
-                    Review newReview = new Review(currentDate, user.getId(), itemId, reviewEditText.getText().toString(), giveScoreRatingBar.getRating());
+                    Review newReview = new Review(currentDate, user.getId(), itemId,
+                                                  reviewEditText.getText().toString(),
+                                                  giveScoreRatingBar.getRating());
                     itemViewModel.insert(newReview);
                 }
                 dialog.dismiss();
@@ -462,9 +475,11 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             // Changes Navigation Bar (Soft keys bar) color
             window.setNavigationBarColor(darkenColor(backColorInt, 0.5f));
         }else if(getActivity() instanceof CollectionActivity){
-            collapsingToolbarLayout.setContentScrimColor(darkenColor(backColorInt));    // Set scrimColor
+            collapsingToolbarLayout
+                    .setContentScrimColor(darkenColor(backColorInt));    // Set scrimColor
         }else{
-            collapsingToolbarLayout.setContentScrimColor(darkenColor(backColorInt));    // Set scrimColor
+            collapsingToolbarLayout
+                    .setContentScrimColor(darkenColor(backColorInt));    // Set scrimColor
             toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
             toolbar.getNavigationIcon().setTint(Color.WHITE);
 
@@ -472,7 +487,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             toolbar.setNavigationOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(getParentFragment()).commit();
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                                 .remove(getParentFragment()).commit();
                 }
             });
         }
@@ -481,23 +497,23 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
     private void setupUiScales(final View rootView){
         if(getActivity() instanceof ItemProfileContainerActivity){
             // If this fragment is launched in ItemProfileContainerActivity and the screen size at least LARGE
-            if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+            if(ScreenUtility.getScreenSizeCategory(getContext()) >= ScreenUtility.SCREENSIZE_LARGE){
                 // If the screen is too wide, sets the side padding of fragment's LinearLayout.
-                int padding = HelperUtility.dpToPx(100, getContext());
+                int padding = ScreenUtility.dpToPx(100, getContext());
                 itemProfileLinearLayout.setPadding(padding, 0, padding, 0);
-                // itemImageView.getLayoutParams().height = HelperUtility.dpToPx(1000, getContext());
+                // itemImageView.getLayoutParams().height = ScreenUtility.dpToPx(1000, getContext());
                 // itemImageView.requestLayout();
             }
         }else if(getActivity() instanceof CollectionActivity){
-            HelperUtility.expandActionBarToFitStatusBar(toolbar, getContext());     // Expands ActionBar to fit the translucent statusBar
             /* Adjusts Layout According to the screen size */
             rootView.post(new Runnable(){
                 @Override
                 public void run(){
                     // System.out.println("ItemProfile RootView's Width: " + rootView.getWidth());
-                    if(rootView.getWidth() > 1174){      // If the app takes the entire screen (too wide in landscape)
+                    if(rootView
+                            .getWidth() > 1174){      // If the app takes the entire screen (too wide in landscape)
                         // Sets the horizontal padding
-                        int padding = HelperUtility.dpToPx(120, rootView.getContext());
+                        int padding = ScreenUtility.dpToPx(120, rootView.getContext());
                         itemProfileLinearLayout.setPadding(padding, 0, padding, 0);
                     }
                 }
@@ -544,9 +560,11 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         toolbar = view.findViewById(R.id.fragmentToolbar);      // Binds toolbar
         if(getActivity() instanceof ItemProfileContainerActivity){      // If fragment launches inside ItemProfileContainerActivity
             AppCompatActivity activity = (AppCompatActivity) getActivity();
-            activity.setSupportActionBar(toolbar);       // Sets support ActionBar with toolbar object
+            activity.setSupportActionBar(
+                    toolbar);       // Sets support ActionBar with toolbar object
             activity.getSupportActionBar().setDisplayShowTitleEnabled(false);    // Hides Title
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);      // Shows Navigation Icon (Back button)
+            activity.getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);      // Shows Navigation Icon (Back button)
         }else{
             // toolbar.setVisibility(View.GONE);
             toolbar.inflateMenu(R.menu.menu_item_profile);      // Inflates Menu Item
@@ -626,8 +644,10 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
         itemNameTextView.setText(item.getName());
         quantityTextView.setText(new StringBuilder()
-                .append(NumberFormat.getNumberInstance(HelperUtility.getCurrentLocale(getContext())).format(item.getQuantity()))
-                .toString());
+                                         .append(NumberFormat.getNumberInstance(
+                                                 ScreenUtility.getCurrentLocale(getContext()))
+                                                             .format(item.getQuantity()))
+                                         .toString());
 
         itemInfoAdapter.applyInfoDataChanges(item);
 
@@ -667,7 +687,7 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         if(reviewList != null){     /* If review list is not empty */
             // Converts Total Review to a String
             String totalReviews = NumberFormat.getNumberInstance(Locale.US)
-                    .format(reviewList.size());
+                                              .format(reviewList.size());
             totalReviewTextView.setText(totalReviews);      // Sets TextView a Total Review
 
             // Calculates average score
@@ -680,17 +700,22 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             // ratingTextView.setText(String.format("%.1f", calculatedAverage) + " (" + totalReviews + ")");
 
             // Sets Average Score to a TextView
-            scoreTextView.setText(String.format(HelperUtility.getCurrentLocale(getContext()), "%.1f", calculatedAverage));
+            scoreTextView.setText(
+                    String.format(ScreenUtility.getCurrentLocale(getContext()), "%.1f",
+                                  calculatedAverage));
 
             // Sets Average Score to a RatingBar
             ratingBar1.setRating(Float.valueOf(String.valueOf(calculatedAverage)));
 
             // Calculates weights for Ratio Views
-            ArrayList<Float> calculateWeight = UserInterfaceUtility.calculateScalePercentage(reviewList);
+            ArrayList<Float> calculateWeight = UserInterfaceUtility
+                    .calculateScalePercentage(reviewList);
             int count = 0;
             for(View ratioBar : scoreBarRatioViewList){
                 ratioBar.setLayoutParams(new LinearLayout.LayoutParams(0,
-                        ViewGroup.LayoutParams.MATCH_PARENT, calculateWeight.get(count++)));
+                                                                       ViewGroup.LayoutParams.MATCH_PARENT,
+                                                                       calculateWeight
+                                                                               .get(count++)));
             }
         }else{
             totalReviewTextView.setText("0");
@@ -702,7 +727,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         }
 
         // Setups the showAllReviewButton
-        final SparseArray<ArrayList<Review>> reviewMap = ItemViewModel.convertReviewListToSparseArray(reviewList);
+        final SparseArray<ArrayList<Review>> reviewMap = ItemViewModel
+                .convertReviewListToSparseArray(reviewList);
         userReviewAdapter.applyReviewDataChanges(reviewMap.get(itemId));
 
         // If there are reviews of this item
@@ -723,8 +749,8 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
 
                     RecyclerView.LayoutManager layoutManager;
 
-                    if(HelperUtility
-                            .getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE){
+                    if(ScreenUtility
+                            .getScreenSizeCategory(getContext()) >= ScreenUtility.SCREENSIZE_LARGE){
                         layoutManager = new GridLayoutManager(getContext(),
                                                               GridLayoutManager.VERTICAL);
                     }else{
@@ -746,21 +772,28 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
         switch(menuItem.getItemId()){
             case R.id.action_more_info:{
                 new MaterialDialog.Builder(getContext()).title("Info")
-                        .adapter(itemInfoAdapter, new LinearLayoutManager(getContext()))
-                        .negativeText("Close")
-                        .build()
-                        .show();
+                                                        .adapter(itemInfoAdapter,
+                                                                 new LinearLayoutManager(
+                                                                         getContext()))
+                                                        .negativeText("Close")
+                                                        .build()
+                                                        .show();
                 break;
             }
             case R.id.action_edit:{
-                if(HelperUtility.getScreenSizeCategory(getContext()) >= HelperUtility.SCREENSIZE_LARGE && HelperUtility.getScreenOrientation(getContext()) == HelperUtility.SCREENORIENTATION_PORTRAIT){
-                    ItemEditingDialogFragment editingDialog = ItemEditingDialogFragment.newInstance(itemId, true);
-                    editingDialog.setOnDialogConfirmListener(new ItemEditingDialogFragment.OnDialogConfirmListener(){
-                        @Override
-                        public void onDialogConfirm(int itemId){
-                            Toasty.success(getContext(), "Successfully saved!").show();
-                        }
-                    });
+                if(ScreenUtility.getScreenSizeCategory(
+                        getContext()) >= ScreenUtility.SCREENSIZE_LARGE && ScreenUtility
+                        .getScreenOrientation(
+                                getContext()) == ScreenUtility.SCREENORIENTATION_PORTRAIT){
+                    ItemEditingDialogFragment editingDialog = ItemEditingDialogFragment
+                            .newInstance(itemId, true);
+                    editingDialog.setOnDialogConfirmListener(
+                            new ItemEditingDialogFragment.OnDialogConfirmListener(){
+                                @Override
+                                public void onDialogConfirm(int itemId){
+                                    Toasty.success(getContext(), "Successfully saved!").show();
+                                }
+                            });
                     editingDialog.show(getFragmentManager(), "itemEditingDialogFragment");
                 }else{
                     Intent intent = new Intent(getActivity(), ItemEditingContainerActivity.class);
@@ -772,27 +805,33 @@ public class ItemProfileFragment extends CircularRevealFragment implements Toolb
             }
             case R.id.action_delete:{
                 new MaterialDialog.Builder(getContext()).title("Delete " + item.getName() + "?")
-                        .negativeText("No").positiveText("Yes")
-                        .theme(Theme.LIGHT)
-                        .onPositive(new MaterialDialog.SingleButtonCallback(){
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which){
-                                itemViewModel.delete(item);
-                                // Toasty.success(getContext(), "Item Deleted successfully").show();
-                                if(getActivity() instanceof ItemProfileContainerActivity){
-                                    closeActivityCircularly();
-                                }else if(getActivity() instanceof SearchActivity){
-                                    // If item profile is contained in a dialog fragment
-                                    if(getParentFragment() != null){
-                                        // Close dialog
-                                        ((DialogFragment) getParentFragment()).dismiss();
-                                    }
-                                }
-                                if(itemChangeListener != null){
-                                    itemChangeListener.onItemNotFound(itemId);
-                                }
-                            }
-                        }).show();
+                                                        .negativeText("No").positiveText("Yes")
+                                                        .theme(Theme.LIGHT)
+                                                        .onPositive(
+                                                                new MaterialDialog.SingleButtonCallback(){
+                                                                    @Override
+                                                                    public void onClick(
+                                                                            @NonNull MaterialDialog dialog,
+                                                                            @NonNull DialogAction which){
+                                                                        itemViewModel.delete(item);
+                                                                        // Toasty.success(getContext(), "Item Deleted successfully").show();
+                                                                        if(getActivity() instanceof ItemProfileContainerActivity){
+                                                                            closeActivityCircularly();
+                                                                        }else if(getActivity() instanceof SearchActivity){
+                                                                            // If item profile is contained in a dialog fragment
+                                                                            if(getParentFragment() != null){
+                                                                                // Close dialog
+                                                                                ((DialogFragment) getParentFragment())
+                                                                                        .dismiss();
+                                                                            }
+                                                                        }
+                                                                        if(itemChangeListener != null){
+                                                                            itemChangeListener
+                                                                                    .onItemNotFound(
+                                                                                            itemId);
+                                                                        }
+                                                                    }
+                                                                }).show();
             }
         }
         return true;

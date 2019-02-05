@@ -14,7 +14,7 @@ import android.view.WindowManager;
 
 import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.fragments.ItemProfileFragment;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 public class ItemProfileDialogFragment extends DialogFragment{
 
@@ -83,8 +83,8 @@ public class ItemProfileDialogFragment extends DialogFragment{
     public void onResume(){
         super.onResume();
         // Set dialog dimension (Being in onResume() is a must)
-        int dialogWidth = HelperUtility.dpToPx(450, getContext());
-        int dialogHeight = HelperUtility.dpToPx(750, getContext());
+        int dialogWidth = ScreenUtility.dpToPx(450, getContext());
+        int dialogHeight = ScreenUtility.dpToPx(750, getContext());
         getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
     }
 }

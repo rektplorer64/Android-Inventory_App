@@ -1,0 +1,106 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/collectionCoordinator"
+	android:layout_width="match_parent"
+	android:fitsSystemWindows="true"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<FrameLayout
+			android:id="@+id/fillingToolbar1"
+			android:layout_width="match_parent"
+			android:layout_height="20dp"
+			android:background="@color/colorPrimaryBlue"/>
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="horizontal"
+			android:baselineAligned="false"
+			android:weightSum="10">
+
+			<LinearLayout
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="4"
+				android:orientation="vertical">
+
+				<com.google.android.material.appbar.AppBarLayout
+					android:id="@+id/appBarLayout"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:elevation="5dp"
+					android:theme="@style/AppTheme.AppBarOverlay"
+					app:expanded="true"
+					app:layout_constraintStart_toStartOf="parent"
+					app:layout_constraintTop_toTopOf="parent"
+					app:liftOnScroll="true">
+
+					<androidx.appcompat.widget.Toolbar
+						android:id="@+id/toolbar"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:background="?attr/colorPrimary"
+						android:gravity="center_vertical"
+						android:minHeight="?android:actionBarSize"
+						app:popupTheme="@style/AppTheme.PopupOverlay"/>
+
+				</com.google.android.material.appbar.AppBarLayout>
+
+				<FrameLayout
+					android:id="@+id/itemListFragmentFrame"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:translationZ="4dp"/>
+			</LinearLayout>
+
+
+			<RelativeLayout
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="6">
+
+				<FrameLayout
+					android:id="@+id/fillingToolbar"
+					android:layout_width="match_parent"
+					android:layout_height="?android:actionBarSize"
+					android:background="@color/colorPrimaryBlue"/>
+
+				<androidx.cardview.widget.CardView
+					android:id="@+id/itemProfileFragmentCard"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:layout_marginStart="8dp"
+					android:layout_marginEnd="130dp"
+					android:elevation="5dp"
+					app:cardCornerRadius="0dp"
+					app:cardElevation="5dp">
+
+					<FrameLayout
+						android:id="@+id/itemProfileFragmentFrame"
+						android:layout_width="match_parent"
+						android:layout_height="match_parent">
+					</FrameLayout>
+				</androidx.cardview.widget.CardView>
+			</RelativeLayout>
+
+		</LinearLayout>
+	</LinearLayout>
+
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
+		android:id="@+id/fab"
+		android:layout_width="56dp"
+		android:layout_height="56dp"
+		android:layout_marginEnd="35dp"
+		android:scaleType="center"
+		app:layout_anchor="@id/fillingToolbar"
+		app:layout_anchorGravity="bottom|end"
+		app:srcCompat="@drawable/ic_add_white_24dp"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+

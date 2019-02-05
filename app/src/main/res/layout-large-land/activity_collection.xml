@@ -1,75 +1,67 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/collectionCoordinator"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:fitsSystemWindows="true">
 
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:orientation="vertical">
+		android:orientation="horizontal"
+		android:weightSum="10">
 
-		<LinearLayout
-			android:id="@+id/navigationSlidingPane"
-			android:layout_width="match_parent"
+		<androidx.cardview.widget.CardView
+			android:id="@+id/itemListFragmentCard"
+			android:layout_width="0dp"
 			android:layout_height="match_parent"
-			tools:showIn="@layout/activity_collection">
-
+			android:layout_weight="3"
+			android:elevation="10dp"
+			app:cardCornerRadius="0dp"
+			app:cardElevation="20dp">
 
 			<LinearLayout
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:orientation="horizontal"
-				android:weightSum="10">
+				android:orientation="vertical">
 
-				<androidx.cardview.widget.CardView
-					android:id="@+id/itemListFragmentCard"
-					android:layout_width="0dp"
-					android:layout_height="match_parent"
-					android:layout_weight="3"
-					android:elevation="20dp"
-					app:cardCornerRadius="0dp"
-					app:cardElevation="20dp">
+				<com.google.android.material.appbar.AppBarLayout
+					android:id="@+id/appBarLayout"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:elevation="4dp"
+					android:theme="@style/AppTheme.AppBarOverlay"
+					app:expanded="true"
+					app:liftOnScroll="true">
 
-					<LinearLayout
+					<androidx.appcompat.widget.Toolbar
+						android:id="@+id/toolbar"
 						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:orientation="vertical">
+						android:layout_height="wrap_content"
+						android:background="?attr/colorPrimary"
+						android:elevation="4dp"
+						android:gravity="center_vertical"
+						android:minHeight="?android:actionBarSize"
+						app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
-						<com.google.android.material.appbar.AppBarLayout
-							android:layout_width="match_parent"
-							android:layout_height="wrap_content"
-							android:theme="@style/AppTheme.AppBarOverlay">
-
-							<androidx.appcompat.widget.Toolbar
-								android:id="@+id/toolbar"
-								android:layout_width="match_parent"
-								android:layout_height="wrap_content"
-								style="@style/Widget.MaterialComponents.Toolbar"
-								android:background="?attr/colorPrimary"
-								app:popupTheme="@style/AppTheme.PopupOverlay"/>
-						</com.google.android.material.appbar.AppBarLayout>
-
-						<FrameLayout
-							android:id="@+id/itemListFragmentFrame"
-							android:layout_width="match_parent"
-							android:layout_height="match_parent"/>
-					</LinearLayout>
-
-				</androidx.cardview.widget.CardView>
+				</com.google.android.material.appbar.AppBarLayout>
 
 				<FrameLayout
-					android:id="@+id/itemProfileFragmentFrame"
-					android:layout_width="0dp"
+					android:id="@+id/itemListFragmentFrame"
+					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:layout_weight="7">
-				</FrameLayout>
-
-
+					android:elevation="3dp"/>
 			</LinearLayout>
 
-		</LinearLayout>
+		</androidx.cardview.widget.CardView>
+
+		<FrameLayout
+			android:id="@+id/itemProfileFragmentFrame"
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="7">
+		</FrameLayout>
 
 	</LinearLayout>
 

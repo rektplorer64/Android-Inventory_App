@@ -18,7 +18,7 @@ import io.rektplorer.inventoryapp.R;
 import io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment;
 import io.rektplorer.inventoryapp.fragments.SortPreferenceFragment;
 import io.rektplorer.inventoryapp.searchpreferencehelper.FilterPreference;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
+import io.rektplorer.inventoryapp.utility.ScreenUtility;
 
 import static io.rektplorer.inventoryapp.fragments.SearchPreferenceFragment.SEARCH_PREF;
 
@@ -91,12 +91,12 @@ public class SearchOptionDialogFragment extends DialogFragment{
     public void onResume(){
         super.onResume();
         // Set dialog dimension (Being in onResume() is a must)
-        int dialogWidth = HelperUtility.dpToPx(380, getContext());
-        int dialogHeight = HelperUtility.dpToPx(750, getContext());
+        int dialogWidth = ScreenUtility.dpToPx(380, getContext());
+        int dialogHeight = ScreenUtility.dpToPx(750, getContext());
         getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
 
         frameLayoutsScroller.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, HelperUtility.dpToPx(750 - 82, getContext())));
+                LinearLayout.LayoutParams.MATCH_PARENT, ScreenUtility.dpToPx(750 - 82, getContext())));
     }
 
     public void setSearchPreferenceUpdateListener(SearchPreferenceFragment.SearchPreferenceUpdateListener searchPreferenceUpdateListener){

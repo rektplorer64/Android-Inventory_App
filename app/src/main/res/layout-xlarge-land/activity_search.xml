@@ -16,9 +16,9 @@
 		android:weightSum="10">
 
 		<RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="4">
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="3">
 
 			<com.google.android.material.card.MaterialCardView
 				android:layout_width="match_parent"
@@ -73,9 +73,9 @@
 		</RelativeLayout>
 
 		<RelativeLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="6">
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="7">
 
 			<FrameLayout
 				android:id="@+id/v_toolbar_extension2"
@@ -91,15 +91,15 @@
 				android:elevation="6dp">
 
 				<androidx.appcompat.widget.Toolbar
-                    android:id="@+id/searchActivityToolbar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:background="@color/search_action_bar"
-                    app:subtitleTextColor="@android:color/white"
-                    app:titleTextAppearance="@style/Toolbar.TitleText"
-                    app:subtitleTextAppearance="@style/Toolbar.SubtitleText"
-                    app:titleTextColor="@android:color/white">
+					android:id="@+id/searchActivityToolbar"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_gravity="center_vertical"
+					android:background="@color/search_action_bar"
+					app:subtitleTextColor="@android:color/white"
+					app:titleTextAppearance="@style/Toolbar.TitleText"
+					app:subtitleTextAppearance="@style/Toolbar.SubtitleText"
+					app:titleTextColor="@android:color/white">
 				</androidx.appcompat.widget.Toolbar>
 
 			</com.google.android.material.appbar.AppBarLayout>

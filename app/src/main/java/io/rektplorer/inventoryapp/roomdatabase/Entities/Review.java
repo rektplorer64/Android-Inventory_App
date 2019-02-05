@@ -42,7 +42,6 @@ public class Review{
     }
 
     public static double calculateAverage(List<Review> reviewArrayList){
-
         // If there is no review for the item
         if(reviewArrayList == null || reviewArrayList.isEmpty()){
             return 0.0;     /* The average score is always zero */

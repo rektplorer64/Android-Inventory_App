@@ -11,5 +11,10 @@
 			android:icon="@drawable/ic_search_black_24dp"
 			android:title="Search"/>
 
+		<item
+			android:id="@+id/nav_albums"
+			android:icon="@drawable/ic_dashboard_black_24dp"
+			android:title="Albums"/>
+
 	</group>
 </menu>

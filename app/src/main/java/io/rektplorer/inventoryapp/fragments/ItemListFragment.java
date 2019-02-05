@@ -18,7 +18,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
 import com.kennyc.view.MultiStateView;
 
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +44,6 @@ import io.rektplorer.inventoryapp.roomdatabase.Entities.Review;
 import io.rektplorer.inventoryapp.roomdatabase.ItemViewModel;
 import io.rektplorer.inventoryapp.rvadapters.item.ItemAdapter;
 import io.rektplorer.inventoryapp.rvadapters.item.multiselectutil.MyItemDetailsLookup;
-import io.rektplorer.inventoryapp.utility.HelperUtility;
 
 import static io.rektplorer.inventoryapp.searchpreferencehelper.ListLayoutPreference.COMPACT_LIST_LAYOUT;
 import static io.rektplorer.inventoryapp.searchpreferencehelper.ListLayoutPreference.FULL_CARD_LAYOUT;
@@ -119,6 +117,7 @@ public class ItemListFragment extends Fragment{
 
         final ItemViewModel itemViewModel = ViewModelProviders.of(getActivity())
                                                               .get(ItemViewModel.class);
+
         itemViewModel.getAllItems().observe(getActivity(), new Observer<List<Item>>(){
             @Override
             public void onChanged(@Nullable final List<Item> items){
@@ -132,16 +131,16 @@ public class ItemListFragment extends Fragment{
 
                 if(getActivity() instanceof CollectionActivity && ((CollectionActivity) getActivity())
                         .getSupportActionBar() != null){
-                    String totalItemStr;
-                    if(items != null && items.size() >= 1){
-                        totalItemStr = NumberFormat
-                                .getInstance(HelperUtility.getCurrentLocale(getContext()))
-                                .format(items.size()) + " Item" + ((items.size() == 1) ? "" : "s");
-                    }else{
-                        totalItemStr = "No Item Added";
-                    }
-                    ((CollectionActivity) getActivity()).getSupportActionBar()
-                                                        .setSubtitle(totalItemStr);
+                //     String totalItemStr;
+                //     if(items != null && items.size() >= 1){
+                //         totalItemStr = NumberFormat
+                //                 .getInstance(ScreenUtility.getCurrentLocale(getContext()))
+                //                 .format(items.size()) + " Item" + ((items.size() == 1) ? "" : "s");
+                //     }else{
+                //         totalItemStr = "No Item Added";
+                //     }
+                //     ((CollectionActivity) getActivity()).getSupportActionBar()
+                //                                         .setSubtitle(totalItemStr);
                 }
                 itemAdapter.applyItemDataChanges(items, false);
             }
@@ -151,8 +150,6 @@ public class ItemListFragment extends Fragment{
             @Override
             public void onChanged(List<Image> imageList){
                 itemAdapter.applyHeroImageDataChanges(imageList);
-                Snackbar.make(view, "There are " + imageList.size() + " hero images!",
-                              Snackbar.LENGTH_INDEFINITE).show();
             }
         });
 

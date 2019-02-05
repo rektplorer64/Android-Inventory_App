@@ -84,7 +84,8 @@
                     android:textAlignment="viewStart"
                     android:textColor="@android:color/black"
                     android:textSize="16sp"
-                    tools:text="12115152"/>
+                    tools:text="12115152"
+                    android:autofillHints="Enter number"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 

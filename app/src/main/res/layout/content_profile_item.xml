@@ -83,7 +83,7 @@
 
 
                 <LinearLayout
-                    android:id="@+id/ratingViewGroup"
+                    android:id="@+id/ratingLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/itemTextView"
@@ -94,7 +94,7 @@
                     android:id="@+id/descriptionHeadTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/ratingViewGroup"
+                    android:layout_below="@id/ratingLinearLayout"
                     android:layout_gravity="start"
                     android:text="Descriptions"
                     android:textAlignment="viewStart"

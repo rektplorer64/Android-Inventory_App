@@ -2,6 +2,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipChildren="false"
@@ -34,10 +35,13 @@
             app:msv_viewState="loading">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/imageRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/reviewOptionImageButton">
+	            android:id="@+id/imageRecyclerView"
+	            android:layout_width="match_parent"
+	            android:paddingStart="16dp"
+	            android:clipToPadding="false"
+	            android:layout_height="wrap_content"
+	            android:layout_below="@id/reviewOptionImageButton"
+	            tools:ignore="RtlSymmetry">
             </androidx.recyclerview.widget.RecyclerView>
         </com.kennyc.view.MultiStateView>
 

@@ -1,25 +1,33 @@
 <resources>
 	<!-- Base application theme. -->
-	<style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+	<style name="AppTheme" parent="Theme.MaterialComponents.Light">
 		<!-- Customize your theme here. -->
 		<item name="colorPrimary">@color/colorPrimaryBlue</item>
 		<item name="colorPrimaryDark">@color/colorPrimaryBlue_dark</item>
 		<item name="colorAccent">@color/colorAccent</item>
+
+		<!--  It should be true otherwise action mode will not overlay toolbar -->
+		<item name="windowActionModeOverlay">true</item>
+		<!--  For Custom Action Mode Background Color/Drawable -->
+		<item name="actionModeBackground">@color/colorPrimaryBlue_dark</item>
 	</style>
 
 	<style name="AppTheme.NoActionBar" parent="AppTheme">
 		<item name="windowActionBar">false</item>
 		<item name="windowNoTitle">true</item>
-		<item name="android:windowTranslucentStatus">true</item>
-
-		<!--  It should be true otherwise action mode will not overlay toolbar -->
-		<item name="windowActionModeOverlay">true</item>
-
-		<!--  For Custom Action Mode Background Color/Drawable -->
-		<item name="actionModeBackground">@color/colorPrimaryBlue</item>
+		<item name="android:windowTranslucentStatus">false</item>
 	</style>
 
-	<style name="AppTheme.NoActionBar.Launcher" parent="AppTheme.NoActionBar">
+	<style name="AppTheme.NoActionBar.CustomActionModeOverlay" parent="AppTheme.NoActionBar">
+		<item name="actionModeStyle">@style/ExtendedHeightActionMode</item>
+	</style>
+
+	<style name="AppTheme.NoActionBar.TransparentStatusBar" parent="AppTheme.NoActionBar">
+		<item name="android:windowTranslucentStatus">true</item>
+		<item name="android:windowDrawsSystemBarBackgrounds">false</item>
+	</style>
+
+	<style name="AppTheme.NoActionBar.Launcher" parent="AppTheme.NoActionBar.TransparentStatusBar">
 		<item name="android:windowBackground">@drawable/ic_launcher_background</item>
 	</style>
 
@@ -27,7 +35,7 @@
 
 	<style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light"/>
 
-	<style name="Theme.AppCompat.Translucent" parent="@style/AppTheme.NoActionBar">
+	<style name="Theme.AppCompat.Translucent" parent="AppTheme.NoActionBar.TransparentStatusBar">
 		<item name="android:windowNoTitle">true</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 		<item name="android:windowBackground">@color/transparent_gray</item>
@@ -47,5 +55,11 @@
 		<item name="android:textSize">10sp</item>
 		<item name="android:textStyle">normal</item>
 		<item name="android:textColor">@android:color/white</item>
+	</style>
+
+	<style name="ExtendedHeightActionMode" parent="Widget.AppCompat.ActionMode">
+		<item name="android:minHeight">82dp</item>
+		<item name="android:paddingTop">20dp</item>
+		<item name="height">82dp</item>
 	</style>
 </resources>
