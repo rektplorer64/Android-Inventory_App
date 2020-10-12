@@ -1,6 +1,4 @@
-<style type="text/css">
-    .overline {color:red; letter-spacing: 5px}
-</style>
+<style type="text/css">.overline {color:red; letter-spacing: 5px}</style>
 
 <div align="center">
 
