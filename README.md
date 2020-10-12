@@ -49,6 +49,33 @@ The application that I choose to build is a simple personal inventory manager.
 - [x] User Reviewing (Mimicked)
 - [ ] ~~Online Data Synchronization~~ Out of the project scope during that time
 
+## 🛠 Implementation
+
+**DISCLAIMER**: This app has no clean architecture whatsoever because IT IS MY FIRST APP. Plus, during that time, there were literally no design guideline recommended by Google available.
+
+1. **AsyncTask** - for item search and sorting in the background thread
+2. **Material Design Component** - Most of the UI elements are based on Google's Material Design.
+3. **RecyclerView** 
+    - There are multiple types of RecyclerViewAdapter that are implemented.
+    - To change the list item layout at runtime (e.g. Full-height card to small card), there are nasty method calls that force the layout to be redrawn that could lead to performance impacts.
+    - During the time of development, multi-selection in RecyclerView needed to be implemented manually. Therefore, there might be some glitches.
+4. **Fragment** - They allow some layouts to be reused from time-to-time. For example, the item detail modal (pop-up) when clicking an item in a search result.
+    - It is used to implement Circular revealing User Interface.
+    - It allows me to create a dual-pane User Interface layout for the tablet form-factor because I do not have to have redundant part of source code for different layouts.
+    - Manual Fragment Transaction is used heavily in this project because there were not any abstraction provided by the framework.
+5. **Preference** - For the search and filter page, the search and filter settings that user has adjusted are automatically saved and restored for the user.
+6. **Room Database** - Basically, SQLite used internally in an Android application to store data persistently on disk. 
+    - I actually designed a simple relational model for this app too.
+    - The database is lazily initialized when the app runs for the first time. Data will be randomly generated at first launch.
+    
+## 🎓 What I learned from this project
+1. I should have **thought carefully** regarding how to organize each piece of code.
+2. **Abstraction and Encapsulation** is important because it reduces clutters and duplicate code significantly.
+3. Always perform CPU intensive task in the **background thread**.
+4. You should always be **careful when dealing with multi-threads**. Sometimes it leads to weird bugs that sometimes magically disappear and appear back-and-forth.
+5. **Java is not as hard** as I thought it would be.
+6. **Room Database** is a way better than good ol' Database Cursor.
+
 ## 🖼 Screenshots
 There are two panes that uses the screen real-estate efficiently. 
 ![There are two panes that uses the screen real-estate efficiently.](/previews/images/1.png)
@@ -74,23 +101,4 @@ There are also another page for Search and Filter! You can also change the layou
 ![Screen Rotation](/previews/videos/5-screen_rotation.gif)
 ![Searching UI](/previews/videos/6-search.gif)
 
-
-## Implementation
-
-DISCLAIMER: This app has no clean architecture whatsoever because IT IS MY FIRST APP. Plus, during that time, there were literally no design guideline recommended by Google available.
-
-1. AsyncTask - for item search and sorting in the background thread
-2. Material Design Component - Most of the UI elements are based on Google's Material Design.
-3. RecyclerView 
-    - There are multiple types of RecyclerViewAdapter that are implemented.
-    - To change the list item layout at runtime (e.g. Full-height card to small card), there are nasty method calls that force the layout to be redrawn that could lead to performance impacts.
-    - During the time of development, multi-selection in RecyclerView needed to be implemented manually. Therefore, there might be some glitches.
-4. Fragment - They allow some layouts to be reused from time-to-time. For example, the item detail modal (pop-up) when clicking an item in a search result.
-    - It is used to implement Circular revealing User Interface.
-    - It allows me to create a dual-pane User Interface layout for the tablet form-factor because I do not have to have redundant part of source code for different layouts.
-    - Manual Fragment Transaction is used heavily in this project because there were not any abstraction provided by the framework.
-5. Preference - For the search and filter page, the search and filter settings that user has adjusted are automatically saved and restored for the user.
-6. Room Database - Basically, SQLite used internally in an Android application to store data persistently on disk. 
-    - I actually designed a simple relational model for this app too.
-    - The database is lazily initialized when the app runs for the first time. Data will be randomly generated at first launch.
  
