@@ -42,6 +42,10 @@ The item list can be changed in terms of the appearance, and the number of colum
 ![Small List view](/previews/images/3.png)
 ![Full image height List view](/previews/images/4.png)
 
+| | | |
+|:-------------------------:|:-------------------------:|:-------------------------:|
+|<img width="1604" alt="Compact List view" src="/previews/images/2.png">  blah |  <img width="1604" alt="Small List view" src="/previews/images/3.png">| <img width="1604" alt="Full image height List view" src="/previews/images/4.png">|
+
 This page also support vertical layout.
 ![Vertical List](/previews/images/5.png)
 
