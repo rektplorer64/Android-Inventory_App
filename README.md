@@ -1,11 +1,9 @@
 
-<style type="text/css">.overline{color:red; letter-spacing: 5px}</style>
-
 <div align="center">
 
 <img width="128" height="128" src="./app/src/main/res/mipmap-xxxhdpi/ic_launcher.png">
 
-<span class="overline">SIDE PROJECT</span>
+<span style="letter-spacing: 5px">SIDE PROJECT</span>
 
 # Generic Inventory App
 
