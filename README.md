@@ -33,16 +33,9 @@ The application that I choose to build is a simple personal inventory manager.
 - [x] User Reviewing (Mimicked)
 - [ ] ~~Online Data Synchronization~~ Out of the project scope during that time
 
-### Overall Layout
-![There are two panes that uses the screen real-estate efficiently.](/previews/images/1.png)
+## Screenshots
+- There are two panes that uses the screen real-estate efficiently. ![There are two panes that uses the screen real-estate efficiently.](/previews/images/1.png)
 
-### Responsive Layout
-
-### Animations
-
-### Data Persistence
-
-### Mock Data Generation
 
 ## Implementation
 
