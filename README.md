@@ -33,9 +33,23 @@ The application that I choose to build is a simple personal inventory manager.
 - [x] User Reviewing (Mimicked)
 - [ ] ~~Online Data Synchronization~~ Out of the project scope during that time
 
-## Screenshots
-- There are two panes that uses the screen real-estate efficiently. ![There are two panes that uses the screen real-estate efficiently.](/previews/images/1.png)
+## 🖼 Screenshots
+There are two panes that uses the screen real-estate efficiently. 
+![There are two panes that uses the screen real-estate efficiently.](/previews/images/1.png)
 
+The item list can be changed in terms of the appearance, and the number of columns.
+![Compact List view](/previews/images/2.png)
+![Small List view](/previews/images/3.png)
+![Full image height List view](/previews/images/4.png)
+
+This page also support vertical layout.
+![Vertical List](/previews/images/5.png)
+
+There are also another page for Search and Filter! You can also change the layout too. Just like the main list page!
+![Search page with 1 list column](/previews/images/6.png)
+![Search page with 2 list columns](/previews/images/6-1.png)
+
+## 📽 Demos
 
 ## Implementation
 
