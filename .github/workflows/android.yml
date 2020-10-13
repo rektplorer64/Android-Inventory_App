@@ -27,7 +27,7 @@ jobs:
       uses: ShaunLWM/action-release-debugapk@0.0.5
     
     env:
-       GITHUB_TOKEN: e413906001a4c1b7609472300ed3826a921bdf46
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        APP_FOLDER: app
        RELEASE_TITLE: New Build
 
