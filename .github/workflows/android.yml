@@ -27,7 +27,7 @@ jobs:
       uses: ShaunLWM/action-release-debugapk@0.0.5
     
     env:
-       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       GITHUB_TOKEN: ${{ secrets.GITHUB_ACTION_ANDROID_APK_RELEASE }}
        APP_FOLDER: app
        RELEASE_TITLE: New Build
 
