@@ -14,6 +14,8 @@
 <p>A simple Android application that help you remember your belongings!</p>
 </div>
 
+![Project Hero Image](/previews/pj_hero_img.png)
+
 ## 🚩 Motivations
 After finishing the first year of study at Mahidol University, the Faculty of ICT, I was equipped with knowledge and 
 skills in Java programming language and desire to put Android knowledge from self-study (via Udacity) to a better use. 
